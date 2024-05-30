@@ -1,6 +1,6 @@
 library(tidyverse)
 
-setwd("C:/Users/baile/Desktop/asi/random cps testing")
+setwd("C:/Users/baile/Desktop/asi/turnout")
 
 age <- read_csv("age.csv") # https://data.census.gov/table/ACSST5Y2020.S0101?q=age%20by%20state&moe=false&tp=true
 race <- read_csv("race.csv") # https://data.census.gov/table/DECENNIALCD1182020.P9?q=race%20by%20state&tp=false
