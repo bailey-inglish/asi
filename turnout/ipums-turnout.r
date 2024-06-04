@@ -4,14 +4,14 @@ library(forcats)
 
 setwd("C:/Users/baile/Desktop/asi/turnout")
 
+fips_conv <- read_csv("fips_name_abbr.csv")
+
 ddi <- read_ipums_ddi("cps_00001.xml")
 data <- read_ipums_micro(ddi)
 
 head(data)
 
 pums <- filter(data, !is.na(VOTED))
-
-fips_conv <- read_csv("fips_name_abbr.csv")
 
 pums_easy <- filter(pums, (VOTED == 1 | VOTED == 2)) %>%
   select(WTFINL, STATEFIP, AGE, HISPAN, VOTED) %>%
@@ -32,12 +32,13 @@ turnout_hisp <- filter(pums_easy, HISPAN == TRUE) %>%
   summarize(turnout = sum(VOTED * WTFINL) / sum(WTFINL)) %>%
   arrange(desc(turnout))
 
-turnout_hisp$state <- fips_conv$name[turnout_hisp$STATEFIP == fips_conv$fips]
+print(turnout_hisp, n = 51) # TX is 21st place
+print(turnout_young, n = 51) # TX is 40th place
 
 ggplot(turnout_young) +
   geom_col(
     aes(
-      x = fct_reorder(, turnout),
+      x = STATEFIP,
       y = turnout
     )
   )
