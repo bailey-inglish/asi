@@ -8,9 +8,9 @@ setwd("C:/Users/baile/Desktop/asi/turnout 2.0")
 options(tibble.width = Inf)
 
 # Load data
-fips_conv <- read_csv("fips_name_abbr.csv")
-pums <- read_ipums_ddi("cps_00005.xml") %>% read_ipums_micro()
-turnout_actual <- read_csv("turnout_expanded.csv")
+fips_conv <- read_csv("fips_name_abbr.csv") # https://census.gov
+pums <- read_ipums_ddi("cps_00005.xml") %>% read_ipums_micro() # https://cps.ipums.org/cps-action/data_requests/download
+turnout_actual <- read_csv("turnout_expanded.csv") # https://docs.google.com/spreadsheets/d/1h_2pR1pq8s_I5buZ5agXS9q1vLziECztN2uWeR6Czo0/edit
 
 # Clean data
 pums_clean <- filter(pums, VOTED != 99) %>%
