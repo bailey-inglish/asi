@@ -62,6 +62,39 @@ turnout_hisp <- filter(pums_clean, HISPAN == TRUE) %>%
 # Join overall data to compare with actual for validity testing
 comp <- left_join(turnout_actual, turnout_ovr, by = c("state" = "STATE"))
 
+# Error adjustment (proposed)
+turnout_young <- left_join(
+  turnout_young,
+  mutate(
+    comp,
+    state = state,
+    error = comp$elig_turnout - comp$turnout_est,
+    .keep = "none"
+  ),
+  by = c("STATE" = "state")
+) %>%
+  mutate(
+    turnout_adj = turnout_est + error
+  ) %>%
+  select(-error)
+
+turnout_hisp <- left_join(
+  turnout_hisp,
+  mutate(
+    comp,
+    state = state,
+    error = comp$elig_turnout - comp$turnout_est,
+    .keep = "none"
+  ),
+  by = c("STATE" = "state")
+) %>%
+  mutate(
+    turnout_adj = turnout_est + error
+  ) %>%
+  select(-error)
+
+############################### PLOTS ##################################
+
 # VAP error - mean 8% under
 mean((comp$voting_age_pop - comp$vap) / comp$voting_age_pop)
 ggplot(comp) +
@@ -182,9 +215,18 @@ range(turnout_young$turnout_est)
 ggplot(turnout_young) +
   geom_col(
     aes(
-      x = fct_reorder(STATE, turnout_est),
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_adj * 100
+    ),
+    alpha = 0.4
+  ) +
+  geom_point(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
       y = turnout_est * 100
-    )
+    ),
+    col = "black",
+    pch = 20
   ) +
   theme(
     axis.text.x = element_text(
@@ -205,9 +247,18 @@ range(turnout_hisp$turnout_est)
 ggplot(turnout_hisp) +
   geom_col(
     aes(
-      x = fct_reorder(STATE, turnout_est),
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_adj * 100
+    ),
+    alpha = 0.4
+  ) +
+  geom_point(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
       y = turnout_est * 100
-    )
+    ),
+    col = "black",
+    pch = 20
   ) +
   theme(
     axis.text.x = element_text(
