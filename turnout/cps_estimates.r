@@ -4,7 +4,7 @@ library(ipumsr)
 library(forcats)
 
 # Options
-setwd("C:/Users/baile/Desktop/asi/turnout 2.0")
+setwd("C:/Users/baile/Desktop/asi/turnout")
 options(tibble.width = Inf)
 
 # Load data
