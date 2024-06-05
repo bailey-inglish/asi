@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="ipums-ddi-xslt.xsl"?>
-<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00004.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
+<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00005.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
   <docDscr>
     <citation>
       <titlStmt>
         <titl>Codebook for an IPUMS CPS Data Extract</titl>
-        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00004.dat'</subTitl>
-        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00004.dat-cps.ipums.org</IDNo>
+        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00005.dat'</subTitl>
+        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00005.dat-cps.ipums.org</IDNo>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
@@ -24,7 +24,7 @@
   <stdyDscr>
     <citation>
       <titlStmt>
-        <titl>User Extract cps_00004.dat</titl>
+        <titl>User Extract cps_00005.dat</titl>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
@@ -86,12 +86,12 @@ The licensing agreement for use of IPUMS CPS data requires that users supply us 
         <disclaimer>The user of the data acknowledges that the original collector of the data, the authorized distributor of the data, and the relevant funding agency bear no responsibility for use of the data or for interpretations or inferences based upon such uses.</disclaimer>
       </useStmt>
     </dataAccs>
-    <notes><![CDATA[User-provided description:  hopefully final pums for now]]></notes>
-    <notes>This extract is a revision of the user's previous extract, ID 16030411.</notes>
+    <notes><![CDATA[User-provided description:  Now with citizenship!]]></notes>
+    <notes>This extract is a revision of the user's previous extract, ID 16030557.</notes>
   </stdyDscr>
   <fileDscr ID="ExtractData">
     <fileTxt>
-      <fileName>cps_00004.dat</fileName>
+      <fileName>cps_00005.dat</fileName>
       <fileCont>Microdata records</fileCont>
       <fileStrc type="rectangular"/>
       <fileType charset="ISO-8859-1">ISO-8859-1 data file</fileType>
@@ -964,8 +964,39 @@ Users should take care when including the March Basic or ASEC as part of their l
   <concept vocab="IPUMS">Demographics Variables -- PERSON</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
+<var ID="CITIZEN" dcml="0" files="ExtractData" intrvl="discrete" name="CITIZEN">
+  <location EndPos="85" StartPos="85" width="1"/>
+  <labl>Citizenship status</labl>
+  <txt><![CDATA[CITIZEN reports the citizenship status of foreign-born persons.  In IPUMS-CPS, people born in the U.S., Puerto Rico, or U.S. outlying areas were excluded from the question universe.  Respondents were identified as belonging to one of three groups: citizens by virtue of being born abroad to American parents; naturalized citizens; and non-citizens.]]></txt>
+  <catgry>
+    <catValu>1</catValu>
+    <labl>Born in U.S</labl>
+  </catgry>
+  <catgry>
+    <catValu>2</catValu>
+    <labl>Born in U.S. outlying</labl>
+  </catgry>
+  <catgry>
+    <catValu>3</catValu>
+    <labl>Born abroad of American parents</labl>
+  </catgry>
+  <catgry>
+    <catValu>4</catValu>
+    <labl>Naturalized citizen</labl>
+  </catgry>
+  <catgry>
+    <catValu>5</catValu>
+    <labl>Not a citizen</labl>
+  </catgry>
+  <catgry>
+    <catValu>9</catValu>
+    <labl>NIU</labl>
+  </catgry>
+  <concept vocab="IPUMS">Ethnicity/Nativity Variables -- PERSON</concept>
+  <varFormat schema="other" type="numeric"/>
+</var>
 <var ID="HISPAN" dcml="0" files="ExtractData" intrvl="discrete" name="HISPAN">
-  <location EndPos="87" StartPos="85" width="3"/>
+  <location EndPos="88" StartPos="86" width="3"/>
   <labl>Hispanic origin</labl>
   <txt><![CDATA[HISPAN identifies and classifies persons of Hispanic/Spanish/Latino origin.  Origin is ancestry, lineage, heritage, national group, or country of birth.   
 
@@ -1046,7 +1077,7 @@ In 2003 and later years, respondents were asked, "Are you Spanish, Hispanic, or 
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOTED" dcml="0" files="ExtractData" intrvl="discrete" name="VOTED">
-  <location EndPos="89" StartPos="88" width="2"/>
+  <location EndPos="90" StartPos="89" width="2"/>
   <labl>Voted for the most recent November election</labl>
   <txt><![CDATA[VOTED identifies whether the person voted during the most recent November election. 
 
