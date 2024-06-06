@@ -1,3 +1,5 @@
+############################### SETUP ##################################
+
 # Libraries
 library(tidyverse)
 library(ipumsr)
@@ -12,6 +14,8 @@ fips_conv <- read_csv("fips_name_abbr.csv") # https://census.gov
 pums <- read_ipums_ddi("cps_00005.xml") %>% read_ipums_micro() # https://cps.ipums.org/cps-action/data_requests/download
 turnout_actual <- read_csv("turnout_expanded.csv") # https://docs.google.com/spreadsheets/d/1h_2pR1pq8s_I5buZ5agXS9q1vLziECztN2uWeR6Czo0/edit
 
+############################ CALCULATIONS ##############################
+
 # Clean data
 pums_clean <- filter(pums, VOTED != 99) %>%
   left_join(
@@ -21,10 +25,9 @@ pums_clean <- filter(pums, VOTED != 99) %>%
   mutate(
     VOTED = as.logical(VOTED == 2),
     HISPAN = as.logical(HISPAN != 0),
-    STATE = name,
-    CITIZEN = (CITIZEN != 5 & CITIZEN != 9) # technically redundant but still included for repro
+    STATE = name
   ) %>%
-  select(WTFINL, STATE, CITIZEN, AGE, HISPAN, VOTED)
+  select(WTFINL, STATE, AGE, HISPAN, VOTED)
 
 # Compute summary leaderboards
 turnout_ovr <- group_by(pums_clean, STATE) %>%
@@ -39,7 +42,8 @@ turnout_ovr <- group_by(pums_clean, STATE) %>%
   mutate(
     vep = vap - felon,
     turnout_est = votes / vep
-  )
+  ) %>%
+  arrange(desc(turnout_est))
 
 turnout_young <- filter(pums_clean, AGE >= 18 & AGE <= 24) %>%
   group_by(STATE) %>%
@@ -118,13 +122,13 @@ ggplot(comp) +
     y = "(Actual - calculated) as percent of actual (%)"
   )
 
-# VEP error - mean 9%
-mean((comp$voting_age_pop - comp$vep) / comp$voting_age_pop)
+# VEP error - mean 2%
+mean((comp$elig_pop - comp$vep) / comp$elig_pop)
 ggplot(comp) +
   geom_col(
     aes(
       x = state,
-      y = 100 * (voting_age_pop - vep) / voting_age_pop
+      y = 100 * (comp$elig_pop - vep) / comp$elig_pop
     )
   ) +
   theme(
@@ -164,7 +168,7 @@ ggplot(comp) +
     y = "(Actual - calculated) as percent of actual (%)"
   )
 
-# Raw turnout - range: 55% (OK) to 84% (DC)
+# Raw turnout - range: 55% (AR) to 84% (DC)
 range(turnout_ovr$turnout_est)
 ggplot(turnout_ovr) +
   geom_col(
@@ -239,7 +243,8 @@ ggplot(turnout_young) +
     title = "Calculated Estimate of Voter Turnout",
     subtitle = "For Voters Aged 18-24 the November 2020 Election",
     x = "State",
-    y = "Voter turnout (%)"
+    y = "Voter turnout (%)",
+    caption = "• = Raw subgroup turnout\n▨ = Subgroup turnout adjusted for overall statewide error"
   )
 
 # Hispanic turnout - range: 30% (OK) - 81% (DC)
@@ -268,8 +273,9 @@ ggplot(turnout_hisp) +
     )
   )  +
   labs(
-    title = "Calculated Estimate of Voter Turnout",
+    title = "Adjusted Estimate of Voter Turnout",
     subtitle = "For Hispanic/Latino Voters the November 2020 Election",
     x = "State",
-    y = "Voter turnout (%)"
+    y = "Voter turnout (%)",
+    caption = "• = Raw subgroup turnout\n▨ = Subgroup turnout adjusted for overall statewide error"
   )

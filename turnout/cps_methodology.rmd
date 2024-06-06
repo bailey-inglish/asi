@@ -1,0 +1,386 @@
+---
+title: "Using the CPS as a Measure of Voter Turnout"
+subtitle: "Preliminary Report on Methodology"
+author: "Bailey Inglish"
+date: "June 06, 2024"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include = FALSE}
+# Knitr setup
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+opts_chunk$set(tidy.opts = list(width.cutoff = 40))
+
+# Libraries
+library(tidyverse)
+library(ipumsr)
+library(forcats)
+library(kableExtra)
+```
+
+A number of concerns have been raised about the use of the Current Population Survey (CPS) Voting & Registration Supplement as a source for data about voter turnout. The Census Bureau conducts the survey on behalf of the Bureau of Labor Statistics on a monthly basis with about 60,000 households and collects the V&R Supplement every even-numbered year in November. One of the most notable benefits of using CPS data is the ability to disaggregate by demographic characteristics such as age, race, ethnicity, geography, etc. However, an increasing non-response rate and discrepancies in voting-age population (VAP) compared to other Census products threaten to limit the validity and utility of these data. In addition, it appears that the turnout data may have been statistically normed to align with the results of the election at the national level, but not at the state level or in other subgroups. Some methods of adjusting for CPS over/undercounts have been discussed, although, given that the survey is one of the fews sources of disaggregatable data about voter turnout, it is difficult to adjust for error beyond the national level.
+
+This report seeks to explore potential discrepancies in CPS data and evaluate its suitability for research at the Annette Strauss Institute for Civic Life. Additionally, it presents preliminary analyses of 2020 data for review and discussion.
+
+## Methodology & Data Wrangling
+Four libraries and three datasets are used in this report. The `tidyverse`, `ipumsr`, `forcats`, and `kableExtra` libraries are used for managing and visualizing the data. The datasets are read in below:
+
+```{r}
+fips_conv <- read_csv("fips_name_abbr.csv")
+pums <- read_ipums_ddi("cps_00005.xml") %>% read_ipums_micro() # https://cps.ipums.org/cps-action/data_requests/download
+turnout_actual <- read_csv("turnout_expanded.csv") # https://docs.google.com/spreadsheets/d/1h_2pR1pq8s_I5buZ5agXS9q1vLziECztN2uWeR6Czo0/edit
+```
+
+ - `fips_conv` is a crosswalk used to convert Federal Information Processing Standards (FIPS) codes into state names ([Source: Census Bureau](https://www.census.gov/library/reference/code-lists/ansi.html))
+ - `pums` is a Public Use Microdata Sample (PUMS) that is statistically representative of the results of the November 2020 CPS V&R Supplement as well as selected demographic characteristics of the population ([Source: IPUMS](http://cps.ipums.org/))
+ - `turnout_actual` is the results of the November 2020 Election, as well as state-level data about voter eligibility ([Source: U.S. Elections Project](https://www.electproject.org/election-data/voter-turnout-data))
+
+Certain operations were performed on the data to support data analysis. Below, for the PUMS data, observations marked as Not In Universe are removed, FIPS codes are converted to state names, the VOTED and HISPAN variables are converted to logical bools (i.e. True or False), and the final variables for the data are selected:
+
+```{r}
+pums_clean <- filter(pums, VOTED != 99) %>%
+  left_join(
+    fips_conv,
+    by = c("STATEFIP" = "fips")
+  ) %>%
+  mutate(
+    VOTED = as.logical(VOTED == 2),
+    HISPAN = as.logical(HISPAN != 0),
+    STATE = name
+  ) %>%
+  select(WTFINL, STATE, AGE, HISPAN, VOTED)
+```
+
+ - `WTFNL` is the weighting for a given entry calculated by the Census Bureau to make the data statisically accurate
+ - `STATE` is the name of the state of residence of a given entry
+ - `AGE` is the numerical age of an entry
+ - `HISPAN` is whether or not a given entry is identified as Hispanic or Latino of any background
+ - `VOTED` is whether or not the given entry voted in the previous election
+
+In the interest of this report are the overall turnout rates of different states, as well as testing the validity of disaggregating by age and ethnicity, which historically have predicted subgroup voter turnout. For each statewide summary, the voting-age population (VAP) and total number of votes reported are calculated. Then, the number of felons ineligible to vote for each state is attached to the summary. From this, the voting-eligible population (VEP) is calculated as VAP - felons. Note that the CPS V&R Supplement is only asked to U.S. Citizens who are at least 18 years old, so citizenship can be safely assumed. The turnout for each state is next calculated as votes reported / VEP. Each summary is then arranged in order of estimated turnout, from highest to lowest.
+
+```{r}
+turnout_ovr <- group_by(pums_clean, STATE) %>%
+  summarize(
+    vap = sum(WTFINL),
+    votes = sum(VOTED * WTFINL)
+  ) %>%
+  left_join(
+    select(turnout_actual, state, felon),
+    by = c("STATE" = "state")
+  ) %>%
+  mutate(
+    vep = vap - felon,
+    turnout_est = votes / vep
+  ) %>%
+  arrange(desc(turnout_est))
+
+turnout_young <- filter(pums_clean, AGE >= 18 & AGE <= 24) %>%
+  group_by(STATE) %>%
+  summarize(
+    turnout_est = sum(VOTED * WTFINL) / sum(WTFINL),
+    pop = sum(WTFINL),
+    votes = sum(VOTED * WTFINL)
+  ) %>%
+  arrange(desc(turnout_est))
+
+turnout_hisp <- filter(pums_clean, HISPAN == TRUE) %>%
+  group_by(STATE) %>%
+  summarize(
+    turnout_est = sum(VOTED * WTFINL) / sum(WTFINL),
+    pop = sum(WTFINL),
+    votes = sum(VOTED * WTFINL)
+  ) %>%
+  arrange(desc(turnout_est))
+```
+
+And in order to compare the CPS data with the actual results of the election, we join the two datasets together.
+
+```{r}
+comp <- left_join(turnout_actual, turnout_ovr, by = c("state" = "STATE"))
+```
+
+Given the fact that there is often a sizable difference between the turnout rates suggested by CPS surveying and the election itself, we can attempt a rudimentary form of error correction on the young and Hispanic/Latino voter data by adding the arithmetic difference between what was calculated as the overall turnout and the actual turnout.
+
+```{r}
+turnout_young <- left_join(
+  turnout_young,
+  mutate(
+    comp,
+    state = state,
+    error = comp$elig_turnout - comp$turnout_est,
+    .keep = "none"
+  ),
+  by = c("STATE" = "state")
+) %>%
+  mutate(
+    turnout_adj = turnout_est + error
+  ) %>%
+  select(-error)
+
+turnout_hisp <- left_join(
+  turnout_hisp,
+  mutate(
+    comp,
+    state = state,
+    error = comp$elig_turnout - comp$turnout_est,
+    .keep = "none"
+  ),
+  by = c("STATE" = "state")
+) %>%
+  mutate(
+    turnout_adj = turnout_est + error
+  ) %>%
+  select(-error)
+```
+
+## Visualizations & Analyses
+
+### Voting age population error
+
+```{r}
+ggplot(comp) +
+  geom_col(
+    aes(
+      x = state,
+      y = 100 * (voting_age_pop - vap) / voting_age_pop
+    )
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Error in voting age population",
+    subtitle = "For the November 2020 election",
+    x = "State",
+    y = "(Actual - calculated) as percent of actual (%)"
+  )
+```
+
+First we consider how the differences between what the CPS says is the actual population of each state and the VAP used by the USEP. On average, the CPS data is a `r round(mean((comp$voting_age_pop - comp$vap) / comp$voting_age_pop) * 100, 2)`% underestimate.  The consistent underestimate in CPS data may reflect methodological issues or just a different method of calculating VAP used by the USEP. It may be prudent to use American Community Survey (ACS) data if possible to add an additional layer of robustness to the baseline population data. A potential difficulty lies in crosswalking ACS PUMS data with CPS PUMS data.
+
+### Voting eligible population error
+
+```{r}
+ggplot(comp) +
+  geom_col(
+    aes(
+      x = state,
+      y = 100 * (comp$elig_pop - vep) / comp$elig_pop
+    )
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Error in voting eligible population",
+    subtitle = "For the November 2020 election",
+    x = "State",
+    y = "(Actual - calculated) as percent of actual (%)"
+  )
+```
+
+When the VEP is calculated, however, the mean error is much lower at a `r round(mean((comp$elig_pop - comp$vep) / comp$elig_pop) * 100, 2)`% underestimate. This may be a result of CPS data only being asked to citizens, whereas the USEP data factors that into VEP later.
+
+### Ballot error
+
+```{r}
+ggplot(comp) +
+  geom_col(
+    aes(
+      x = fct_reorder(state, (ballots - votes) / ballots),
+      y = 100 * (ballots - votes) / ballots
+    )
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Error in ballot vs. 'I voted' count",
+    subtitle = "For the November 2020 election",
+    x = "State",
+    y = "(Actual - calculated) as percent of actual (%)"
+  )
+```
+
+The difference between the number of ballots cast and people who say they vote varies from a massive overestimate in DC to a large underestimate in CO. However, it is very important to note that the average error is almost exactly `r round(mean((comp$ballots / comp$votes) / comp$ballots), 5)`. This suggests that the CPS data may have been normed to the national number of ballots cast. It also presents an opportunity for the basic adjustments performed at the end of the previous section.
+
+### Estimated turnout by state
+
+```{r}
+ggplot(turnout_ovr) +
+  geom_col(
+    aes(
+      x = fct_reorder(STATE, turnout_est),
+      y = turnout_est * 100
+    )
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  )  +
+  labs(
+    title = "Calculated Estimate of Voter Turnout",
+    subtitle = "For the November 2020 election",
+    x = "State",
+    y = "Voter turnout (%)"
+  )
+```
+
+Without any adjustments, this is the turnout rate for each state calculated from the CPS V&R supplement. It ranges from about 55% in Arkansas to approximately 84% in DC. However, it is not entirely accurate as the next visual shows.
+
+### Turnout error
+
+```{r}
+ggplot(comp) +
+  geom_col(
+    aes(
+      x = fct_reorder(state, elig_turnout - turnout_est),
+      y = 100 * (elig_turnout - turnout_est)
+    )
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  ) +
+  labs(
+    title = "Error in actual vs. CPS-expected turnout",
+    subtitle = "For the November 2020 Election",
+    x = "State",
+    y = "Actual - calculated (% pts)"
+  )
+```
+
+This largely mirrors the graph of ballot error from earlier. Once more, it also averages out to almost exactly zero. Note that most states are within about 10 percentage points of the actual value, except for a couple outliers.
+
+### Young voter turnout (w/ adjustments)
+
+```{r}
+ggplot(turnout_young) +
+  geom_col(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_adj * 100
+    ),
+    alpha = 0.4
+  ) +
+  geom_point(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_est * 100
+    ),
+    col = "black",
+    pch = 20
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  )  +
+  labs(
+    title = "Calculated Estimate of Voter Turnout",
+    subtitle = "For Voters Aged 18-24 the November 2020 Election",
+    x = "State",
+    y = "Voter turnout (%)",
+    caption = "• = Raw subgroup turnout\n▨ = Subgroup turnout adjusted for overall statewide error"
+  )
+```
+
+Texas does not perform well according to this metric, ranking 46th after adjustment (43rd raw). Voters aged 18-24 at the state-level consistently turn out at levels lower than the overall population ranging from about 31% raw/26% adj in OK to 83% in DC (raw) or 70% in MN (adj).
+
+### Hispanic voter turnout (w/ adjustments)
+
+```{r}
+ggplot(turnout_hisp) +
+  geom_col(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_adj * 100
+    ),
+    alpha = 0.4
+  ) +
+  geom_point(
+    aes(
+      x = fct_reorder(STATE, turnout_adj),
+      y = turnout_est * 100
+    ),
+    col = "black",
+    pch = 20
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )
+  )  +
+  labs(
+    title = "Adjusted Estimate of Voter Turnout",
+    subtitle = "For Hispanic/Latino Voters the November 2020 Election",
+    x = "State",
+    y = "Voter turnout (%)",
+    caption = "• = Raw subgroup turnout\n▨ = Subgroup turnout adjusted for overall statewide error"
+  )
+```
+
+Texas does slightly better on Hispanic turnout at 36th place after adjustment (25th raw). After adjustment, Montana leads with an approximate 71% turnout rate, while Oklahoma comes in last once more with a 26% rate. Before adjustment, DC takes first with a raw turnout rate of 81%, and Oklahoma is at the bottom for raw turnout rates as well at 30%.
+
+## Concluding remarks
+
+After spending the last few days refining the methods used to wrangle and analyze the CPS data, I feel increasing confident in its utility while still holding a few reservations about its inherent validity. It is important to note that, in line with CPS practice (but not many other institutions), voters who did not respond to the supplement or refused to answer the question are assumed as not voting. Calculating the turnout out of just yes/no responses to the voting question makes the entire survey become a massive overestimate.
+
+All things considered, although more complex techniques like Bayesian Improved Surname Geocoding show significant promise in providing additional strong sources of disaggregatable data about voter turnout, it still seems like the CPS data is the best option available and may be possible to adjust to yield more precise results.
+
+## References
+
+Census Bureau. "CURRENT POPULATION SURVEY, November 2020 Voting and Registration Supplement TECHNICAL DOCUMENTATION." https://www2.census.gov/programs-surveys/cps/techdocs/cpsnov20.pdf. Accessed 6 June 2024.
+
+Sarah Flood, Miriam King, Renae Rodgers, Steven Ruggles, J. Robert Warren, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Megan Schouweiler, and Michael Westberry. IPUMS CPS: Version 11.0 [dataset]. Minneapolis, MN: IPUMS, 2023. https://doi.org/10.18128/D030.V11.0
+
+Hur, Aram, and Christopher H Achen. “Coding voter turnout responses in the current population survey.” *Public Opinion Quarterly*, vol. 77, no. 4, winter 2013, pp. 985–993, https://doi.org/10.1093/poq/nft042. 
+
+McDonald, Michael P. 2020. "Voting Statistics" United States Elections Project. https://docs.google.com/spreadsheets/d/1h_2pR1pq8s_I5buZ5agXS9q1vLziECztN2uWeR6Czo0/view. Accessed 6 June 2024.
+
+## Appendix: Tables of Turnout Estimates
+
+### Overall turnout by state
+
+```{r}
+kable_styling(kbl(turnout_ovr))
+```
+
+### Young voter turnout by state (w/ adjustments)
+
+```{r}
+kable_styling(kbl(turnout_young))
+```
+
+### Hispanic/Latino voter turnout by state (w/ adjustments)
+
+```{r}
+kable_styling(kbl(turnout_hisp))
+```
