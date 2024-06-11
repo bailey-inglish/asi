@@ -6,7 +6,7 @@ setwd("C:/Users/baile/Desktop/asi/sdr/prep")
 options(tibble.width = Inf)
 
 fips_conv <- read_csv("fips_name_abbr.csv") # https://census.gov
-pums <- read_ipums_ddi("cps_00006.xml") %>% read_ipums_micro() # https://cps.ipums.org/cps-action/data_requests/download
+pums <- read_ipums_ddi("cps_00007.xml") %>% read_ipums_micro() # https://cps.ipums.org/cps-action/data_requests/download
 turnout_actual <- read_csv("turnout_time_series_by_state.csv") # https://election.lab.ufl.edu/dataset/1980-2022-general-election-turnout-rates-v1-1/
 
 pums_summary <-
@@ -51,6 +51,7 @@ pums_comp <-
   mutate(
     vep_est = vap_est * (1 - mod_felon_rate),
     turnout_est = votes / vep_est,
+    reg_est = tot_reg / vep_est,
     young_vep_est = young_vap_est * (1 - mod_felon_rate),
     young_turnout_est = young_votes / young_vep_est,
     hisp_vep_est = hisp_vap_est * (1 - mod_felon_rate),
@@ -65,7 +66,8 @@ pums_adj <-
       YEAR,
       turnout_est,
       young_turnout_est,
-      hisp_turnout_est
+      hisp_turnout_est,
+      reg_est
     ),
     select(
       turnout_actual,
@@ -88,7 +90,7 @@ pums_tidy <-
     State = state,
     Overall = turnout,
     Young = young_turnout_adj,
-    Hispanic = hisp_turnout_adj,
+    Hispanic = hisp_turnout_adj
   ) %>%
   pivot_longer(
     c(Overall, Hispanic, Young),

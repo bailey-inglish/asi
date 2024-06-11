@@ -1,0 +1,10 @@
+name: sdr-explorer
+title:
+username: bailey-inglish
+account: bailey-inglish
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12165015
+bundleId: 8728597
+url: https://bailey-inglish.shinyapps.io/sdr-explorer/
+version: 1

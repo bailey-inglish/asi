@@ -1,4 +1,49 @@
 Year,State,Group,Turnout
+1980,Alabama,Overall,NA
+1980,Alabama,Hispanic,NA
+1980,Alabama,Young,NA
+1982,Alabama,Overall,NA
+1982,Alabama,Hispanic,NA
+1982,Alabama,Young,NA
+1984,Alabama,Overall,NA
+1984,Alabama,Hispanic,NA
+1984,Alabama,Young,NA
+1986,Alabama,Overall,NA
+1986,Alabama,Hispanic,NA
+1986,Alabama,Young,NA
+1988,Alabama,Overall,NA
+1988,Alabama,Hispanic,NA
+1988,Alabama,Young,NA
+1990,Alabama,Overall,NA
+1990,Alabama,Hispanic,NA
+1990,Alabama,Young,NA
+1992,Alabama,Overall,NA
+1992,Alabama,Hispanic,NA
+1992,Alabama,Young,NA
+1994,Alabama,Overall,NA
+1994,Alabama,Hispanic,NA
+1994,Alabama,Young,NA
+1996,Alabama,Overall,NA
+1996,Alabama,Hispanic,NA
+1996,Alabama,Young,NA
+1998,Alabama,Overall,NA
+1998,Alabama,Hispanic,NA
+1998,Alabama,Young,NA
+2000,Alabama,Overall,NA
+2000,Alabama,Hispanic,NA
+2000,Alabama,Young,NA
+2002,Alabama,Overall,NA
+2002,Alabama,Hispanic,NA
+2002,Alabama,Young,NA
+2004,Alabama,Overall,0.57
+2004,Alabama,Hispanic,0.17112038951215147
+2004,Alabama,Young,0.4040205672037219
+2006,Alabama,Overall,NA
+2006,Alabama,Hispanic,NA
+2006,Alabama,Young,NA
+2008,Alabama,Overall,0.61
+2008,Alabama,Hispanic,0.5520450257509776
+2008,Alabama,Young,0.5258972778139673
 2010,Alabama,Overall,0.43
 2010,Alabama,Hispanic,0.21519222847454694
 2010,Alabama,Young,0.16548271534528822
@@ -20,6 +65,51 @@ Year,State,Group,Turnout
 2022,Alabama,Overall,0.37
 2022,Alabama,Hispanic,0.2127196521776102
 2022,Alabama,Young,0.16338976051445112
+1980,Alaska,Overall,0.6
+1980,Alaska,Hispanic,0.5401071004504219
+1980,Alaska,Young,0.3559635212038554
+1982,Alaska,Overall,0.65
+1982,Alaska,Hispanic,0.43307770211715685
+1982,Alaska,Young,0.34404071601427155
+1984,Alaska,Overall,0.62
+1984,Alaska,Hispanic,0.6659947286162576
+1984,Alaska,Young,0.3491410512284711
+1986,Alaska,Overall,0.52
+1986,Alaska,Hispanic,0.3868899676158146
+1986,Alaska,Young,0.23795566942016638
+1988,Alaska,Overall,0.57
+1988,Alaska,Hispanic,0.4149184353033761
+1988,Alaska,Young,0.3467467781909986
+1990,Alaska,Overall,0.54
+1990,Alaska,Hispanic,0.49429906307714283
+1990,Alaska,Young,0.26873327676018904
+1992,Alaska,Overall,0.67
+1992,Alaska,Hispanic,0.5991767261322059
+1992,Alaska,Young,0.4602727177222561
+1994,Alaska,Overall,0.54
+1994,Alaska,Hispanic,0.5785251376225445
+1994,Alaska,Young,0.24717937252027303
+1996,Alaska,Overall,0.61
+1996,Alaska,Hispanic,0.44594851367249466
+1996,Alaska,Young,0.34625973077828337
+1998,Alaska,Overall,0.56
+1998,Alaska,Hispanic,0.38691140991719003
+1998,Alaska,Young,0.2523125341365981
+2000,Alaska,Overall,0.69
+2000,Alaska,Hispanic,0.4016541912596892
+2000,Alaska,Young,0.4509308517748876
+2002,Alaska,Overall,0.54
+2002,Alaska,Hispanic,0.4856603758713118
+2002,Alaska,Young,0.27513602709508067
+2004,Alaska,Overall,0.7
+2004,Alaska,Hispanic,0.5948112496989236
+2004,Alaska,Young,0.5617285910592427
+2006,Alaska,Overall,0.52
+2006,Alaska,Hispanic,0.47815070042663094
+2006,Alaska,Young,0.27308154622331804
+2008,Alaska,Overall,0.68
+2008,Alaska,Hispanic,0.6095035957048248
+2008,Alaska,Young,0.4790569911180707
 2010,Alaska,Overall,0.53
 2010,Alaska,Hispanic,0.3582424682132429
 2010,Alaska,Young,0.18530928167581343
@@ -41,6 +131,51 @@ Year,State,Group,Turnout
 2022,Alaska,Overall,0.5
 2022,Alaska,Hispanic,0.29638329127174434
 2022,Alaska,Young,0.24654238282258506
+1980,Arizona,Overall,0.48
+1980,Arizona,Hispanic,0.3533209790751985
+1980,Arizona,Young,0.3785929399993968
+1982,Arizona,Overall,0.37
+1982,Arizona,Hispanic,0.31405765481955056
+1982,Arizona,Young,0.15986431327792122
+1984,Arizona,Overall,0.49
+1984,Arizona,Hispanic,0.3321761530655914
+1984,Arizona,Young,0.28477714588146225
+1986,Arizona,Overall,0.38
+1986,Arizona,Hispanic,0.26359415596574787
+1986,Arizona,Young,0.23275869776105218
+1988,Arizona,Overall,0.49
+1988,Arizona,Hispanic,0.34501388957355916
+1988,Arizona,Young,0.327718122603329
+1990,Arizona,Overall,0.43
+1990,Arizona,Hispanic,0.27529010543486077
+1990,Arizona,Young,0.2479458627283053
+1992,Arizona,Overall,0.57
+1992,Arizona,Hispanic,0.40328610282634303
+1992,Arizona,Young,0.36501816145372834
+1994,Arizona,Overall,0.4
+1994,Arizona,Hispanic,0.2952840616650732
+1994,Arizona,Young,0.1684072054024962
+1996,Arizona,Overall,0.46
+1996,Arizona,Hispanic,0.35073813132248133
+1996,Arizona,Young,0.2913807744102015
+1998,Arizona,Overall,0.32
+1998,Arizona,Hispanic,0.2013787177692466
+1998,Arizona,Young,0.07257931674598135
+2000,Arizona,Overall,0.46
+2000,Arizona,Hispanic,0.33143368933656236
+2000,Arizona,Young,0.2217831204815521
+2002,Arizona,Overall,0.36
+2002,Arizona,Hispanic,0.24591736449564144
+2002,Arizona,Young,0.09327413495821767
+2004,Arizona,Overall,0.56
+2004,Arizona,Hispanic,0.4124239717718712
+2004,Arizona,Young,0.3699841092163989
+2006,Arizona,Overall,0.4
+2006,Arizona,Hispanic,0.31390198065380726
+2006,Arizona,Young,0.1508401752887751
+2008,Arizona,Overall,0.57
+2008,Arizona,Hispanic,0.3482029630922532
+2008,Arizona,Young,0.4109037534023974
 2010,Arizona,Overall,0.41
 2010,Arizona,Hispanic,0.3216669936376674
 2010,Arizona,Young,0.22710787736089522
@@ -62,6 +197,51 @@ Year,State,Group,Turnout
 2022,Arizona,Overall,0.49
 2022,Arizona,Hispanic,0.34941367392513073
 2022,Arizona,Young,0.23153475749348792
+1980,Arkansas,Overall,NA
+1980,Arkansas,Hispanic,NA
+1980,Arkansas,Young,NA
+1982,Arkansas,Overall,NA
+1982,Arkansas,Hispanic,NA
+1982,Arkansas,Young,NA
+1984,Arkansas,Overall,NA
+1984,Arkansas,Hispanic,NA
+1984,Arkansas,Young,NA
+1986,Arkansas,Overall,NA
+1986,Arkansas,Hispanic,NA
+1986,Arkansas,Young,NA
+1988,Arkansas,Overall,NA
+1988,Arkansas,Hispanic,NA
+1988,Arkansas,Young,NA
+1990,Arkansas,Overall,NA
+1990,Arkansas,Hispanic,NA
+1990,Arkansas,Young,NA
+1992,Arkansas,Overall,NA
+1992,Arkansas,Hispanic,NA
+1992,Arkansas,Young,NA
+1994,Arkansas,Overall,NA
+1994,Arkansas,Hispanic,NA
+1994,Arkansas,Young,NA
+1996,Arkansas,Overall,NA
+1996,Arkansas,Hispanic,NA
+1996,Arkansas,Young,NA
+1998,Arkansas,Overall,NA
+1998,Arkansas,Hispanic,NA
+1998,Arkansas,Young,NA
+2000,Arkansas,Overall,NA
+2000,Arkansas,Hispanic,NA
+2000,Arkansas,Young,NA
+2002,Arkansas,Overall,0.42
+2002,Arkansas,Hispanic,0.3342751563605928
+2002,Arkansas,Young,0.1279734383873571
+2004,Arkansas,Overall,0.54
+2004,Arkansas,Hispanic,0.24897870200658784
+2004,Arkansas,Young,0.3300331970597699
+2006,Arkansas,Overall,0.39
+2006,Arkansas,Hispanic,0.16363154676813535
+2006,Arkansas,Young,0.14198194622730997
+2008,Arkansas,Overall,0.53
+2008,Arkansas,Hispanic,0.16722279336405452
+2008,Arkansas,Young,0.30588010141634203
 2010,Arkansas,Overall,0.38
 2010,Arkansas,Hispanic,0.1918117785169447
 2010,Arkansas,Young,0.1418519938770388
@@ -83,6 +263,51 @@ Year,State,Group,Turnout
 2022,Arkansas,Overall,0.42
 2022,Arkansas,Hispanic,0.14075315918140024
 2022,Arkansas,Young,0.2345356961071958
+1980,California,Overall,0.56
+1980,California,Hispanic,0.3763311139645108
+1980,California,Young,0.355266345740904
+1982,California,Overall,0.5
+1982,California,Hispanic,0.3785283626136426
+1982,California,Young,0.2666473615772382
+1984,California,Overall,0.59
+1984,California,Hispanic,0.43740019835403676
+1984,California,Young,0.4139988569425039
+1986,California,Overall,0.44
+1986,California,Hispanic,0.3055616558095703
+1986,California,Young,0.2268338601628158
+1988,California,Overall,0.57
+1988,California,Hispanic,0.3366260737717512
+1988,California,Young,0.41424135859340155
+1990,California,Overall,0.44
+1990,California,Hispanic,0.3091570869036273
+1990,California,Young,0.2339740291498582
+1992,California,Overall,0.62
+1992,California,Hispanic,0.4272957832252109
+1992,California,Young,0.4126699674403823
+1994,California,Overall,0.48
+1994,California,Hispanic,0.38030094141192156
+1994,California,Young,0.28857433616825207
+1996,California,Overall,0.55
+1996,California,Hispanic,0.42163916960796016
+1996,California,Young,0.37781207865317123
+1998,California,Overall,0.45
+1998,California,Hispanic,0.37020080599120236
+1998,California,Young,0.22809828882295602
+2000,California,Overall,0.56
+2000,California,Hispanic,0.4152781797436894
+2000,California,Young,0.35600267085066284
+2002,California,Overall,0.38
+2002,California,Hispanic,0.2628499341117431
+2002,California,Young,0.1678148198994329
+2004,California,Overall,0.6
+2004,California,Hispanic,0.4552000568789493
+2004,California,Young,0.43531309032613824
+2006,California,Overall,0.42
+2006,California,Hispanic,0.324412189878111
+2006,California,Young,0.18630859287869922
+2008,California,Overall,0.62
+2008,California,Hispanic,0.5577859981978589
+2008,California,Young,0.4967412644833493
 2010,California,Overall,0.46
 2010,California,Hispanic,0.34551573625393067
 2010,California,Young,0.24555232451369838
@@ -104,6 +329,51 @@ Year,State,Group,Turnout
 2022,California,Overall,0.43
 2022,California,Hispanic,0.3518295785704757
 2022,California,Young,0.24544937406144868
+1980,Colorado,Overall,0.59
+1980,Colorado,Hispanic,0.34297426028054623
+1980,Colorado,Young,0.4196395090627835
+1982,Colorado,Overall,0.47
+1982,Colorado,Hispanic,0.36613592864000577
+1982,Colorado,Young,0.1934735560311082
+1984,Colorado,Overall,0.59
+1984,Colorado,Hispanic,0.4352226634839376
+1984,Colorado,Young,0.4001369033951327
+1986,Colorado,Overall,0.47
+1986,Colorado,Hispanic,0.3256580949742143
+1986,Colorado,Young,0.21673510911727245
+1988,Colorado,Overall,0.61
+1988,Colorado,Hispanic,0.4311333320206787
+1988,Colorado,Young,0.4729475281949864
+1990,Colorado,Overall,0.44
+1990,Colorado,Hispanic,0.2675652048229243
+1990,Colorado,Young,0.2341923066401731
+1992,Colorado,Overall,0.64
+1992,Colorado,Hispanic,0.585032746397269
+1992,Colorado,Young,0.4526151813230299
+1994,Colorado,Overall,0.44
+1994,Colorado,Hispanic,0.21987413132263872
+1994,Colorado,Young,0.16452250211481226
+1996,Colorado,Overall,NA
+1996,Colorado,Hispanic,NA
+1996,Colorado,Young,NA
+1998,Colorado,Overall,NA
+1998,Colorado,Hispanic,NA
+1998,Colorado,Young,NA
+2000,Colorado,Overall,NA
+2000,Colorado,Hispanic,NA
+2000,Colorado,Young,NA
+2002,Colorado,Overall,0.46
+2002,Colorado,Hispanic,0.28279256208181436
+2002,Colorado,Young,0.2206329900142501
+2004,Colorado,Overall,0.68
+2004,Colorado,Hispanic,0.4624662280511055
+2004,Colorado,Young,0.4975830236095137
+2006,Colorado,Overall,0.49
+2006,Colorado,Hispanic,0.36076051367483486
+2006,Colorado,Young,0.2148321717932208
+2008,Colorado,Overall,0.72
+2008,Colorado,Hispanic,0.5406283331152482
+2008,Colorado,Young,0.5354269946820177
 2010,Colorado,Overall,0.52
 2010,Colorado,Hispanic,0.3136528165275822
 2010,Colorado,Young,0.23576520608411147
@@ -125,6 +395,51 @@ Year,State,Group,Turnout
 2022,Colorado,Overall,0.58
 2022,Colorado,Hispanic,0.3978979566747212
 2022,Colorado,Young,0.3560219031512627
+1980,Connecticut,Overall,0.65
+1980,Connecticut,Hispanic,0.4916586446612484
+1980,Connecticut,Young,0.3970540712381896
+1982,Connecticut,Overall,0.49
+1982,Connecticut,Hispanic,0.29403122152943306
+1982,Connecticut,Young,0.20185246078050617
+1984,Connecticut,Overall,0.65
+1984,Connecticut,Hispanic,0.5308825387402111
+1984,Connecticut,Young,0.44418890864656946
+1986,Connecticut,Overall,0.44
+1986,Connecticut,Hispanic,0.3767355537109212
+1986,Connecticut,Young,0.18845255944452305
+1988,Connecticut,Overall,0.61
+1988,Connecticut,Hispanic,0.4643090170825261
+1988,Connecticut,Young,0.4824878594351978
+1990,Connecticut,Overall,0.49
+1990,Connecticut,Hispanic,0.1324827240313238
+1990,Connecticut,Young,0.1784397523742298
+1992,Connecticut,Overall,0.7
+1992,Connecticut,Hispanic,0.46268970229852535
+1992,Connecticut,Young,0.5716808194588984
+1994,Connecticut,Overall,0.5
+1994,Connecticut,Hispanic,0.32398201616354977
+1994,Connecticut,Young,0.14531084265772803
+1996,Connecticut,Overall,0.6
+1996,Connecticut,Hispanic,0.37643135290506685
+1996,Connecticut,Young,0.4792796094245083
+1998,Connecticut,Overall,0.44
+1998,Connecticut,Hispanic,0.2270083532551541
+1998,Connecticut,Young,0.14160822852619423
+2000,Connecticut,Overall,0.62
+2000,Connecticut,Hispanic,0.4163746057228101
+2000,Connecticut,Young,0.4415556471943791
+2002,Connecticut,Overall,0.45
+2002,Connecticut,Hispanic,0.23411796352384046
+2002,Connecticut,Young,0.19993066155613534
+2004,Connecticut,Overall,0.66
+2004,Connecticut,Hispanic,0.44870748608812483
+2004,Connecticut,Young,0.42889585857374507
+2006,Connecticut,Overall,0.47
+2006,Connecticut,Hispanic,0.24414915944088286
+2006,Connecticut,Young,0.1876622483450553
+2008,Connecticut,Overall,NA
+2008,Connecticut,Hispanic,NA
+2008,Connecticut,Young,NA
 2010,Connecticut,Overall,0.46
 2010,Connecticut,Hispanic,0.2639898612417343
 2010,Connecticut,Young,0.20341695987186717
@@ -146,6 +461,51 @@ Year,State,Group,Turnout
 2022,Connecticut,Overall,0.49
 2022,Connecticut,Hispanic,0.3472096633462179
 2022,Connecticut,Young,0.25103216904163506
+1980,Delaware,Overall,0.57
+1980,Delaware,Hispanic,0.4291219952435851
+1980,Delaware,Young,0.31428561330237226
+1982,Delaware,Overall,0.46
+1982,Delaware,Hispanic,0.2834279955582405
+1982,Delaware,Young,0.24099501287061995
+1984,Delaware,Overall,0.58
+1984,Delaware,Hispanic,0.5420600987637327
+1984,Delaware,Young,0.27366014278277256
+1986,Delaware,Overall,0.36
+1986,Delaware,Hispanic,0.09481822144743493
+1986,Delaware,Young,0.1705972891330424
+1988,Delaware,Overall,0.54
+1988,Delaware,Hispanic,0.34915591963380127
+1988,Delaware,Young,0.3599164892615549
+1990,Delaware,Overall,0.38
+1990,Delaware,Hispanic,0.2169990825695253
+1990,Delaware,Young,0.11387701248937114
+1992,Delaware,Overall,0.58
+1992,Delaware,Hispanic,0.3043188434834466
+1992,Delaware,Young,0.44873844926098316
+1994,Delaware,Overall,0.39
+1994,Delaware,Hispanic,0.27139282860410385
+1994,Delaware,Young,0.14465110192840713
+1996,Delaware,Overall,0.52
+1996,Delaware,Hispanic,0.3901941705628998
+1996,Delaware,Young,0.31634128603502204
+1998,Delaware,Overall,NA
+1998,Delaware,Hispanic,NA
+1998,Delaware,Young,NA
+2000,Delaware,Overall,NA
+2000,Delaware,Hispanic,NA
+2000,Delaware,Young,NA
+2002,Delaware,Overall,NA
+2002,Delaware,Hispanic,NA
+2002,Delaware,Young,NA
+2004,Delaware,Overall,0.64
+2004,Delaware,Hispanic,0.5018449963182158
+2004,Delaware,Young,0.4191938978909963
+2006,Delaware,Overall,0.42
+2006,Delaware,Hispanic,0.1588417996089968
+2006,Delaware,Young,0.202703719246051
+2008,Delaware,Overall,0.66
+2008,Delaware,Hispanic,0.3448967293289459
+2008,Delaware,Young,0.5501465232634598
 2010,Delaware,Overall,0.49
 2010,Delaware,Hispanic,0.30698008045176073
 2010,Delaware,Young,0.24431605282494054
@@ -167,6 +527,51 @@ Year,State,Group,Turnout
 2022,Delaware,Overall,0.43
 2022,Delaware,Hispanic,0.30224116081311864
 2022,Delaware,Young,0.24098613429246232
+1980,District of Columbia,Overall,0.38
+1980,District of Columbia,Hispanic,0.24980774671914543
+1980,District of Columbia,Young,0.18856332975161152
+1982,District of Columbia,Overall,NA
+1982,District of Columbia,Hispanic,NA
+1982,District of Columbia,Young,NA
+1984,District of Columbia,Overall,0.46
+1984,District of Columbia,Hispanic,0.3243293438556294
+1984,District of Columbia,Young,0.3443408041654469
+1986,District of Columbia,Overall,0.29
+1986,District of Columbia,Hispanic,0.29703733663272996
+1986,District of Columbia,Young,0.15714167331379675
+1988,District of Columbia,Overall,0.43
+1988,District of Columbia,Hispanic,0.28785430421851516
+1988,District of Columbia,Young,0.31558270960094037
+1990,District of Columbia,Overall,0.39
+1990,District of Columbia,Hispanic,0.23884381448140635
+1990,District of Columbia,Young,0.18880754066505942
+1992,District of Columbia,Overall,0.54
+1992,District of Columbia,Hispanic,0.5408969802027627
+1992,District of Columbia,Young,0.3660394479283637
+1994,District of Columbia,Overall,0.45
+1994,District of Columbia,Hispanic,0.3078504765243068
+1994,District of Columbia,Young,0.2305872542559068
+1996,District of Columbia,Overall,0.47
+1996,District of Columbia,Hispanic,0.5188237584735953
+1996,District of Columbia,Young,0.2914251463245248
+1998,District of Columbia,Overall,0.35
+1998,District of Columbia,Hispanic,0.28598315940809343
+1998,District of Columbia,Young,0.15351013831639312
+2000,District of Columbia,Overall,NA
+2000,District of Columbia,Hispanic,NA
+2000,District of Columbia,Young,NA
+2002,District of Columbia,Overall,NA
+2002,District of Columbia,Hispanic,NA
+2002,District of Columbia,Young,NA
+2004,District of Columbia,Overall,0.56
+2004,District of Columbia,Hispanic,0.5139629220781358
+2004,District of Columbia,Young,0.4493452712593228
+2006,District of Columbia,Overall,0.29
+2006,District of Columbia,Hispanic,0.2556021975261199
+2006,District of Columbia,Young,0.14389670468322086
+2008,District of Columbia,Overall,0.62
+2008,District of Columbia,Hispanic,0.49186729153157216
+2008,District of Columbia,Young,0.6093445956843588
 2010,District of Columbia,Overall,0.29
 2010,District of Columbia,Hispanic,0.2175908290155393
 2010,District of Columbia,Young,0.19278434878654882
@@ -188,6 +593,51 @@ Year,State,Group,Turnout
 2022,District of Columbia,Overall,0.41
 2022,District of Columbia,Hispanic,0.2889991728669573
 2022,District of Columbia,Young,0.3052458680102486
+1980,Florida,Overall,NA
+1980,Florida,Hispanic,NA
+1980,Florida,Young,NA
+1982,Florida,Overall,NA
+1982,Florida,Hispanic,NA
+1982,Florida,Young,NA
+1984,Florida,Overall,NA
+1984,Florida,Hispanic,NA
+1984,Florida,Young,NA
+1986,Florida,Overall,NA
+1986,Florida,Hispanic,NA
+1986,Florida,Young,NA
+1988,Florida,Overall,NA
+1988,Florida,Hispanic,NA
+1988,Florida,Young,NA
+1990,Florida,Overall,NA
+1990,Florida,Hispanic,NA
+1990,Florida,Young,NA
+1992,Florida,Overall,0.57
+1992,Florida,Hispanic,0.5150301041346161
+1992,Florida,Young,0.37452440110313506
+1994,Florida,Overall,0.44
+1994,Florida,Hispanic,0.32032549867405674
+1994,Florida,Young,0.16042767962562196
+1996,Florida,Overall,0.53
+1996,Florida,Hispanic,0.4315999653180981
+1996,Florida,Young,0.2465100723936346
+1998,Florida,Overall,0.38
+1998,Florida,Hispanic,0.31094317766838836
+1998,Florida,Young,0.10798389212706122
+2000,Florida,Overall,0.56
+2000,Florida,Hispanic,0.459782625791478
+2000,Florida,Young,0.32897139042860996
+2002,Florida,Overall,0.45
+2002,Florida,Hispanic,0.35600643612651
+2002,Florida,Young,0.19396671209048122
+2004,Florida,Overall,0.64
+2004,Florida,Hispanic,0.5677919321455079
+2004,Florida,Young,0.46022186721840125
+2006,Florida,Overall,0.4
+2006,Florida,Hispanic,0.2846384256744989
+2006,Florida,Young,0.14978051906839218
+2008,Florida,Overall,0.67
+2008,Florida,Hispanic,0.6481399969621915
+2008,Florida,Young,0.5232958203977115
 2010,Florida,Overall,0.42
 2010,Florida,Hispanic,0.3932093145260633
 2010,Florida,Young,0.21972591786038195
@@ -209,6 +659,51 @@ Year,State,Group,Turnout
 2022,Florida,Overall,0.48
 2022,Florida,Hispanic,0.3938767943813383
 2022,Florida,Young,0.2405205111476887
+1980,Georgia,Overall,NA
+1980,Georgia,Hispanic,NA
+1980,Georgia,Young,NA
+1982,Georgia,Overall,NA
+1982,Georgia,Hispanic,NA
+1982,Georgia,Young,NA
+1984,Georgia,Overall,NA
+1984,Georgia,Hispanic,NA
+1984,Georgia,Young,NA
+1986,Georgia,Overall,NA
+1986,Georgia,Hispanic,NA
+1986,Georgia,Young,NA
+1988,Georgia,Overall,NA
+1988,Georgia,Hispanic,NA
+1988,Georgia,Young,NA
+1990,Georgia,Overall,NA
+1990,Georgia,Hispanic,NA
+1990,Georgia,Young,NA
+1992,Georgia,Overall,NA
+1992,Georgia,Hispanic,NA
+1992,Georgia,Young,NA
+1994,Georgia,Overall,NA
+1994,Georgia,Hispanic,NA
+1994,Georgia,Young,NA
+1996,Georgia,Overall,0.46
+1996,Georgia,Hispanic,0.24008950727619657
+1996,Georgia,Young,0.31120373759735703
+1998,Georgia,Overall,0.35
+1998,Georgia,Hispanic,0.2545723598982652
+1998,Georgia,Young,0.12903056436853708
+2000,Georgia,Overall,0.49
+2000,Georgia,Hispanic,0.3313665473901178
+2000,Georgia,Young,0.315430114776183
+2002,Georgia,Overall,NA
+2002,Georgia,Hispanic,NA
+2002,Georgia,Young,NA
+2004,Georgia,Overall,0.57
+2004,Georgia,Hispanic,0.30674712769397
+2004,Georgia,Young,0.46673298859020657
+2006,Georgia,Overall,0.36
+2006,Georgia,Hispanic,0.17195302557902703
+2006,Georgia,Young,0.20891464471654267
+2008,Georgia,Overall,0.63
+2008,Georgia,Hispanic,0.5343681754690176
+2008,Georgia,Young,0.4737773602229761
 2010,Georgia,Overall,0.41
 2010,Georgia,Hispanic,0.2246660065705362
 2010,Georgia,Young,0.19608886950621618
@@ -230,6 +725,51 @@ Year,State,Group,Turnout
 2022,Georgia,Overall,0.52
 2022,Georgia,Hispanic,0.3779990647520264
 2022,Georgia,Young,0.3344828307149868
+1980,Hawaii,Overall,0.49
+1980,Hawaii,Hispanic,0.4279699974008045
+1980,Hawaii,Young,0.3118683093995942
+1982,Hawaii,Overall,0.48
+1982,Hawaii,Hispanic,0.2276651462102768
+1982,Hawaii,Young,0.305691565897642
+1984,Hawaii,Overall,0.5
+1984,Hawaii,Hispanic,0.3089194321614316
+1984,Hawaii,Young,0.3223182982581424
+1986,Hawaii,Overall,0.48
+1986,Hawaii,Hispanic,0.14898847837281554
+1986,Hawaii,Young,0.276201363308097
+1988,Hawaii,Overall,0.5
+1988,Hawaii,Hispanic,0.3315882864580778
+1988,Hawaii,Young,0.30616795280611653
+1990,Hawaii,Overall,0.46
+1990,Hawaii,Hispanic,0.411062948341578
+1990,Hawaii,Young,0.23864272318224894
+1992,Hawaii,Overall,0.48
+1992,Hawaii,Hispanic,0.37366615978520473
+1992,Hawaii,Young,0.2802822283424023
+1994,Hawaii,Overall,0.47
+1994,Hawaii,Hispanic,0.2919516442960079
+1994,Hawaii,Young,0.22821501553408685
+1996,Hawaii,Overall,0.45
+1996,Hawaii,Hispanic,0.5256476318700982
+1996,Hawaii,Young,0.2522055684820737
+1998,Hawaii,Overall,0.5
+1998,Hawaii,Hispanic,0.4306698827159695
+1998,Hawaii,Young,0.2301367951250381
+2000,Hawaii,Overall,0.44
+2000,Hawaii,Hispanic,0.3958807523970775
+2000,Hawaii,Young,0.19596728024560975
+2002,Hawaii,Overall,0.44
+2002,Hawaii,Hispanic,0.2271665289495155
+2002,Hawaii,Young,0.17176999390191264
+2004,Hawaii,Overall,0.48
+2004,Hawaii,Hispanic,0.36338126857583536
+2004,Hawaii,Young,0.27795173280116475
+2006,Hawaii,Overall,0.38
+2006,Hawaii,Hispanic,0.390053388268991
+2006,Hawaii,Young,0.19461696425327785
+2008,Hawaii,Overall,0.49
+2008,Hawaii,Hispanic,0.3093061603680659
+2008,Hawaii,Young,0.24142486483947542
 2010,Hawaii,Overall,0.4
 2010,Hawaii,Hispanic,0.3310215801537421
 2010,Hawaii,Young,0.20326426958391133
@@ -251,6 +791,51 @@ Year,State,Group,Turnout
 2022,Hawaii,Overall,0.4
 2022,Hawaii,Hispanic,0.26881542753490373
 2022,Hawaii,Young,0.2500159099711997
+1980,Idaho,Overall,0.7
+1980,Idaho,Hispanic,0.39684942175963106
+1980,Idaho,Young,0.48606796407221114
+1982,Idaho,Overall,0.51
+1982,Idaho,Hispanic,0.3393576704147924
+1982,Idaho,Young,0.24639517387705612
+1984,Idaho,Overall,0.64
+1984,Idaho,Hispanic,0.39572592691268815
+1984,Idaho,Young,0.36582841895380785
+1986,Idaho,Overall,0.59
+1986,Idaho,Hispanic,0.3866862292217206
+1986,Idaho,Young,0.3434065224008387
+1988,Idaho,Overall,0.63
+1988,Idaho,Hispanic,0.25989918858393846
+1988,Idaho,Young,0.38041468562515496
+1990,Idaho,Overall,0.48
+1990,Idaho,Hispanic,0.22453873155959478
+1990,Idaho,Young,0.20608241646120315
+1992,Idaho,Overall,0.67
+1992,Idaho,Hispanic,0.4316195678700162
+1992,Idaho,Young,0.3614114286904014
+1994,Idaho,Overall,0.53
+1994,Idaho,Hispanic,0.3630782157613046
+1994,Idaho,Young,0.2860433948415848
+1996,Idaho,Overall,0.62
+1996,Idaho,Hispanic,0.16669960859691668
+1996,Idaho,Young,0.39556281756794043
+1998,Idaho,Overall,0.46
+1998,Idaho,Hispanic,0.17960325913400874
+1998,Idaho,Young,0.21924407201586585
+2000,Idaho,Overall,0.59
+2000,Idaho,Hispanic,0.21001802932850303
+2000,Idaho,Young,0.37188856281041466
+2002,Idaho,Overall,0.46
+2002,Idaho,Hispanic,0.1644204809161299
+2002,Idaho,Young,0.17585659607189066
+2004,Idaho,Overall,0.65
+2004,Idaho,Hispanic,0.27559484221737135
+2004,Idaho,Young,0.5098956125130774
+2006,Idaho,Overall,0.46
+2006,Idaho,Hispanic,0.15129016577270218
+2006,Idaho,Young,0.28777368374311174
+2008,Idaho,Overall,0.65
+2008,Idaho,Hispanic,0.373854218174862
+2008,Idaho,Young,0.5065109492872132
 2010,Idaho,Overall,0.43
 2010,Idaho,Hispanic,0.13259018410461484
 2010,Idaho,Young,0.19169754788154694
@@ -272,6 +857,51 @@ Year,State,Group,Turnout
 2022,Idaho,Overall,0.43
 2022,Idaho,Hispanic,0.19708931122300122
 2022,Idaho,Young,0.2091088647088182
+1980,Illinois,Overall,0.62
+1980,Illinois,Hispanic,0.5515928369020575
+1980,Illinois,Young,0.4353245921182095
+1982,Illinois,Overall,0.49
+1982,Illinois,Hispanic,0.4268574593872563
+1982,Illinois,Young,0.291401845739813
+1984,Illinois,Overall,0.63
+1984,Illinois,Hispanic,0.5358265768035743
+1984,Illinois,Young,0.4442864621669067
+1986,Illinois,Overall,0.42
+1986,Illinois,Hispanic,0.3648197269154702
+1986,Illinois,Young,0.211488697042621
+1988,Illinois,Overall,0.59
+1988,Illinois,Hispanic,0.4470580227211533
+1988,Illinois,Young,0.41294253925244334
+1990,Illinois,Overall,0.43
+1990,Illinois,Hispanic,0.31396280751979755
+1990,Illinois,Young,0.1752517881483405
+1992,Illinois,Overall,0.64
+1992,Illinois,Hispanic,0.4281708021301443
+1992,Illinois,Young,0.4788233787657659
+1994,Illinois,Overall,0.39
+1994,Illinois,Hispanic,0.23995517910198455
+1994,Illinois,Young,0.1792741897374173
+1996,Illinois,Overall,0.54
+1996,Illinois,Hispanic,0.395605816993293
+1996,Illinois,Young,0.3737079977619273
+1998,Illinois,Overall,0.43
+1998,Illinois,Hispanic,0.35026801129604124
+1998,Illinois,Young,0.16057286639978718
+2000,Illinois,Overall,0.59
+2000,Illinois,Hispanic,0.4665069655423833
+2000,Illinois,Young,0.3826941319835389
+2002,Illinois,Overall,0.43
+2002,Illinois,Hispanic,0.2698195407385177
+2002,Illinois,Young,0.18593614051972532
+2004,Illinois,Overall,0.63
+2004,Illinois,Hispanic,0.46330208194026146
+2004,Illinois,Young,0.3944691862014486
+2006,Illinois,Overall,0.42
+2006,Illinois,Hispanic,0.2765401659669914
+2006,Illinois,Young,0.18436301094494079
+2008,Illinois,Overall,0.64
+2008,Illinois,Hispanic,0.4782197978454749
+2008,Illinois,Young,0.5140686264828683
 2010,Illinois,Overall,0.43
 2010,Illinois,Hispanic,0.3045630628660968
 2010,Illinois,Young,0.19438499401497042
@@ -293,6 +923,51 @@ Year,State,Group,Turnout
 2022,Illinois,Overall,0.46
 2022,Illinois,Hispanic,0.27616442947792436
 2022,Illinois,Young,0.22171282176158766
+1980,Indiana,Overall,0.59
+1980,Indiana,Hispanic,0.4422994162919983
+1980,Indiana,Young,0.4316697915018209
+1982,Indiana,Overall,0.47
+1982,Indiana,Hispanic,0.3611229006111822
+1982,Indiana,Young,0.2529704047544598
+1984,Indiana,Overall,0.58
+1984,Indiana,Hispanic,0.5556144671243255
+1984,Indiana,Young,0.4124505517032839
+1986,Indiana,Overall,0.41
+1986,Indiana,Hispanic,0.35233609677321803
+1986,Indiana,Young,0.2037454384491585
+1988,Indiana,Overall,0.56
+1988,Indiana,Hispanic,0.4095874340580898
+1988,Indiana,Young,0.3716373673213668
+1990,Indiana,Overall,0.38
+1990,Indiana,Hispanic,0.1786976612225538
+1990,Indiana,Young,0.20355261231534902
+1992,Indiana,Overall,0.56
+1992,Indiana,Hispanic,0.5398392976136536
+1992,Indiana,Young,0.3992241270244181
+1994,Indiana,Overall,0.38
+1994,Indiana,Hispanic,0.24481216555128205
+1994,Indiana,Young,0.1043332870527544
+1996,Indiana,Overall,0.51
+1996,Indiana,Hispanic,0.36173931374532636
+1996,Indiana,Young,0.3556805073218729
+1998,Indiana,Overall,0.37
+1998,Indiana,Hispanic,0.10916452083345483
+1998,Indiana,Young,0.16309716120766776
+2000,Indiana,Overall,0.51
+2000,Indiana,Hispanic,0.18741970233177369
+2000,Indiana,Young,0.277256183897046
+2002,Indiana,Overall,0.35
+2002,Indiana,Hispanic,0.14505300416312414
+2002,Indiana,Young,0.12885691573734936
+2004,Indiana,Overall,0.56
+2004,Indiana,Hispanic,0.33407928752769167
+2004,Indiana,Young,0.39336091885183483
+2006,Indiana,Overall,0.38
+2006,Indiana,Hispanic,0.16315002827544312
+2006,Indiana,Young,0.1667839412504129
+2008,Indiana,Overall,0.6
+2008,Indiana,Hispanic,0.3508231309551459
+2008,Indiana,Young,0.42401026616257004
 2010,Indiana,Overall,0.38
 2010,Indiana,Hispanic,0.18051498061642943
 2010,Indiana,Young,0.09585795324236647
@@ -314,6 +989,51 @@ Year,State,Group,Turnout
 2022,Indiana,Overall,0.37
 2022,Indiana,Hispanic,0.1549648589895348
 2022,Indiana,Young,0.14893580403862233
+1980,Iowa,Overall,0.63
+1980,Iowa,Hispanic,0.4710379910874703
+1980,Iowa,Young,0.47909567411530785
+1982,Iowa,Overall,0.51
+1982,Iowa,Hispanic,0.3919105409840421
+1982,Iowa,Young,0.27266901766078644
+1984,Iowa,Overall,0.65
+1984,Iowa,Hispanic,0.45715829682800635
+1984,Iowa,Young,0.4196382814370007
+1986,Iowa,Overall,0.46
+1986,Iowa,Hispanic,0.5281558742403135
+1986,Iowa,Young,0.17195070937074522
+1988,Iowa,Overall,0.61
+1988,Iowa,Hispanic,0.7832146755277806
+1988,Iowa,Young,0.45154224779513397
+1990,Iowa,Overall,0.49
+1990,Iowa,Hispanic,0.36242351188513294
+1990,Iowa,Young,0.24752949825414253
+1992,Iowa,Overall,0.66
+1992,Iowa,Hispanic,0.44568093199645953
+1992,Iowa,Young,0.5324270033854241
+1994,Iowa,Overall,0.49
+1994,Iowa,Hispanic,0.42148160601160783
+1994,Iowa,Young,0.259379499099507
+1996,Iowa,Overall,0.6
+1996,Iowa,Hispanic,0.2523555861209806
+1996,Iowa,Young,0.3828239795410365
+1998,Iowa,Overall,0.46
+1998,Iowa,Hispanic,0.0416983791836707
+1998,Iowa,Young,0.18172530215408025
+2000,Iowa,Overall,NA
+2000,Iowa,Hispanic,NA
+2000,Iowa,Young,NA
+2002,Iowa,Overall,0.49
+2002,Iowa,Hispanic,0.23224518285864273
+2002,Iowa,Young,0.22189040483074268
+2004,Iowa,Overall,0.71
+2004,Iowa,Hispanic,0.49042587528363135
+2004,Iowa,Young,0.6182968881316453
+2006,Iowa,Overall,0.49
+2006,Iowa,Hispanic,0.0942518262645039
+2006,Iowa,Young,0.22740361078731594
+2008,Iowa,Overall,0.7
+2008,Iowa,Hispanic,0.651881743390756
+2008,Iowa,Young,0.6323999813634554
 2010,Iowa,Overall,0.51
 2010,Iowa,Hispanic,0.2502916576307974
 2010,Iowa,Young,0.24532846661449018
@@ -335,6 +1055,51 @@ Year,State,Group,Turnout
 2022,Iowa,Overall,0.52
 2022,Iowa,Hispanic,0.26148987878337066
 2022,Iowa,Young,0.23608956771543826
+1980,Kansas,Overall,NA
+1980,Kansas,Hispanic,NA
+1980,Kansas,Young,NA
+1982,Kansas,Overall,NA
+1982,Kansas,Hispanic,NA
+1982,Kansas,Young,NA
+1984,Kansas,Overall,NA
+1984,Kansas,Hispanic,NA
+1984,Kansas,Young,NA
+1986,Kansas,Overall,NA
+1986,Kansas,Hispanic,NA
+1986,Kansas,Young,NA
+1988,Kansas,Overall,NA
+1988,Kansas,Hispanic,NA
+1988,Kansas,Young,NA
+1990,Kansas,Overall,0.45
+1990,Kansas,Hispanic,0.20587667242127441
+1990,Kansas,Young,0.20825544157670284
+1992,Kansas,Overall,0.64
+1992,Kansas,Hispanic,0.5180322056464103
+1992,Kansas,Young,0.42703443482915077
+1994,Kansas,Overall,0.46
+1994,Kansas,Hispanic,0.3678751406700357
+1994,Kansas,Young,0.1344182865903509
+1996,Kansas,Overall,0.58
+1996,Kansas,Hispanic,0.32620720136254894
+1996,Kansas,Young,0.39957498393740704
+1998,Kansas,Overall,0.4
+1998,Kansas,Hispanic,0.14547295521652878
+1998,Kansas,Young,0.12605436665417766
+2000,Kansas,Overall,0.58
+2000,Kansas,Hispanic,0.17150915793292748
+2000,Kansas,Young,0.33662522708895654
+2002,Kansas,Overall,0.45
+2002,Kansas,Hispanic,0.20479823998668603
+2002,Kansas,Young,0.2032288361867388
+2004,Kansas,Overall,0.63
+2004,Kansas,Hispanic,0.5086009420431662
+2004,Kansas,Young,0.3982492286511863
+2006,Kansas,Overall,0.44
+2006,Kansas,Hispanic,0.24095240455637074
+2006,Kansas,Young,0.1471511104998551
+2008,Kansas,Overall,0.63
+2008,Kansas,Hispanic,0.5109279989638481
+2008,Kansas,Young,0.42892541647469307
 2010,Kansas,Overall,0.43
 2010,Kansas,Hispanic,0.27300092179125945
 2010,Kansas,Young,0.10653188691774304
@@ -356,6 +1121,51 @@ Year,State,Group,Turnout
 2022,Kansas,Overall,0.48
 2022,Kansas,Hispanic,0.3183717883199932
 2022,Kansas,Young,0.23538416788874003
+1980,Kentucky,Overall,NA
+1980,Kentucky,Hispanic,NA
+1980,Kentucky,Young,NA
+1982,Kentucky,Overall,NA
+1982,Kentucky,Hispanic,NA
+1982,Kentucky,Young,NA
+1984,Kentucky,Overall,NA
+1984,Kentucky,Hispanic,NA
+1984,Kentucky,Young,NA
+1986,Kentucky,Overall,NA
+1986,Kentucky,Hispanic,NA
+1986,Kentucky,Young,NA
+1988,Kentucky,Overall,NA
+1988,Kentucky,Hispanic,NA
+1988,Kentucky,Young,NA
+1990,Kentucky,Overall,NA
+1990,Kentucky,Hispanic,NA
+1990,Kentucky,Young,NA
+1992,Kentucky,Overall,NA
+1992,Kentucky,Hispanic,NA
+1992,Kentucky,Young,NA
+1994,Kentucky,Overall,0.29
+1994,Kentucky,Hispanic,0.48268736415637364
+1994,Kentucky,Young,0.12916074905495195
+1996,Kentucky,Overall,0.49
+1996,Kentucky,Hispanic,0.14675068109544331
+1996,Kentucky,Young,0.26329498322709516
+1998,Kentucky,Overall,0.41
+1998,Kentucky,Hispanic,0
+1998,Kentucky,Young,0.20708963771437444
+2000,Kentucky,Overall,0.53
+2000,Kentucky,Hispanic,0.4519478938843815
+2000,Kentucky,Young,0.3200187084763001
+2002,Kentucky,Overall,NA
+2002,Kentucky,Hispanic,NA
+2002,Kentucky,Young,NA
+2004,Kentucky,Overall,0.59
+2004,Kentucky,Hispanic,0.6992366265723972
+2004,Kentucky,Young,0.5050295211996823
+2006,Kentucky,Overall,0.44
+2006,Kentucky,Hispanic,0.42563326909946403
+2006,Kentucky,Young,0.23904460206197994
+2008,Kentucky,Overall,0.59
+2008,Kentucky,Hispanic,0.6955873120648915
+2008,Kentucky,Young,0.45281780831214735
 2010,Kentucky,Overall,0.45
 2010,Kentucky,Hispanic,0.031069409228881212
 2010,Kentucky,Young,0.18942144097371164
@@ -377,6 +1187,51 @@ Year,State,Group,Turnout
 2022,Kentucky,Overall,0.45
 2022,Kentucky,Hispanic,0.20047166090638016
 2022,Kentucky,Young,0.3110890721709244
+1980,Louisiana,Overall,NA
+1980,Louisiana,Hispanic,NA
+1980,Louisiana,Young,NA
+1982,Louisiana,Overall,NA
+1982,Louisiana,Hispanic,NA
+1982,Louisiana,Young,NA
+1984,Louisiana,Overall,NA
+1984,Louisiana,Hispanic,NA
+1984,Louisiana,Young,NA
+1986,Louisiana,Overall,NA
+1986,Louisiana,Hispanic,NA
+1986,Louisiana,Young,NA
+1988,Louisiana,Overall,NA
+1988,Louisiana,Hispanic,NA
+1988,Louisiana,Young,NA
+1990,Louisiana,Overall,NA
+1990,Louisiana,Hispanic,NA
+1990,Louisiana,Young,NA
+1992,Louisiana,Overall,0.6
+1992,Louisiana,Hispanic,0.6770103411505687
+1992,Louisiana,Young,0.4570100202246912
+1994,Louisiana,Overall,0.29
+1994,Louisiana,Hispanic,0.22010693181186847
+1994,Louisiana,Young,0.11249919599532766
+1996,Louisiana,Overall,0.58
+1996,Louisiana,Hispanic,0.4518474819674871
+1996,Louisiana,Young,0.3527231413450837
+1998,Louisiana,Overall,0.32
+1998,Louisiana,Hispanic,0.17979761568802588
+1998,Louisiana,Young,0.1741080575248595
+2000,Louisiana,Overall,0.57
+2000,Louisiana,Hispanic,0.4170552689436761
+2000,Louisiana,Young,0.37865090711247334
+2002,Louisiana,Overall,0.4
+2002,Louisiana,Hispanic,0.29084999286037055
+2002,Louisiana,Young,0.1892558122892618
+2004,Louisiana,Overall,0.6
+2004,Louisiana,Hispanic,0.5017631899222569
+2004,Louisiana,Young,0.44131963172757926
+2006,Louisiana,Overall,0.31
+2006,Louisiana,Hispanic,0.41235087190386427
+2006,Louisiana,Young,0.12119138615847383
+2008,Louisiana,Overall,0.62
+2008,Louisiana,Hispanic,0.4869683162878974
+2008,Louisiana,Young,0.45138131132046405
 2010,Louisiana,Overall,0.4
 2010,Louisiana,Hispanic,0.1915235475719445
 2010,Louisiana,Young,0.19353066730147125
@@ -398,6 +1253,51 @@ Year,State,Group,Turnout
 2022,Louisiana,Overall,0.42
 2022,Louisiana,Hispanic,0.22570256177930562
 2022,Louisiana,Young,0.22342045400474655
+1980,Maine,Overall,NA
+1980,Maine,Hispanic,NA
+1980,Maine,Young,NA
+1982,Maine,Overall,NA
+1982,Maine,Hispanic,NA
+1982,Maine,Young,NA
+1984,Maine,Overall,NA
+1984,Maine,Hispanic,NA
+1984,Maine,Young,NA
+1986,Maine,Overall,NA
+1986,Maine,Hispanic,NA
+1986,Maine,Young,NA
+1988,Maine,Overall,NA
+1988,Maine,Hispanic,NA
+1988,Maine,Young,NA
+1990,Maine,Overall,NA
+1990,Maine,Hispanic,NA
+1990,Maine,Young,NA
+1992,Maine,Overall,NA
+1992,Maine,Hispanic,NA
+1992,Maine,Young,NA
+1994,Maine,Overall,NA
+1994,Maine,Hispanic,NA
+1994,Maine,Young,NA
+1996,Maine,Overall,NA
+1996,Maine,Hispanic,NA
+1996,Maine,Young,NA
+1998,Maine,Overall,NA
+1998,Maine,Hispanic,NA
+1998,Maine,Young,NA
+2000,Maine,Overall,NA
+2000,Maine,Hispanic,NA
+2000,Maine,Young,NA
+2002,Maine,Overall,NA
+2002,Maine,Hispanic,NA
+2002,Maine,Young,NA
+2004,Maine,Overall,0.75
+2004,Maine,Hispanic,0.8462699772140347
+2004,Maine,Young,0.6104140113765026
+2006,Maine,Overall,NA
+2006,Maine,Hispanic,NA
+2006,Maine,Young,NA
+2008,Maine,Overall,0.72
+2008,Maine,Hispanic,0.49494495540355504
+2008,Maine,Young,0.5532655256208998
 2010,Maine,Overall,0.56
 2010,Maine,Hispanic,0.3076623858872069
 2010,Maine,Young,0.2967308296759438
@@ -419,6 +1319,51 @@ Year,State,Group,Turnout
 2022,Maine,Overall,0.61
 2022,Maine,Hispanic,0.4526434732596285
 2022,Maine,Young,0.3170931841637235
+1980,Maryland,Overall,0.53
+1980,Maryland,Hispanic,0.5564888972342605
+1980,Maryland,Young,0.3965467092141384
+1982,Maryland,Overall,0.39
+1982,Maryland,Hispanic,0.22859908477422636
+1982,Maryland,Young,0.20127419260488824
+1984,Maryland,Overall,0.54
+1984,Maryland,Hispanic,0.34260665532180506
+1984,Maryland,Young,0.3829505835679007
+1986,Maryland,Overall,0.36
+1986,Maryland,Hispanic,0.4241023977974765
+1986,Maryland,Young,0.22161656816348926
+1988,Maryland,Overall,0.53
+1988,Maryland,Hispanic,0.3420435718290604
+1988,Maryland,Young,0.35998616661517713
+1990,Maryland,Overall,0.34
+1990,Maryland,Hispanic,0.28035111136447355
+1990,Maryland,Young,0.18767088345129204
+1992,Maryland,Overall,0.58
+1992,Maryland,Hispanic,0.56421824950794075
+1992,Maryland,Young,0.4626354515453989
+1994,Maryland,Overall,0.41
+1994,Maryland,Hispanic,0.2780309911217523
+1994,Maryland,Young,0.2657437148463316
+1996,Maryland,Overall,0.51
+1996,Maryland,Hispanic,0.48105066816948966
+1996,Maryland,Young,0.342346665643284
+1998,Maryland,Overall,0.44
+1998,Maryland,Hispanic,0.18383453537354308
+1998,Maryland,Young,0.18141891137712973
+2000,Maryland,Overall,0.56
+2000,Maryland,Hispanic,0.5422159507547621
+2000,Maryland,Young,0.35444497463846564
+2002,Maryland,Overall,0.46
+2002,Maryland,Hispanic,0.24358764703858748
+2002,Maryland,Young,0.19834302902619752
+2004,Maryland,Overall,0.63
+2004,Maryland,Hispanic,0.5137998995997819
+2004,Maryland,Young,0.4806671462732403
+2006,Maryland,Overall,0.47
+2006,Maryland,Hispanic,0.40950270209257733
+2006,Maryland,Young,0.25041151004292866
+2008,Maryland,Overall,0.68
+2008,Maryland,Hispanic,0.626008622676386
+2008,Maryland,Young,0.4938500798105282
 2010,Maryland,Overall,0.47
 2010,Maryland,Hispanic,0.3331578738722822
 2010,Maryland,Young,0.2238382061305969
@@ -440,6 +1385,51 @@ Year,State,Group,Turnout
 2022,Maryland,Overall,0.46
 2022,Maryland,Hispanic,0.3026880931108606
 2022,Maryland,Young,0.19599874675055187
+1980,Massachusetts,Overall,0.62
+1980,Massachusetts,Hispanic,0.39282044547854883
+1980,Massachusetts,Young,0.41042320100920116
+1982,Massachusetts,Overall,0.5
+1982,Massachusetts,Hispanic,0.168286544044603
+1982,Massachusetts,Young,0.24647332346872175
+1984,Massachusetts,Overall,0.61
+1984,Massachusetts,Hispanic,0.2631532779045873
+1984,Massachusetts,Young,0.38914768538769007
+1986,Massachusetts,Overall,0.41
+1986,Massachusetts,Hispanic,0.16932816610852752
+1986,Massachusetts,Young,0.15262515563626392
+1988,Massachusetts,Overall,0.61
+1988,Massachusetts,Hispanic,0.2738320050482666
+1988,Massachusetts,Young,0.3943782946363292
+1990,Massachusetts,Overall,0.55
+1990,Massachusetts,Hispanic,0.32755478584800846
+1990,Massachusetts,Young,0.32091683461906806
+1992,Massachusetts,Overall,0.65
+1992,Massachusetts,Hispanic,0.21151492082781234
+1992,Massachusetts,Young,0.4312008809002818
+1994,Massachusetts,Overall,0.51
+1994,Massachusetts,Hispanic,0.22278723100861292
+1994,Massachusetts,Young,0.22095654593473174
+1996,Massachusetts,Overall,0.59
+1996,Massachusetts,Hispanic,0.30309708254660994
+1996,Massachusetts,Young,0.35401971139762894
+1998,Massachusetts,Overall,0.44
+1998,Massachusetts,Hispanic,0.21089755493131038
+1998,Massachusetts,Young,0.19079090177835734
+2000,Massachusetts,Overall,0.61
+2000,Massachusetts,Hispanic,0.2815316955544824
+2000,Massachusetts,Young,0.3752966704434689
+2002,Massachusetts,Overall,0.49
+2002,Massachusetts,Hispanic,0.22004947492798574
+2002,Massachusetts,Young,0.1737452517222123
+2004,Massachusetts,Overall,0.65
+2004,Massachusetts,Hispanic,0.47354995332784566
+2004,Massachusetts,Young,0.4333018305284167
+2006,Massachusetts,Overall,0.5
+2006,Massachusetts,Hispanic,0.30835704151109294
+2006,Massachusetts,Young,0.2679098759055748
+2008,Massachusetts,Overall,0.67
+2008,Massachusetts,Hispanic,0.39786229082941
+2008,Massachusetts,Young,0.45679300152159136
 2010,Massachusetts,Overall,0.5
 2010,Massachusetts,Hispanic,0.13388679746017157
 2010,Massachusetts,Young,0.2145992284910635
@@ -461,6 +1451,51 @@ Year,State,Group,Turnout
 2022,Massachusetts,Overall,0.49
 2022,Massachusetts,Hispanic,0.3336760402583148
 2022,Massachusetts,Young,0.28289219938283083
+1980,Michigan,Overall,0.62
+1980,Michigan,Hispanic,0.32125776881638973
+1980,Michigan,Young,0.4692899532384835
+1982,Michigan,Overall,0.49
+1982,Michigan,Hispanic,0.4047244521119689
+1982,Michigan,Young,0.27862115170702617
+1984,Michigan,Overall,0.61
+1984,Michigan,Hispanic,0.4425042773580398
+1984,Michigan,Young,0.4409534000255031
+1986,Michigan,Overall,0.38
+1986,Michigan,Hispanic,0.22956524435410744
+1986,Michigan,Young,0.18509346292716103
+1988,Michigan,Overall,0.57
+1988,Michigan,Hispanic,0.3297340593539189
+1988,Michigan,Young,0.3760573519639165
+1990,Michigan,Overall,0.39
+1990,Michigan,Hispanic,0.22316792868873847
+1990,Michigan,Young,0.15485381133743514
+1992,Michigan,Overall,0.64
+1992,Michigan,Hispanic,0.3983415360975637
+1992,Michigan,Young,0.4850211611072212
+1994,Michigan,Overall,0.46
+1994,Michigan,Hispanic,0.22069782088470954
+1994,Michigan,Young,0.22721883867507595
+1996,Michigan,Overall,0.56
+1996,Michigan,Hispanic,0.36406376926808137
+1996,Michigan,Young,0.3650420529186192
+1998,Michigan,Overall,0.45
+1998,Michigan,Hispanic,0.23930293341957606
+1998,Michigan,Young,0.15933849217906662
+2000,Michigan,Overall,0.6
+2000,Michigan,Hispanic,0.2901341893362355
+2000,Michigan,Young,0.35760656701044713
+2002,Michigan,Overall,0.45
+2002,Michigan,Hispanic,0.24021983748123102
+2002,Michigan,Young,0.19104409444573883
+2004,Michigan,Overall,0.68
+2004,Michigan,Hispanic,0.5042381581075698
+2004,Michigan,Young,0.5542556480585425
+2006,Michigan,Overall,0.53
+2006,Michigan,Hispanic,0.4402630863127363
+2006,Michigan,Young,0.32689174687105366
+2008,Michigan,Overall,0.7
+2008,Michigan,Hispanic,0.4936396887983068
+2008,Michigan,Young,0.5265724664902061
 2010,Michigan,Overall,0.45
 2010,Michigan,Hispanic,0.37806098375653346
 2010,Michigan,Young,0.20782275649651627
@@ -482,6 +1517,51 @@ Year,State,Group,Turnout
 2022,Michigan,Overall,0.59
 2022,Michigan,Hispanic,0.43335942539936106
 2022,Michigan,Young,0.4245156668866791
+1980,Minnesota,Overall,0.72
+1980,Minnesota,Hispanic,0.3958523945263111
+1980,Minnesota,Young,0.6024090778334713
+1982,Minnesota,Overall,0.62
+1982,Minnesota,Hispanic,0.594117934414169
+1982,Minnesota,Young,0.4079793872055409
+1984,Minnesota,Overall,0.71
+1984,Minnesota,Hispanic,0.8043353563984256
+1984,Minnesota,Young,0.5659308391475376
+1986,Minnesota,Overall,0.48
+1986,Minnesota,Hispanic,0.3906341412742185
+1986,Minnesota,Young,0.2409715575512058
+1988,Minnesota,Overall,0.69
+1988,Minnesota,Hispanic,0.2625031353718921
+1988,Minnesota,Young,0.5003988739298327
+1990,Minnesota,Overall,0.59
+1990,Minnesota,Hispanic,0.29665132414481943
+1990,Minnesota,Young,0.2417731022217314
+1992,Minnesota,Overall,0.74
+1992,Minnesota,Hispanic,0.2011678213937385
+1992,Minnesota,Young,0.6396880675399366
+1994,Minnesota,Overall,0.55
+1994,Minnesota,Hispanic,0.18016650212973934
+1994,Minnesota,Young,0.23272892827727942
+1996,Minnesota,Overall,0.67
+1996,Minnesota,Hispanic,0.3366739536599023
+1996,Minnesota,Young,0.3973241832584965
+1998,Minnesota,Overall,0.62
+1998,Minnesota,Hispanic,0.23440993237890714
+1998,Minnesota,Young,0.3803144302574193
+2000,Minnesota,Overall,0.71
+2000,Minnesota,Hispanic,0.23401807646845482
+2000,Minnesota,Young,0.46961374991369786
+2002,Minnesota,Overall,NA
+2002,Minnesota,Hispanic,NA
+2002,Minnesota,Young,NA
+2004,Minnesota,Overall,0.79
+2004,Minnesota,Hispanic,0.6699032070043192
+2004,Minnesota,Young,0.685527199338798
+2006,Minnesota,Overall,0.61
+2006,Minnesota,Hispanic,0.39093805438603313
+2006,Minnesota,Young,0.34630184675619424
+2008,Minnesota,Overall,0.78
+2008,Minnesota,Hispanic,0.5404194419075322
+2008,Minnesota,Young,0.6537015099391521
 2010,Minnesota,Overall,0.56
 2010,Minnesota,Hispanic,0.33901318101341466
 2010,Minnesota,Young,0.28484480018463393
@@ -503,6 +1583,51 @@ Year,State,Group,Turnout
 2022,Minnesota,Overall,0.59
 2022,Minnesota,Hispanic,0.3792832516507165
 2022,Minnesota,Young,0.3506126914727162
+1980,Mississippi,Overall,NA
+1980,Mississippi,Hispanic,NA
+1980,Mississippi,Young,NA
+1982,Mississippi,Overall,NA
+1982,Mississippi,Hispanic,NA
+1982,Mississippi,Young,NA
+1984,Mississippi,Overall,NA
+1984,Mississippi,Hispanic,NA
+1984,Mississippi,Young,NA
+1986,Mississippi,Overall,NA
+1986,Mississippi,Hispanic,NA
+1986,Mississippi,Young,NA
+1988,Mississippi,Overall,NA
+1988,Mississippi,Hispanic,NA
+1988,Mississippi,Young,NA
+1990,Mississippi,Overall,NA
+1990,Mississippi,Hispanic,NA
+1990,Mississippi,Young,NA
+1992,Mississippi,Overall,0.54
+1992,Mississippi,Hispanic,0.5182894728395353
+1992,Mississippi,Young,0.4072609181391371
+1994,Mississippi,Overall,0.33
+1994,Mississippi,Hispanic,0.2427326484465203
+1994,Mississippi,Young,0.195318508553848
+1996,Mississippi,Overall,NA
+1996,Mississippi,Hispanic,NA
+1996,Mississippi,Young,NA
+1998,Mississippi,Overall,NA
+1998,Mississippi,Hispanic,NA
+1998,Mississippi,Young,NA
+2000,Mississippi,Overall,NA
+2000,Mississippi,Hispanic,NA
+2000,Mississippi,Young,NA
+2002,Mississippi,Overall,NA
+2002,Mississippi,Hispanic,NA
+2002,Mississippi,Young,NA
+2004,Mississippi,Overall,NA
+2004,Mississippi,Hispanic,NA
+2004,Mississippi,Young,NA
+2006,Mississippi,Overall,NA
+2006,Mississippi,Hispanic,NA
+2006,Mississippi,Young,NA
+2008,Mississippi,Overall,NA
+2008,Mississippi,Hispanic,NA
+2008,Mississippi,Young,NA
 2010,Mississippi,Overall,0.37
 2010,Mississippi,Hispanic,0.2926700910810345
 2010,Mississippi,Young,0.22075811743854093
@@ -524,6 +1649,51 @@ Year,State,Group,Turnout
 2022,Mississippi,Overall,0.33
 2022,Mississippi,Hispanic,0.03275962145456777
 2022,Mississippi,Young,0.19137451109089268
+1980,Missouri,Overall,NA
+1980,Missouri,Hispanic,NA
+1980,Missouri,Young,NA
+1982,Missouri,Overall,NA
+1982,Missouri,Hispanic,NA
+1982,Missouri,Young,NA
+1984,Missouri,Overall,NA
+1984,Missouri,Hispanic,NA
+1984,Missouri,Young,NA
+1986,Missouri,Overall,NA
+1986,Missouri,Hispanic,NA
+1986,Missouri,Young,NA
+1988,Missouri,Overall,NA
+1988,Missouri,Hispanic,NA
+1988,Missouri,Young,NA
+1990,Missouri,Overall,NA
+1990,Missouri,Hispanic,NA
+1990,Missouri,Young,NA
+1992,Missouri,Overall,NA
+1992,Missouri,Hispanic,NA
+1992,Missouri,Young,NA
+1994,Missouri,Overall,NA
+1994,Missouri,Hispanic,NA
+1994,Missouri,Young,NA
+1996,Missouri,Overall,NA
+1996,Missouri,Hispanic,NA
+1996,Missouri,Young,NA
+1998,Missouri,Overall,NA
+1998,Missouri,Hispanic,NA
+1998,Missouri,Young,NA
+2000,Missouri,Overall,NA
+2000,Missouri,Hispanic,NA
+2000,Missouri,Young,NA
+2002,Missouri,Overall,NA
+2002,Missouri,Hispanic,NA
+2002,Missouri,Young,NA
+2004,Missouri,Overall,0.66
+2004,Missouri,Hispanic,0.49204491734079436
+2004,Missouri,Young,0.49919842097383577
+2006,Missouri,Overall,0.51
+2006,Missouri,Hispanic,0.48007386891595866
+2006,Missouri,Young,0.2187544878118524
+2008,Missouri,Overall,0.68
+2008,Missouri,Hispanic,0.40531407875317843
+2008,Missouri,Young,0.5783132841626873
 2010,Missouri,Overall,0.46
 2010,Missouri,Hispanic,0.37455091246732536
 2010,Missouri,Young,0.20373049167585866
@@ -545,6 +1715,51 @@ Year,State,Group,Turnout
 2022,Missouri,Overall,0.5
 2022,Missouri,Hispanic,0.3690071765909008
 2022,Missouri,Young,0.2551042037562968
+1980,Montana,Overall,0.67
+1980,Montana,Hispanic,0.2337943643954522
+1980,Montana,Young,0.5053878990941201
+1982,Montana,Overall,0.58
+1982,Montana,Hispanic,0.16181620828479454
+1982,Montana,Young,0.3440603275558356
+1984,Montana,Overall,0.68
+1984,Montana,Hispanic,0.44823619549427696
+1984,Montana,Young,0.5002624761102462
+1986,Montana,Overall,0.57
+1986,Montana,Hispanic,0.14098358823502213
+1986,Montana,Young,0.31342946585729997
+1988,Montana,Overall,0.67
+1988,Montana,Hispanic,0.4461771933964254
+1988,Montana,Young,0.46245618298288454
+1990,Montana,Overall,0.57
+1990,Montana,Hispanic,0.29744634444394463
+1990,Montana,Young,0.2638514953580668
+1992,Montana,Overall,0.7
+1992,Montana,Hispanic,0.4766317354572838
+1992,Montana,Young,0.5212172116629749
+1994,Montana,Overall,0.58
+1994,Montana,Hispanic,0.5649269760312399
+1994,Montana,Young,0.28953963213502526
+1996,Montana,Overall,0.65
+1996,Montana,Hispanic,0.41041623269567373
+1996,Montana,Young,0.34296591278872135
+1998,Montana,Overall,0.52
+1998,Montana,Hispanic,0.37012678585459646
+1998,Montana,Young,0.20457699900725482
+2000,Montana,Overall,0.63
+2000,Montana,Hispanic,0.4587030447922516
+2000,Montana,Young,0.41971924575665337
+2002,Montana,Overall,0.5
+2002,Montana,Hispanic,0.2505413965024012
+2002,Montana,Young,0.19242437929265563
+2004,Montana,Overall,0.65
+2004,Montana,Hispanic,0.35214836224906526
+2004,Montana,Young,0.427577255985961
+2006,Montana,Overall,0.57
+2006,Montana,Hispanic,0.16995184451341847
+2006,Montana,Young,0.3251393506760799
+2008,Montana,Overall,0.67
+2008,Montana,Hispanic,0.7107299079552077
+2008,Montana,Young,0.43112452959782266
 2010,Montana,Overall,0.48
 2010,Montana,Hispanic,0.4159253267708977
 2010,Montana,Young,0.1927498005228564
@@ -566,6 +1781,51 @@ Year,State,Group,Turnout
 2022,Montana,Overall,0.53
 2022,Montana,Hispanic,0.4509693255203531
 2022,Montana,Young,0.2877809058194136
+1980,Nebraska,Overall,0.58
+1980,Nebraska,Hispanic,0.3124504552729924
+1980,Nebraska,Young,0.39753406419262177
+1982,Nebraska,Overall,0.5
+1982,Nebraska,Hispanic,0.22484411417493946
+1982,Nebraska,Young,0.19493587130452567
+1984,Nebraska,Overall,0.59
+1984,Nebraska,Hispanic,0.22504673414264703
+1984,Nebraska,Young,0.32320849963014503
+1986,Nebraska,Overall,0.51
+1986,Nebraska,Hispanic,0.25589001436399406
+1986,Nebraska,Young,0.24131648853770768
+1988,Nebraska,Overall,0.6
+1988,Nebraska,Hispanic,0.4579027818310981
+1988,Nebraska,Young,0.33597093366770664
+1990,Nebraska,Overall,0.53
+1990,Nebraska,Hispanic,0.22134290255875613
+1990,Nebraska,Young,0.25967794192966914
+1992,Nebraska,Overall,0.65
+1992,Nebraska,Hispanic,0.5115021755879791
+1992,Nebraska,Young,0.39447062882811446
+1994,Nebraska,Overall,0.51
+1994,Nebraska,Hispanic,0.11944518311341665
+1994,Nebraska,Young,0.22217847834066462
+1996,Nebraska,Overall,0.58
+1996,Nebraska,Hispanic,0.24055807781452782
+1996,Nebraska,Young,0.2961081219865734
+1998,Nebraska,Overall,0.49
+1998,Nebraska,Hispanic,0.12496150330465311
+1998,Nebraska,Young,0.1696723323811298
+2000,Nebraska,Overall,0.59
+2000,Nebraska,Hispanic,0.430648434656324
+2000,Nebraska,Young,0.3159353125438077
+2002,Nebraska,Overall,NA
+2002,Nebraska,Hispanic,NA
+2002,Nebraska,Young,NA
+2004,Nebraska,Overall,0.64
+2004,Nebraska,Hispanic,0.3374154315646774
+2004,Nebraska,Young,0.41230069543619735
+2006,Nebraska,Overall,0.49
+2006,Nebraska,Hispanic,0.295119095085355
+2006,Nebraska,Young,0.2282444510814466
+2008,Nebraska,Overall,0.64
+2008,Nebraska,Hispanic,0.48659833380689266
+2008,Nebraska,Young,0.4193798101899229
 2010,Nebraska,Overall,0.39
 2010,Nebraska,Hispanic,0.20387256813884047
 2010,Nebraska,Young,0.10081147715957138
@@ -587,6 +1847,51 @@ Year,State,Group,Turnout
 2022,Nebraska,Overall,0.48
 2022,Nebraska,Hispanic,0.15431181914994413
 2022,Nebraska,Young,0.1560703713640898
+1980,Nevada,Overall,0.52
+1980,Nevada,Hispanic,0.37631907470695974
+1980,Nevada,Young,0.33273120644065174
+1982,Nevada,Overall,0.39
+1982,Nevada,Hispanic,0.3294170199867569
+1982,Nevada,Young,0.1747760495374377
+1984,Nevada,Overall,0.45
+1984,Nevada,Hispanic,0.39006808154828776
+1984,Nevada,Young,0.2894045924048237
+1986,Nevada,Overall,0.38
+1986,Nevada,Hispanic,0.38514718184310426
+1986,Nevada,Young,0.15481376316429438
+1988,Nevada,Overall,0.46
+1988,Nevada,Hispanic,0.28553777433958066
+1988,Nevada,Young,0.28511702635903535
+1990,Nevada,Overall,0.38
+1990,Nevada,Hispanic,0.2701492587391203
+1990,Nevada,Young,0.14299797720601803
+1992,Nevada,Overall,0.55
+1992,Nevada,Hispanic,0.407481832961771
+1992,Nevada,Young,0.3781686013996354
+1994,Nevada,Overall,0.37
+1994,Nevada,Hispanic,0.2792665880397883
+1994,Nevada,Young,0.11009982914149655
+1996,Nevada,Overall,0.41
+1996,Nevada,Hispanic,0.2094105051237584
+1996,Nevada,Young,0.175249204323188
+1998,Nevada,Overall,0.36
+1998,Nevada,Hispanic,0.14215045149686492
+1998,Nevada,Young,0.10448311304146561
+2000,Nevada,Overall,0.46
+2000,Nevada,Hispanic,0.341815256990413
+2000,Nevada,Young,0.27308291195444223
+2002,Nevada,Overall,0.36
+2002,Nevada,Hispanic,0.19131949342665217
+2002,Nevada,Young,0.16480766182241066
+2004,Nevada,Overall,0.55
+2004,Nevada,Hispanic,0.44331389866467036
+2004,Nevada,Young,0.41147953991140684
+2006,Nevada,Overall,0.36
+2006,Nevada,Hispanic,0.21322008381080737
+2006,Nevada,Young,0.13250714052269816
+2008,Nevada,Overall,0.57
+2008,Nevada,Hispanic,0.49581142161151476
+2008,Nevada,Young,0.41715001032015026
 2010,Nevada,Overall,0.41
 2010,Nevada,Hispanic,0.26990043353906507
 2010,Nevada,Young,0.24443817297950907
@@ -608,6 +1913,51 @@ Year,State,Group,Turnout
 2022,Nevada,Overall,0.46
 2022,Nevada,Hispanic,0.27845444689262694
 2022,Nevada,Young,0.20772005777369512
+1980,New Hampshire,Overall,0.61
+1980,New Hampshire,Hispanic,0.3285408420555132
+1980,New Hampshire,Young,0.3606832852705854
+1982,New Hampshire,Overall,0.42
+1982,New Hampshire,Hispanic,0
+1982,New Hampshire,Young,0.15493278613207825
+1984,New Hampshire,Overall,0.57
+1984,New Hampshire,Hispanic,0
+1984,New Hampshire,Young,0.2782697230956586
+1986,New Hampshire,Overall,0.34
+1986,New Hampshire,Hispanic,0.8868574880543584
+1986,New Hampshire,Young,0.07198968590108702
+1988,New Hampshire,Overall,0.58
+1988,New Hampshire,Hispanic,0.5229739914874133
+1988,New Hampshire,Young,0.2664877335761644
+1990,New Hampshire,Overall,0.38
+1990,New Hampshire,Hispanic,0.23631087623153063
+1990,New Hampshire,Young,0.14049506487325295
+1992,New Hampshire,Overall,0.67
+1992,New Hampshire,Hispanic,1.0139802817381907
+1992,New Hampshire,Young,0.43055476770057244
+1994,New Hampshire,Overall,0.39
+1994,New Hampshire,Hispanic,0.20768875430732275
+1994,New Hampshire,Young,0.11608285008478844
+1996,New Hampshire,Overall,0.6
+1996,New Hampshire,Hispanic,0.5121121886412787
+1996,New Hampshire,Young,0.28393385546045935
+1998,New Hampshire,Overall,0.38
+1998,New Hampshire,Hispanic,0.19434830811691114
+1998,New Hampshire,Young,0.14557861684514536
+2000,New Hampshire,Overall,0.64
+2000,New Hampshire,Hispanic,0.6709842014998959
+2000,New Hampshire,Young,0.3317342573087251
+2002,New Hampshire,Overall,0.49
+2002,New Hampshire,Hispanic,0.4453284436411662
+2002,New Hampshire,Young,0.2136393329976884
+2004,New Hampshire,Overall,0.72
+2004,New Hampshire,Hispanic,0.5811418725261169
+2004,New Hampshire,Young,0.5641466679503294
+2006,New Hampshire,Overall,0.43
+2006,New Hampshire,Hispanic,0.13727293617366146
+2006,New Hampshire,Young,0.11928069224400145
+2008,New Hampshire,Overall,0.73
+2008,New Hampshire,Hispanic,0.6007813565104978
+2008,New Hampshire,Young,0.5912769044023617
 2010,New Hampshire,Overall,0.46
 2010,New Hampshire,Hispanic,0.2725735732079726
 2010,New Hampshire,Young,0.19555325921587804
@@ -629,6 +1979,51 @@ Year,State,Group,Turnout
 2022,New Hampshire,Overall,0.56
 2022,New Hampshire,Hispanic,0.23625847031257877
 2022,New Hampshire,Young,0.3050345589135531
+1980,New Jersey,Overall,0.59
+1980,New Jersey,Hispanic,0.5787904028924586
+1980,New Jersey,Young,0.3568689052172945
+1982,New Jersey,Overall,0.44
+1982,New Jersey,Hispanic,0.3312686673100087
+1982,New Jersey,Young,0.2515557868920543
+1984,New Jersey,Overall,0.6
+1984,New Jersey,Hispanic,0.49189076237801127
+1984,New Jersey,Young,0.43006568659093397
+1986,New Jersey,Overall,0.3
+1986,New Jersey,Hispanic,0.3013894303773316
+1986,New Jersey,Young,0.14818124856457338
+1988,New Jersey,Overall,0.57
+1988,New Jersey,Hispanic,0.49040377788742123
+1988,New Jersey,Young,0.3936888409675254
+1990,New Jersey,Overall,0.37
+1990,New Jersey,Hispanic,0.25333471349681913
+1990,New Jersey,Young,0.16825672569502925
+1992,New Jersey,Overall,0.62
+1992,New Jersey,Hispanic,0.46752347973156844
+1992,New Jersey,Young,0.442785902182921
+1994,New Jersey,Overall,0.4
+1994,New Jersey,Hispanic,0.27538355409903575
+1994,New Jersey,Young,0.1713440951059881
+1996,New Jersey,Overall,0.57
+1996,New Jersey,Hispanic,0.5003053375559072
+1996,New Jersey,Young,0.3106017706312673
+1998,New Jersey,Overall,0.34
+1998,New Jersey,Hispanic,0.30435422421866176
+1998,New Jersey,Young,0.13532838313779808
+2000,New Jersey,Overall,0.59
+2000,New Jersey,Hispanic,0.41511241001880894
+2000,New Jersey,Young,0.33517135007146215
+2002,New Jersey,Overall,0.39
+2002,New Jersey,Hispanic,0.2329173309592786
+2002,New Jersey,Young,0.1239046092266341
+2004,New Jersey,Overall,0.65
+2004,New Jersey,Hispanic,0.5741746447003797
+2004,New Jersey,Young,0.49633735232831533
+2006,New Jersey,Overall,0.41
+2006,New Jersey,Hispanic,0.3087319350414542
+2006,New Jersey,Young,0.1572628140306976
+2008,New Jersey,Overall,0.68
+2008,New Jersey,Hispanic,0.5403629154207763
+2008,New Jersey,Young,0.5574273420143911
 2010,New Jersey,Overall,0.38
 2010,New Jersey,Hispanic,0.2562550939224682
 2010,New Jersey,Young,0.151841724873028
@@ -650,6 +2045,51 @@ Year,State,Group,Turnout
 2022,New Jersey,Overall,0.41
 2022,New Jersey,Hispanic,0.3178854057325261
 2022,New Jersey,Young,0.24518633019509878
+1980,New Mexico,Overall,0.53
+1980,New Mexico,Hispanic,0.5101247714510191
+1980,New Mexico,Young,0.31982607063107577
+1982,New Mexico,Overall,0.45
+1982,New Mexico,Hispanic,0.40676171676402495
+1982,New Mexico,Young,0.22169483171891038
+1984,New Mexico,Overall,0.55
+1984,New Mexico,Hispanic,0.45930999753931334
+1984,New Mexico,Young,0.3171545959361258
+1986,New Mexico,Overall,0.41
+1986,New Mexico,Hispanic,0.4145703972749878
+1986,New Mexico,Young,0.1561429268326627
+1988,New Mexico,Overall,0.53
+1988,New Mexico,Hispanic,0.48474743538042736
+1988,New Mexico,Young,0.3116863062553291
+1990,New Mexico,Overall,0.42
+1990,New Mexico,Hispanic,0.37387396747216856
+1990,New Mexico,Young,0.14014326770673072
+1992,New Mexico,Overall,0.55
+1992,New Mexico,Hispanic,0.49312579037686777
+1992,New Mexico,Young,0.38653051758311885
+1994,New Mexico,Overall,0.43
+1994,New Mexico,Hispanic,0.36694883637328585
+1994,New Mexico,Young,0.14547182812247791
+1996,New Mexico,Overall,0.49
+1996,New Mexico,Hispanic,0.4403474482685401
+1996,New Mexico,Young,0.29202564469219344
+1998,New Mexico,Overall,0.43
+1998,New Mexico,Hispanic,0.3765633780371116
+1998,New Mexico,Young,0.1941835929181516
+2000,New Mexico,Overall,0.5
+2000,New Mexico,Hispanic,0.403218063527511
+2000,New Mexico,Young,0.21920259143947296
+2002,New Mexico,Overall,0.4
+2002,New Mexico,Hispanic,0.3632366602966452
+2002,New Mexico,Young,0.14161130800284036
+2004,New Mexico,Overall,0.6
+2004,New Mexico,Hispanic,0.5290366938969299
+2004,New Mexico,Young,0.3926500934033992
+2006,New Mexico,Overall,0.43
+2006,New Mexico,Hispanic,0.40919647629766576
+2006,New Mexico,Young,0.20537001445055109
+2008,New Mexico,Overall,0.61
+2008,New Mexico,Hispanic,0.5227383917627773
+2008,New Mexico,Young,0.4469745134933995
 2010,New Mexico,Overall,0.45
 2010,New Mexico,Hispanic,0.3753817918455258
 2010,New Mexico,Young,0.14346129056268753
@@ -671,6 +2111,51 @@ Year,State,Group,Turnout
 2022,New Mexico,Overall,0.46
 2022,New Mexico,Hispanic,0.3741145917571644
 2022,New Mexico,Young,0.28898478071930866
+1980,New York,Overall,0.53
+1980,New York,Hispanic,0.35448268173837727
+1980,New York,Young,0.35952168976418636
+1982,New York,Overall,0.45
+1982,New York,Hispanic,0.26054143528478885
+1982,New York,Young,0.22627351075867594
+1984,New York,Overall,0.57
+1984,New York,Hispanic,0.45440919390781637
+1984,New York,Young,0.3893414203901464
+1986,New York,Overall,0.37
+1986,New York,Hispanic,0.244322583472065
+1986,New York,Young,0.18133236001906988
+1988,New York,Overall,0.54
+1988,New York,Hispanic,0.37653461383036546
+1988,New York,Young,0.4141536625805179
+1990,New York,Overall,0.35
+1990,New York,Hispanic,0.25083521932964586
+1990,New York,Young,0.17864402371330942
+1992,New York,Overall,0.58
+1992,New York,Hispanic,0.4209304505922034
+1992,New York,Young,0.432874461132241
+1994,New York,Overall,0.44
+1994,New York,Hispanic,0.2690916641899327
+1994,New York,Young,0.20790855114670032
+1996,New York,Overall,0.53
+1996,New York,Hispanic,0.39122566628650474
+1996,New York,Young,0.33183642487144566
+1998,New York,Overall,0.41
+1998,New York,Hispanic,0.3261077449451277
+1998,New York,Young,0.1722784021264656
+2000,New York,Overall,0.56
+2000,New York,Hispanic,0.4035908524945243
+2000,New York,Young,0.3181162936096836
+2002,New York,Overall,0.37
+2002,New York,Hispanic,0.22983816713930252
+2002,New York,Young,0.14875595194180838
+2004,New York,Overall,0.59
+2004,New York,Hispanic,0.4456221653549074
+2004,New York,Young,0.44897015054592065
+2006,New York,Overall,0.37
+2006,New York,Hispanic,0.24357042741894158
+2006,New York,Young,0.14606851394433984
+2008,New York,Overall,0.6
+2008,New York,Hispanic,0.5623895657655165
+2008,New York,Young,0.4590957827514857
 2010,New York,Overall,0.36
 2010,New York,Hispanic,0.26569013922142515
 2010,New York,Young,0.178492328457307
@@ -692,6 +2177,51 @@ Year,State,Group,Turnout
 2022,New York,Overall,0.42
 2022,New York,Hispanic,0.3259440978671573
 2022,New York,Young,0.20701382060601073
+1980,North Carolina,Overall,NA
+1980,North Carolina,Hispanic,NA
+1980,North Carolina,Young,NA
+1982,North Carolina,Overall,NA
+1982,North Carolina,Hispanic,NA
+1982,North Carolina,Young,NA
+1984,North Carolina,Overall,NA
+1984,North Carolina,Hispanic,NA
+1984,North Carolina,Young,NA
+1986,North Carolina,Overall,NA
+1986,North Carolina,Hispanic,NA
+1986,North Carolina,Young,NA
+1988,North Carolina,Overall,NA
+1988,North Carolina,Hispanic,NA
+1988,North Carolina,Young,NA
+1990,North Carolina,Overall,NA
+1990,North Carolina,Hispanic,NA
+1990,North Carolina,Young,NA
+1992,North Carolina,Overall,NA
+1992,North Carolina,Hispanic,NA
+1992,North Carolina,Young,NA
+1994,North Carolina,Overall,NA
+1994,North Carolina,Hispanic,NA
+1994,North Carolina,Young,NA
+1996,North Carolina,Overall,NA
+1996,North Carolina,Hispanic,NA
+1996,North Carolina,Young,NA
+1998,North Carolina,Overall,NA
+1998,North Carolina,Hispanic,NA
+1998,North Carolina,Young,NA
+2000,North Carolina,Overall,0.52
+2000,North Carolina,Hispanic,0.31472770046153803
+2000,North Carolina,Young,0.2807958043806285
+2002,North Carolina,Overall,NA
+2002,North Carolina,Hispanic,NA
+2002,North Carolina,Young,NA
+2004,North Carolina,Overall,0.59
+2004,North Carolina,Hispanic,0.23456898870730164
+2004,North Carolina,Young,0.40838874065551495
+2006,North Carolina,Overall,0.32
+2006,North Carolina,Hispanic,0.10383451327736158
+2006,North Carolina,Young,0.16487912215939377
+2008,North Carolina,Overall,0.66
+2008,North Carolina,Hispanic,0.6401398604481964
+2008,North Carolina,Young,0.5170215233022114
 2010,North Carolina,Overall,0.4
 2010,North Carolina,Hispanic,0.38657673981918533
 2010,North Carolina,Young,0.1885599074162181
@@ -713,6 +2243,51 @@ Year,State,Group,Turnout
 2022,North Carolina,Overall,0.48
 2022,North Carolina,Hispanic,0.2979632852123987
 2022,North Carolina,Young,0.2501192794256555
+1980,North Dakota,Overall,0.68
+1980,North Dakota,Hispanic,0.5819984491509496
+1980,North Dakota,Young,0.5723197793390086
+1982,North Dakota,Overall,0.57
+1982,North Dakota,Hispanic,0
+1982,North Dakota,Young,0.324125935005534
+1984,North Dakota,Overall,0.67
+1984,North Dakota,Hispanic,0.4852097070146946
+1984,North Dakota,Young,0.5082419282600412
+1986,North Dakota,Overall,0.62
+1986,North Dakota,Hispanic,0.8492456134110172
+1986,North Dakota,Young,0.4329322247755783
+1988,North Dakota,Overall,0.66
+1988,North Dakota,Hispanic,0.465920959268612
+1988,North Dakota,Young,0.5140704273767948
+1990,North Dakota,Overall,0.52
+1990,North Dakota,Hispanic,0
+1990,North Dakota,Young,0.332215688547445
+1992,North Dakota,Overall,0.68
+1992,North Dakota,Hispanic,0.2753443518589016
+1992,North Dakota,Young,0.5227161921694942
+1994,North Dakota,Overall,0.51
+1994,North Dakota,Hispanic,0.3500152165487984
+1994,North Dakota,Young,0.23726895463987493
+1996,North Dakota,Overall,0.57
+1996,North Dakota,Hispanic,0.45561730120187033
+1996,North Dakota,Young,0.3984515746893598
+1998,North Dakota,Overall,0.46
+1998,North Dakota,Hispanic,0.16787177999457878
+1998,North Dakota,Young,0.25022054455253917
+2000,North Dakota,Overall,0.62
+2000,North Dakota,Hispanic,0.1144070974152845
+2000,North Dakota,Young,0.5062836348950307
+2002,North Dakota,Overall,0.49
+2002,North Dakota,Hispanic,0.23114421537613544
+2002,North Dakota,Young,0.2413949553848969
+2004,North Dakota,Overall,0.65
+2004,North Dakota,Hispanic,0.25076707299307177
+2004,North Dakota,Young,0.4740673399749586
+2006,North Dakota,Overall,0.45
+2006,North Dakota,Hispanic,0.2482668195944798
+2006,North Dakota,Young,0.20822456054893515
+2008,North Dakota,Overall,0.64
+2008,North Dakota,Hispanic,0.29771660045145176
+2008,North Dakota,Young,0.5011105378527752
 2010,North Dakota,Overall,0.47
 2010,North Dakota,Hispanic,0.23602826866562993
 2010,North Dakota,Young,0.317284192507947
@@ -734,6 +2309,51 @@ Year,State,Group,Turnout
 2022,North Dakota,Overall,0.42
 2022,North Dakota,Hispanic,0.20028523974390025
 2022,North Dakota,Young,0.21340746802540292
+1980,Ohio,Overall,0.57
+1980,Ohio,Hispanic,0.38187012417987526
+1980,Ohio,Young,0.4085252589043271
+1982,Ohio,Overall,0.46
+1982,Ohio,Hispanic,0.36313559501771453
+1982,Ohio,Young,0.25433010864365513
+1984,Ohio,Overall,0.6
+1984,Ohio,Hispanic,0.42213131022266337
+1984,Ohio,Young,0.4343158790512155
+1986,Ohio,Overall,0.47
+1986,Ohio,Hispanic,0.35584561932052294
+1986,Ohio,Young,0.25389097747774036
+1988,Ohio,Overall,0.57
+1988,Ohio,Hispanic,0.3870167672441265
+1988,Ohio,Young,0.43141876213412145
+1990,Ohio,Overall,0.45
+1990,Ohio,Hispanic,0.23684106341068806
+1990,Ohio,Young,0.19164574362409684
+1992,Ohio,Overall,0.63
+1992,Ohio,Hispanic,0.39413310382949246
+1992,Ohio,Young,0.46589753927638067
+1994,Ohio,Overall,0.44
+1994,Ohio,Hispanic,0.3089522094942391
+1994,Ohio,Young,0.18503101851432185
+1996,Ohio,Overall,0.57
+1996,Ohio,Hispanic,0.3314710279110492
+1996,Ohio,Young,0.35206065388358737
+1998,Ohio,Overall,0.43
+1998,Ohio,Hispanic,0.19708810135017157
+1998,Ohio,Young,0.19071363680308265
+2000,Ohio,Overall,0.58
+2000,Ohio,Hispanic,0.3145066125876019
+2000,Ohio,Young,0.3695692202066065
+2002,Ohio,Overall,0.4
+2002,Ohio,Hispanic,0.20113547890479225
+2002,Ohio,Young,0.17320927660860475
+2004,Ohio,Overall,0.68
+2004,Ohio,Hispanic,0.7112048366711706
+2004,Ohio,Young,0.569846016724754
+2006,Ohio,Overall,0.5
+2006,Ohio,Hispanic,0.32158673370975527
+2006,Ohio,Young,0.2708954580222001
+2008,Ohio,Overall,0.68
+2008,Ohio,Hispanic,0.5441571301325023
+2008,Ohio,Young,0.5915230570309893
 2010,Ohio,Overall,0.46
 2010,Ohio,Hispanic,0.29806456080631183
 2010,Ohio,Young,0.21129680028711473
@@ -755,6 +2375,51 @@ Year,State,Group,Turnout
 2022,Ohio,Overall,0.47
 2022,Ohio,Hispanic,0.3457850189707256
 2022,Ohio,Young,0.19259479589626394
+1980,Oklahoma,Overall,0.54
+1980,Oklahoma,Hispanic,0.44243318306812773
+1980,Oklahoma,Young,0.38711873922640655
+1982,Oklahoma,Overall,0.39
+1982,Oklahoma,Hispanic,0.22291815305977117
+1982,Oklahoma,Young,0.16349691678848663
+1984,Oklahoma,Overall,0.56
+1984,Oklahoma,Hispanic,0.40289274266511815
+1984,Oklahoma,Young,0.4064901067450556
+1986,Oklahoma,Overall,0.41
+1986,Oklahoma,Hispanic,0.32857647404807905
+1986,Oklahoma,Young,0.18166415911157421
+1988,Oklahoma,Overall,0.53
+1988,Oklahoma,Hispanic,0.4916945920024239
+1988,Oklahoma,Young,0.37006422759532737
+1990,Oklahoma,Overall,0.41
+1990,Oklahoma,Hispanic,0.30053162223988766
+1990,Oklahoma,Young,0.14245566820339073
+1992,Oklahoma,Overall,0.63
+1992,Oklahoma,Hispanic,0.4683564864544143
+1992,Oklahoma,Young,0.4713782996783525
+1994,Oklahoma,Overall,0.43
+1994,Oklahoma,Hispanic,0.1968075189046869
+1994,Oklahoma,Young,0.1693742677427787
+1996,Oklahoma,Overall,0.51
+1996,Oklahoma,Hispanic,0.3220849508506102
+1996,Oklahoma,Young,0.29893381717635237
+1998,Oklahoma,Overall,NA
+1998,Oklahoma,Hispanic,NA
+1998,Oklahoma,Young,NA
+2000,Oklahoma,Overall,NA
+2000,Oklahoma,Hispanic,NA
+2000,Oklahoma,Young,NA
+2002,Oklahoma,Overall,NA
+2002,Oklahoma,Hispanic,NA
+2002,Oklahoma,Young,NA
+2004,Oklahoma,Overall,NA
+2004,Oklahoma,Hispanic,NA
+2004,Oklahoma,Young,NA
+2006,Oklahoma,Overall,NA
+2006,Oklahoma,Hispanic,NA
+2006,Oklahoma,Young,NA
+2008,Oklahoma,Overall,0.56
+2008,Oklahoma,Hispanic,0.3398276465787663
+2008,Oklahoma,Young,0.39589619182079416
 2010,Oklahoma,Overall,0.39
 2010,Oklahoma,Hispanic,0.1572781515556581
 2010,Oklahoma,Young,0.18029368502353568
@@ -776,6 +2441,51 @@ Year,State,Group,Turnout
 2022,Oklahoma,Overall,0.4
 2022,Oklahoma,Hispanic,0.19732171875652568
 2022,Oklahoma,Young,0.18722808337780256
+1980,Oregon,Overall,0.64
+1980,Oregon,Hispanic,0.4579021664993658
+1980,Oregon,Young,0.4949704319489349
+1982,Oregon,Overall,0.56
+1982,Oregon,Hispanic,0.4657888856628841
+1982,Oregon,Young,0.35756472231581626
+1984,Oregon,Overall,0.66
+1984,Oregon,Hispanic,0.5252144605640711
+1984,Oregon,Young,0.4334452959758893
+1986,Oregon,Overall,0.56
+1986,Oregon,Hispanic,0.43248634229401517
+1986,Oregon,Young,0.23605587744701037
+1988,Oregon,Overall,0.62
+1988,Oregon,Hispanic,0.40230910898814687
+1988,Oregon,Young,0.3443600724785482
+1990,Oregon,Overall,0.55
+1990,Oregon,Hispanic,0.266013315130268
+1990,Oregon,Young,0.19231354203503032
+1992,Oregon,Overall,0.7
+1992,Oregon,Hispanic,0.7367493767947001
+1992,Oregon,Young,0.561389879271741
+1994,Oregon,Overall,0.56
+1994,Oregon,Hispanic,0.4264852804059532
+1994,Oregon,Young,0.2719705348142731
+1996,Oregon,Overall,0.61
+1996,Oregon,Hispanic,0.3187179370070752
+1996,Oregon,Young,0.2593299277929255
+1998,Oregon,Overall,0.49
+1998,Oregon,Hispanic,0.1752547301028711
+1998,Oregon,Young,0.18820163772575063
+2000,Oregon,Overall,0.64
+2000,Oregon,Hispanic,0.3953860677765992
+2000,Oregon,Young,0.38966354389805874
+2002,Oregon,Overall,0.52
+2002,Oregon,Hispanic,0.3018259469692415
+2002,Oregon,Young,0.23140975956720386
+2004,Oregon,Overall,0.73
+2004,Oregon,Hispanic,0.4471338428461713
+2004,Oregon,Young,0.4949580723912055
+2006,Oregon,Overall,0.54
+2006,Oregon,Hispanic,0.3888626890947185
+2006,Oregon,Young,0.26014090618035063
+2008,Oregon,Overall,0.68
+2008,Oregon,Hispanic,0.38795931254380067
+2008,Oregon,Young,0.5292548546494714
 2010,Oregon,Overall,0.54
 2010,Oregon,Hispanic,0.3154564270773664
 2010,Oregon,Young,0.3149936696536366
@@ -797,6 +2507,51 @@ Year,State,Group,Turnout
 2022,Oregon,Overall,0.63
 2022,Oregon,Hispanic,0.34474153343251107
 2022,Oregon,Young,0.39622661702254525
+1980,Pennsylvania,Overall,NA
+1980,Pennsylvania,Hispanic,NA
+1980,Pennsylvania,Young,NA
+1982,Pennsylvania,Overall,NA
+1982,Pennsylvania,Hispanic,NA
+1982,Pennsylvania,Young,NA
+1984,Pennsylvania,Overall,NA
+1984,Pennsylvania,Hispanic,NA
+1984,Pennsylvania,Young,NA
+1986,Pennsylvania,Overall,NA
+1986,Pennsylvania,Hispanic,NA
+1986,Pennsylvania,Young,NA
+1988,Pennsylvania,Overall,NA
+1988,Pennsylvania,Hispanic,NA
+1988,Pennsylvania,Young,NA
+1990,Pennsylvania,Overall,NA
+1990,Pennsylvania,Hispanic,NA
+1990,Pennsylvania,Young,NA
+1992,Pennsylvania,Overall,NA
+1992,Pennsylvania,Hispanic,NA
+1992,Pennsylvania,Young,NA
+1994,Pennsylvania,Overall,NA
+1994,Pennsylvania,Hispanic,NA
+1994,Pennsylvania,Young,NA
+1996,Pennsylvania,Overall,NA
+1996,Pennsylvania,Hispanic,NA
+1996,Pennsylvania,Young,NA
+1998,Pennsylvania,Overall,NA
+1998,Pennsylvania,Hispanic,NA
+1998,Pennsylvania,Young,NA
+2000,Pennsylvania,Overall,NA
+2000,Pennsylvania,Hispanic,NA
+2000,Pennsylvania,Young,NA
+2002,Pennsylvania,Overall,NA
+2002,Pennsylvania,Hispanic,NA
+2002,Pennsylvania,Young,NA
+2004,Pennsylvania,Overall,NA
+2004,Pennsylvania,Hispanic,NA
+2004,Pennsylvania,Young,NA
+2006,Pennsylvania,Overall,NA
+2006,Pennsylvania,Hispanic,NA
+2006,Pennsylvania,Young,NA
+2008,Pennsylvania,Overall,0.64
+2008,Pennsylvania,Hispanic,0.5174722883762944
+2008,Pennsylvania,Young,0.5337310260410443
 2010,Pennsylvania,Overall,0.42
 2010,Pennsylvania,Hispanic,0.2338552272292378
 2010,Pennsylvania,Young,0.14817159339096125
@@ -818,6 +2573,51 @@ Year,State,Group,Turnout
 2022,Pennsylvania,Overall,0.54
 2022,Pennsylvania,Hispanic,0.37566399996650274
 2022,Pennsylvania,Young,0.3652227181232442
+1980,Rhode Island,Overall,0.63
+1980,Rhode Island,Hispanic,0.5157876318322444
+1980,Rhode Island,Young,0.4675254839663444
+1982,Rhode Island,Overall,0.54
+1982,Rhode Island,Hispanic,0.2549686086768081
+1982,Rhode Island,Young,0.27142885279444223
+1984,Rhode Island,Overall,0.61
+1984,Rhode Island,Hispanic,0.6079839131663757
+1984,Rhode Island,Young,0.4300015960998238
+1986,Rhode Island,Overall,0.45
+1986,Rhode Island,Hispanic,0.11737850062356078
+1986,Rhode Island,Young,0.15378707781646733
+1988,Rhode Island,Overall,0.58
+1988,Rhode Island,Hispanic,0.35579899556642924
+1988,Rhode Island,Young,0.35377131651808286
+1990,Rhode Island,Overall,0.52
+1990,Rhode Island,Hispanic,0.31268106777409765
+1990,Rhode Island,Young,0.32467229502730566
+1992,Rhode Island,Overall,NA
+1992,Rhode Island,Hispanic,NA
+1992,Rhode Island,Young,NA
+1994,Rhode Island,Overall,NA
+1994,Rhode Island,Hispanic,NA
+1994,Rhode Island,Young,NA
+1996,Rhode Island,Overall,NA
+1996,Rhode Island,Hispanic,NA
+1996,Rhode Island,Young,NA
+1998,Rhode Island,Overall,0.43
+1998,Rhode Island,Hispanic,0.07873965330407175
+1998,Rhode Island,Young,0.12785848272275088
+2000,Rhode Island,Overall,0.56
+2000,Rhode Island,Hispanic,0.23490775302398254
+2000,Rhode Island,Young,0.3525322954877938
+2002,Rhode Island,Overall,0.45
+2002,Rhode Island,Hispanic,0.3517152536653295
+2002,Rhode Island,Young,0.1552846500993858
+2004,Rhode Island,Overall,0.59
+2004,Rhode Island,Hispanic,0.41412338715387326
+2004,Rhode Island,Young,0.4001523577575321
+2006,Rhode Island,Overall,0.52
+2006,Rhode Island,Hispanic,0.3831992411367546
+2006,Rhode Island,Young,0.26900483149575005
+2008,Rhode Island,Overall,0.62
+2008,Rhode Island,Hispanic,0.4476011950236394
+2008,Rhode Island,Young,0.4580261546986888
 2010,Rhode Island,Overall,0.45
 2010,Rhode Island,Hispanic,0.1875292986349791
 2010,Rhode Island,Young,0.18062596885144422
@@ -839,6 +2639,51 @@ Year,State,Group,Turnout
 2022,Rhode Island,Overall,0.44
 2022,Rhode Island,Hispanic,0.3659498525058545
 2022,Rhode Island,Young,0.208564848403554
+1980,South Carolina,Overall,0.42
+1980,South Carolina,Hispanic,0.3772063237419737
+1980,South Carolina,Young,0.2866409373134119
+1982,South Carolina,Overall,0.3
+1982,South Carolina,Hispanic,0.2729618698104075
+1982,South Carolina,Young,0.13602510137792168
+1984,South Carolina,Overall,0.44
+1984,South Carolina,Hispanic,0.37973975102801866
+1984,South Carolina,Young,0.2911593445390942
+1986,South Carolina,Overall,0.32
+1986,South Carolina,Hispanic,0.3404865912617568
+1986,South Carolina,Young,0.16050998590032653
+1988,South Carolina,Overall,0.42
+1988,South Carolina,Hispanic,0.3176231514073742
+1988,South Carolina,Young,0.26540809443264435
+1990,South Carolina,Overall,0.31
+1990,South Carolina,Hispanic,0.22619587185507697
+1990,South Carolina,Young,0.14576424824432846
+1992,South Carolina,Overall,0.47
+1992,South Carolina,Hispanic,0.3543364385001336
+1992,South Carolina,Young,0.33668248295757874
+1994,South Carolina,Overall,0.36
+1994,South Carolina,Hispanic,0.15235376074196597
+1994,South Carolina,Young,0.2130911672049482
+1996,South Carolina,Overall,0.44
+1996,South Carolina,Hispanic,0.3968267452311575
+1996,South Carolina,Young,0.23282915215047345
+1998,South Carolina,Overall,0.39
+1998,South Carolina,Hispanic,0.12282973261126669
+1998,South Carolina,Young,0.1616082906663108
+2000,South Carolina,Overall,0.49
+2000,South Carolina,Hispanic,0.08402683372742459
+2000,South Carolina,Young,0.31101509845365594
+2002,South Carolina,Overall,NA
+2002,South Carolina,Hispanic,NA
+2002,South Carolina,Young,NA
+2004,South Carolina,Overall,0.53
+2004,South Carolina,Hispanic,0.6827756296899357
+2004,South Carolina,Young,0.36589649808781805
+2006,South Carolina,Overall,0.35
+2006,South Carolina,Hispanic,0.14859855227275218
+2006,South Carolina,Young,0.14368963190515885
+2008,South Carolina,Overall,0.58
+2008,South Carolina,Hispanic,0.43349625171625294
+2008,South Carolina,Young,0.44137502451649907
 2010,South Carolina,Overall,0.4
 2010,South Carolina,Hispanic,0.06963366220106046
 2010,South Carolina,Young,0.2629366129179989
@@ -860,6 +2705,51 @@ Year,State,Group,Turnout
 2022,South Carolina,Overall,0.43
 2022,South Carolina,Hispanic,0.24094035292378777
 2022,South Carolina,Young,0.22425032773476247
+1980,South Dakota,Overall,NA
+1980,South Dakota,Hispanic,NA
+1980,South Dakota,Young,NA
+1982,South Dakota,Overall,NA
+1982,South Dakota,Hispanic,NA
+1982,South Dakota,Young,NA
+1984,South Dakota,Overall,NA
+1984,South Dakota,Hispanic,NA
+1984,South Dakota,Young,NA
+1986,South Dakota,Overall,NA
+1986,South Dakota,Hispanic,NA
+1986,South Dakota,Young,NA
+1988,South Dakota,Overall,NA
+1988,South Dakota,Hispanic,NA
+1988,South Dakota,Young,NA
+1990,South Dakota,Overall,NA
+1990,South Dakota,Hispanic,NA
+1990,South Dakota,Young,NA
+1992,South Dakota,Overall,NA
+1992,South Dakota,Hispanic,NA
+1992,South Dakota,Young,NA
+1994,South Dakota,Overall,0.61
+1994,South Dakota,Hispanic,0.38424680293525354
+1994,South Dakota,Young,0.31431348659899133
+1996,South Dakota,Overall,0.62
+1996,South Dakota,Hispanic,0.2864853084564482
+1996,South Dakota,Young,0.36844225553786664
+1998,South Dakota,Overall,0.5
+1998,South Dakota,Hispanic,0.6646188367522265
+1998,South Dakota,Young,0.13147923259852
+2000,South Dakota,Overall,0.59
+2000,South Dakota,Hispanic,0.3654869215340617
+2000,South Dakota,Young,0.24107244276287706
+2002,South Dakota,Overall,0.61
+2002,South Dakota,Hispanic,0.36863450012488125
+2002,South Dakota,Young,0.31839735072793446
+2004,South Dakota,Overall,0.7
+2004,South Dakota,Hispanic,0.587079107341435
+2004,South Dakota,Young,0.4986303914009377
+2006,South Dakota,Overall,0.59
+2006,South Dakota,Hispanic,0.3909426918266337
+2006,South Dakota,Young,0.2985391390087141
+2008,South Dakota,Overall,0.66
+2008,South Dakota,Hispanic,0.3115464722055478
+2008,South Dakota,Young,0.37033180407821814
 2010,South Dakota,Overall,0.54
 2010,South Dakota,Hispanic,0.3460385448192239
 2010,South Dakota,Young,0.23085711493368036
@@ -881,6 +2771,51 @@ Year,State,Group,Turnout
 2022,South Dakota,Overall,0.53
 2022,South Dakota,Hispanic,0.17968497824644952
 2022,South Dakota,Young,0.17554136864158387
+1980,Tennessee,Overall,NA
+1980,Tennessee,Hispanic,NA
+1980,Tennessee,Young,NA
+1982,Tennessee,Overall,NA
+1982,Tennessee,Hispanic,NA
+1982,Tennessee,Young,NA
+1984,Tennessee,Overall,NA
+1984,Tennessee,Hispanic,NA
+1984,Tennessee,Young,NA
+1986,Tennessee,Overall,NA
+1986,Tennessee,Hispanic,NA
+1986,Tennessee,Young,NA
+1988,Tennessee,Overall,NA
+1988,Tennessee,Hispanic,NA
+1988,Tennessee,Young,NA
+1990,Tennessee,Overall,NA
+1990,Tennessee,Hispanic,NA
+1990,Tennessee,Young,NA
+1992,Tennessee,Overall,NA
+1992,Tennessee,Hispanic,NA
+1992,Tennessee,Young,NA
+1994,Tennessee,Overall,NA
+1994,Tennessee,Hispanic,NA
+1994,Tennessee,Young,NA
+1996,Tennessee,Overall,NA
+1996,Tennessee,Hispanic,NA
+1996,Tennessee,Young,NA
+1998,Tennessee,Overall,0.25
+1998,Tennessee,Hispanic,0.16994566095993174
+1998,Tennessee,Young,0.08724993422256298
+2000,Tennessee,Overall,0.5
+2000,Tennessee,Hispanic,0.3424881470928979
+2000,Tennessee,Young,0.22309363200124768
+2002,Tennessee,Overall,NA
+2002,Tennessee,Hispanic,NA
+2002,Tennessee,Young,NA
+2004,Tennessee,Overall,0.57
+2004,Tennessee,Hispanic,0.2018483119965331
+2004,Tennessee,Young,0.39882516303909854
+2006,Tennessee,Overall,0.42
+2006,Tennessee,Hispanic,0.15210254115771213
+2006,Tennessee,Young,0.1886825238864914
+2008,Tennessee,Overall,0.57
+2008,Tennessee,Hispanic,0.47822744542321294
+2008,Tennessee,Young,0.42495389152614244
 2010,Tennessee,Overall,0.35
 2010,Tennessee,Hispanic,0.24409907971821812
 2010,Tennessee,Young,0.1446519273834582
@@ -902,6 +2837,51 @@ Year,State,Group,Turnout
 2022,Tennessee,Overall,0.33
 2022,Tennessee,Hispanic,0.22031702736115263
 2022,Tennessee,Young,0.17679224396179774
+1980,Texas,Overall,NA
+1980,Texas,Hispanic,NA
+1980,Texas,Young,NA
+1982,Texas,Overall,NA
+1982,Texas,Hispanic,NA
+1982,Texas,Young,NA
+1984,Texas,Overall,NA
+1984,Texas,Hispanic,NA
+1984,Texas,Young,NA
+1986,Texas,Overall,NA
+1986,Texas,Hispanic,NA
+1986,Texas,Young,NA
+1988,Texas,Overall,NA
+1988,Texas,Hispanic,NA
+1988,Texas,Young,NA
+1990,Texas,Overall,NA
+1990,Texas,Hispanic,NA
+1990,Texas,Young,NA
+1992,Texas,Overall,NA
+1992,Texas,Hispanic,NA
+1992,Texas,Young,NA
+1994,Texas,Overall,NA
+1994,Texas,Hispanic,NA
+1994,Texas,Young,NA
+1996,Texas,Overall,NA
+1996,Texas,Hispanic,NA
+1996,Texas,Young,NA
+1998,Texas,Overall,NA
+1998,Texas,Hispanic,NA
+1998,Texas,Young,NA
+2000,Texas,Overall,0.5
+2000,Texas,Hispanic,0.37711471144055414
+2000,Texas,Young,0.2945377129826253
+2002,Texas,Overall,0.34
+2002,Texas,Hispanic,0.22767246855637274
+2002,Texas,Young,0.12870102503592615
+2004,Texas,Overall,NA
+2004,Texas,Hispanic,NA
+2004,Texas,Young,NA
+2006,Texas,Overall,NA
+2006,Texas,Hispanic,NA
+2006,Texas,Young,NA
+2008,Texas,Overall,NA
+2008,Texas,Hispanic,NA
+2008,Texas,Young,NA
 2010,Texas,Overall,0.33
 2010,Texas,Hispanic,0.20992638661827936
 2010,Texas,Young,0.14607429862051508
@@ -923,6 +2903,51 @@ Year,State,Group,Turnout
 2022,Texas,Overall,0.42
 2022,Texas,Hispanic,0.32671050480819114
 2022,Texas,Young,0.1979835913960743
+1980,Utah,Overall,0.67
+1980,Utah,Hispanic,0.4235950923259012
+1980,Utah,Young,0.5020571176598578
+1982,Utah,Overall,0.56
+1982,Utah,Hispanic,0.37587320555457604
+1982,Utah,Young,0.3014855129485104
+1984,Utah,Overall,0.64
+1984,Utah,Hispanic,0.5201848950177996
+1984,Utah,Young,0.46284728092642713
+1986,Utah,Overall,0.44
+1986,Utah,Hispanic,0.3908526377241739
+1986,Utah,Young,0.17565112149838377
+1988,Utah,Overall,0.63
+1988,Utah,Hispanic,0.3981505903480727
+1988,Utah,Young,0.5565205182679285
+1990,Utah,Overall,0.42
+1990,Utah,Hispanic,0.18716343437301594
+1990,Utah,Young,0.15578642949251
+1992,Utah,Overall,0.68
+1992,Utah,Hispanic,0.5094667542672173
+1992,Utah,Young,0.5965248683590803
+1994,Utah,Overall,0.43
+1994,Utah,Hispanic,0.16505989392854759
+1994,Utah,Young,0.22503665805159712
+1996,Utah,Overall,0.52
+1996,Utah,Hispanic,0.4244949059886265
+1996,Utah,Young,0.33954752259648335
+1998,Utah,Overall,0.37
+1998,Utah,Hispanic,0.18145425423259903
+1998,Utah,Young,0.12635095250525832
+2000,Utah,Overall,0.55
+2000,Utah,Hispanic,0.4724036845856276
+2000,Utah,Young,0.36487276334570135
+2002,Utah,Overall,0.38
+2002,Utah,Hispanic,0.16254791693623083
+2002,Utah,Young,0.15734955486800029
+2004,Utah,Overall,0.61
+2004,Utah,Hispanic,0.36171990818379834
+2004,Utah,Young,0.4552438367715132
+2006,Utah,Overall,0.36
+2006,Utah,Hispanic,0.29161424979578493
+2006,Utah,Young,0.10971745954397912
+2008,Utah,Overall,0.57
+2008,Utah,Hispanic,0.24950289169388656
+2008,Utah,Young,0.33193679534545945
 2010,Utah,Overall,0.37
 2010,Utah,Hispanic,0.18135532308699928
 2010,Utah,Young,0.11274648881056644
@@ -944,6 +2969,51 @@ Year,State,Group,Turnout
 2022,Utah,Overall,0.47
 2022,Utah,Hispanic,0.2051726499044719
 2022,Utah,Young,0.16181666071301823
+1980,Vermont,Overall,0.59
+1980,Vermont,Hispanic,0.6463835530272952
+1980,Vermont,Young,0.33487419065461105
+1982,Vermont,Overall,0.46
+1982,Vermont,Hispanic,0.2751629673203165
+1982,Vermont,Young,0.21163308750163604
+1984,Vermont,Overall,0.62
+1984,Vermont,Hispanic,0.9910059948939937
+1984,Vermont,Young,0.4326738981871303
+1986,Vermont,Overall,0.54
+1986,Vermont,Hispanic,0.9123910727598507
+1986,Vermont,Young,0.23398011649836425
+1988,Vermont,Overall,0.67
+1988,Vermont,Hispanic,0.22283740546198452
+1988,Vermont,Young,0.4404981085961424
+1990,Vermont,Overall,0.52
+1990,Vermont,Hispanic,0.7273651242528221
+1990,Vermont,Young,0.15674223986837235
+1992,Vermont,Overall,0.7
+1992,Vermont,Hispanic,0.9871072935433683
+1992,Vermont,Young,0.4802207953510186
+1994,Vermont,Overall,0.51
+1994,Vermont,Hispanic,0.5084513985709366
+1994,Vermont,Young,0.1793290284224437
+1996,Vermont,Overall,0.6
+1996,Vermont,Hispanic,0.5786936340397777
+1996,Vermont,Young,0.26280391259185976
+1998,Vermont,Overall,0.5
+1998,Vermont,Hispanic,0.18147257625504334
+1998,Vermont,Young,0.1395654145432842
+2000,Vermont,Overall,0.65
+2000,Vermont,Hispanic,0.3869368833442693
+2000,Vermont,Young,0.30439266884986294
+2002,Vermont,Overall,0.5
+2002,Vermont,Hispanic,0.33887438803678016
+2002,Vermont,Young,0.10308979503658365
+2004,Vermont,Overall,0.67
+2004,Vermont,Hispanic,0.6237952645149398
+2004,Vermont,Young,0.4309934570557935
+2006,Vermont,Overall,0.55
+2006,Vermont,Hispanic,0.5426499285568873
+2006,Vermont,Young,0.2341718419429169
+2008,Vermont,Overall,0.68
+2008,Vermont,Hispanic,0.5598794237312597
+2008,Vermont,Young,0.5012479645875022
 2010,Vermont,Overall,0.5
 2010,Vermont,Hispanic,0.44626252399423477
 2010,Vermont,Young,0.18022436175319123
@@ -965,6 +3035,51 @@ Year,State,Group,Turnout
 2022,Vermont,Overall,0.56
 2022,Vermont,Hispanic,0.3803464338230376
 2022,Vermont,Young,0.3597887683423882
+1980,Virginia,Overall,NA
+1980,Virginia,Hispanic,NA
+1980,Virginia,Young,NA
+1982,Virginia,Overall,NA
+1982,Virginia,Hispanic,NA
+1982,Virginia,Young,NA
+1984,Virginia,Overall,NA
+1984,Virginia,Hispanic,NA
+1984,Virginia,Young,NA
+1986,Virginia,Overall,NA
+1986,Virginia,Hispanic,NA
+1986,Virginia,Young,NA
+1988,Virginia,Overall,NA
+1988,Virginia,Hispanic,NA
+1988,Virginia,Young,NA
+1990,Virginia,Overall,NA
+1990,Virginia,Hispanic,NA
+1990,Virginia,Young,NA
+1992,Virginia,Overall,NA
+1992,Virginia,Hispanic,NA
+1992,Virginia,Young,NA
+1994,Virginia,Overall,NA
+1994,Virginia,Hispanic,NA
+1994,Virginia,Young,NA
+1996,Virginia,Overall,0.51
+1996,Virginia,Hispanic,0.4209929609449214
+1996,Virginia,Young,0.3086813855290025
+1998,Virginia,Overall,NA
+1998,Virginia,Hispanic,NA
+1998,Virginia,Young,NA
+2000,Virginia,Overall,0.55
+2000,Virginia,Hispanic,0.47537478194490956
+2000,Virginia,Young,0.38819691415498764
+2002,Virginia,Overall,0.32
+2002,Virginia,Hispanic,0.07899535915121886
+2002,Virginia,Young,0.12508020392034377
+2004,Virginia,Overall,0.61
+2004,Virginia,Hispanic,0.49770399424289896
+2004,Virginia,Young,0.38818280638282976
+2006,Virginia,Overall,0.44
+2006,Virginia,Hispanic,0.2961069576440512
+2006,Virginia,Young,0.26190784656783395
+2008,Virginia,Overall,0.68
+2008,Virginia,Hispanic,0.5591460770376686
+2008,Virginia,Young,0.5182989425484008
 2010,Virginia,Overall,0.39
 2010,Virginia,Hispanic,0.18145249362209034
 2010,Virginia,Young,0.1883762220084021
@@ -986,6 +3101,51 @@ Year,State,Group,Turnout
 2022,Virginia,Overall,0.48
 2022,Virginia,Hispanic,0.3192995950483547
 2022,Virginia,Young,0.26101309163834885
+1980,Washington,Overall,0.61
+1980,Washington,Hispanic,0.5175585353941616
+1980,Washington,Young,0.4387350047094443
+1982,Washington,Overall,0.47
+1982,Washington,Hispanic,0.27856895512937396
+1982,Washington,Young,0.20985383818274045
+1984,Washington,Overall,0.63
+1984,Washington,Hispanic,0.3365523649937045
+1984,Washington,Young,0.38376345485102614
+1986,Washington,Overall,0.43
+1986,Washington,Hispanic,0.18895268821689587
+1986,Washington,Young,0.1360073463416198
+1988,Washington,Overall,0.59
+1988,Washington,Hispanic,0.5163280444143306
+1988,Washington,Young,0.36253433063062435
+1990,Washington,Overall,0.4
+1990,Washington,Hispanic,0.3637452872567651
+1990,Washington,Young,0.14627420969576843
+1992,Washington,Overall,0.65
+1992,Washington,Hispanic,0.4068361637698936
+1992,Washington,Young,0.5201254389619188
+1994,Washington,Overall,0.47
+1994,Washington,Hispanic,0.4937373864507805
+1994,Washington,Young,0.1962957934754485
+1996,Washington,Overall,0.6
+1996,Washington,Hispanic,0.39941596594621026
+1996,Washington,Young,0.3608947051055016
+1998,Washington,Overall,0.49
+1998,Washington,Hispanic,0.3162379555694971
+1998,Washington,Young,0.20875694773743064
+2000,Washington,Overall,0.63
+2000,Washington,Hispanic,0.33358425985017565
+2000,Washington,Young,0.4044289229052991
+2002,Washington,Overall,0.44
+2002,Washington,Hispanic,0.23310617534014005
+2002,Washington,Young,0.14108279132622056
+2004,Washington,Overall,0.68
+2004,Washington,Hispanic,0.3655842861623082
+2004,Washington,Young,0.5485373737868747
+2006,Washington,Overall,0.48
+2006,Washington,Hispanic,0.28932497250607453
+2006,Washington,Young,0.22760883193726125
+2008,Washington,Overall,0.67
+2008,Washington,Hispanic,0.5282836749015809
+2008,Washington,Young,0.4681510683904445
 2010,Washington,Overall,0.55
 2010,Washington,Hispanic,0.28198387605297814
 2010,Washington,Young,0.29362179073989503
@@ -1007,6 +3167,51 @@ Year,State,Group,Turnout
 2022,Washington,Overall,0.55
 2022,Washington,Hispanic,0.4361165317346684
 2022,Washington,Young,0.2674892212868973
+1980,West Virginia,Overall,0.54
+1980,West Virginia,Hispanic,0.3618273783379517
+1980,West Virginia,Young,0.3029330841785408
+1982,West Virginia,Overall,NA
+1982,West Virginia,Hispanic,NA
+1982,West Virginia,Young,NA
+1984,West Virginia,Overall,NA
+1984,West Virginia,Hispanic,NA
+1984,West Virginia,Young,NA
+1986,West Virginia,Overall,0.33
+1986,West Virginia,Hispanic,0.20034045717989857
+1986,West Virginia,Young,0.13551916905791017
+1988,West Virginia,Overall,NA
+1988,West Virginia,Hispanic,NA
+1988,West Virginia,Young,NA
+1990,West Virginia,Overall,NA
+1990,West Virginia,Hispanic,NA
+1990,West Virginia,Young,NA
+1992,West Virginia,Overall,NA
+1992,West Virginia,Hispanic,NA
+1992,West Virginia,Young,NA
+1994,West Virginia,Overall,0.32
+1994,West Virginia,Hispanic,0.38600777696747574
+1994,West Virginia,Young,0.1280521239245693
+1996,West Virginia,Overall,0.47
+1996,West Virginia,Hispanic,0.2987126992272008
+1996,West Virginia,Young,0.24590334640825923
+1998,West Virginia,Overall,0.29
+1998,West Virginia,Hispanic,0.14114595639872202
+1998,West Virginia,Young,0.10710161228369576
+2000,West Virginia,Overall,NA
+2000,West Virginia,Hispanic,NA
+2000,West Virginia,Young,NA
+2002,West Virginia,Overall,0.32
+2002,West Virginia,Hispanic,0.2490514682001105
+2002,West Virginia,Young,0.1130836011749576
+2004,West Virginia,Overall,0.55
+2004,West Virginia,Hispanic,0.2011470402546147
+2004,West Virginia,Young,0.44137128425927785
+2006,West Virginia,Overall,0.33
+2006,West Virginia,Hispanic,0
+2006,West Virginia,Young,0.11968072668051341
+2008,West Virginia,Overall,0.51
+2008,West Virginia,Hispanic,0.8052156832007897
+2008,West Virginia,Young,0.4650126540244843
 2010,West Virginia,Overall,0.37
 2010,West Virginia,Hispanic,0.34042271151582304
 2010,West Virginia,Young,0.17198366723105465
@@ -1028,6 +3233,51 @@ Year,State,Group,Turnout
 2022,West Virginia,Overall,0.35
 2022,West Virginia,Hispanic,0.19216476881864594
 2022,West Virginia,Young,0.14178806333826544
+1980,Wisconsin,Overall,NA
+1980,Wisconsin,Hispanic,NA
+1980,Wisconsin,Young,NA
+1982,Wisconsin,Overall,NA
+1982,Wisconsin,Hispanic,NA
+1982,Wisconsin,Young,NA
+1984,Wisconsin,Overall,NA
+1984,Wisconsin,Hispanic,NA
+1984,Wisconsin,Young,NA
+1986,Wisconsin,Overall,NA
+1986,Wisconsin,Hispanic,NA
+1986,Wisconsin,Young,NA
+1988,Wisconsin,Overall,NA
+1988,Wisconsin,Hispanic,NA
+1988,Wisconsin,Young,NA
+1990,Wisconsin,Overall,NA
+1990,Wisconsin,Hispanic,NA
+1990,Wisconsin,Young,NA
+1992,Wisconsin,Overall,NA
+1992,Wisconsin,Hispanic,NA
+1992,Wisconsin,Young,NA
+1994,Wisconsin,Overall,NA
+1994,Wisconsin,Hispanic,NA
+1994,Wisconsin,Young,NA
+1996,Wisconsin,Overall,NA
+1996,Wisconsin,Hispanic,NA
+1996,Wisconsin,Young,NA
+1998,Wisconsin,Overall,NA
+1998,Wisconsin,Hispanic,NA
+1998,Wisconsin,Young,NA
+2000,Wisconsin,Overall,NA
+2000,Wisconsin,Hispanic,NA
+2000,Wisconsin,Young,NA
+2002,Wisconsin,Overall,NA
+2002,Wisconsin,Hispanic,NA
+2002,Wisconsin,Young,NA
+2004,Wisconsin,Overall,0.76
+2004,Wisconsin,Hispanic,0.6717726454221126
+2004,Wisconsin,Young,0.6246720833432245
+2006,Wisconsin,Overall,0.54
+2006,Wisconsin,Hispanic,0.2795367164039721
+2006,Wisconsin,Young,0.34937186246877155
+2008,Wisconsin,Overall,0.73
+2008,Wisconsin,Hispanic,0.4554531247989223
+2008,Wisconsin,Young,0.5892346230307745
 2010,Wisconsin,Overall,0.53
 2010,Wisconsin,Hispanic,0.3842802506674684
 2010,Wisconsin,Young,0.22780527099020925
@@ -1049,6 +3299,51 @@ Year,State,Group,Turnout
 2022,Wisconsin,Overall,0.6
 2022,Wisconsin,Hispanic,0.3901261670910996
 2022,Wisconsin,Young,0.5160321905275145
+1980,Wyoming,Overall,0.55
+1980,Wyoming,Hispanic,0.32264996576237565
+1980,Wyoming,Young,0.34908549550919543
+1982,Wyoming,Overall,0.5
+1982,Wyoming,Hispanic,0.2769226012271266
+1982,Wyoming,Young,0.22307853138188583
+1984,Wyoming,Overall,0.58
+1984,Wyoming,Hispanic,0.4679048337996806
+1984,Wyoming,Young,0.34184674958222055
+1986,Wyoming,Overall,0.51
+1986,Wyoming,Hispanic,0.48453477277729995
+1986,Wyoming,Young,0.2858331515761995
+1988,Wyoming,Overall,0.59
+1988,Wyoming,Hispanic,0.3968217872378376
+1988,Wyoming,Young,0.3200880384547175
+1990,Wyoming,Overall,0.53
+1990,Wyoming,Hispanic,0.3759210613616234
+1990,Wyoming,Young,0.19361863735917537
+1992,Wyoming,Overall,0.63
+1992,Wyoming,Hispanic,0.5344282508384521
+1992,Wyoming,Young,0.3840317887293325
+1994,Wyoming,Overall,0.61
+1994,Wyoming,Hispanic,0.3807677011219108
+1994,Wyoming,Young,0.3572341789798114
+1996,Wyoming,Overall,0.63
+1996,Wyoming,Hispanic,0.36386203340262147
+1996,Wyoming,Young,0.3966907581618988
+1998,Wyoming,Overall,0.51
+1998,Wyoming,Hispanic,0.357190503886215
+1998,Wyoming,Young,0.2861180769430679
+2000,Wyoming,Overall,0.62
+2000,Wyoming,Hispanic,0.36948428915655185
+2000,Wyoming,Young,0.4022951729352951
+2002,Wyoming,Overall,0.51
+2002,Wyoming,Hispanic,0.33847526537752437
+2002,Wyoming,Young,0.26623187828337597
+2004,Wyoming,Overall,0.65
+2004,Wyoming,Hispanic,0.579370617427396
+2004,Wyoming,Young,0.4700198780076894
+2006,Wyoming,Overall,0.51
+2006,Wyoming,Hispanic,0.3233758296952675
+2006,Wyoming,Young,0.2295603766553972
+2008,Wyoming,Overall,0.63
+2008,Wyoming,Hispanic,0.4521748840244685
+2008,Wyoming,Young,0.47956368618435413
 2010,Wyoming,Overall,0.46
 2010,Wyoming,Hispanic,0.23426771675269273
 2010,Wyoming,Young,0.18265212379888346

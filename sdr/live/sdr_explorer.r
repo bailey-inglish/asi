@@ -13,42 +13,52 @@ ui <- fluidPage(
       inputId = "state",
       label = "Select State",
       choices = sdr$state
+    ),
+    checkboxInput(
+      inputId = "midterms",
+      label = "Include midterms",
+      value = TRUE
     )
   ),
   mainPanel(
-    h4("Voter Turnout By Group Over Time"),
+    h4("Voter Turnout By Group And State Over Time"),
     plotOutput("graph")
   )
 )
 
 server <- function(input, output) {
-  # every time the generate button is pressed, the graph is updated.
-  observeEvent(
-    input$state,
-    {
-      sdr_year <- filter(sdr, state == input$state)$sdr_start_year
-      current_graph <-
-        filter(
-          turnout,
-          State == input$state
-        ) %>%
-        ggplot() + 
-          geom_line(
-            aes(
-              x = Year,
-              y = Turnout,
-              col = Group
-            )
-          ) +
-          geom_vline(
-            xintercept = sdr_year
-          ) +
-          scale_x_binned(
-            breaks = c(2010 + 2 * 0:6, sdr_year)
-          )
-      output$graph <- renderPlot(current_graph)
+  construct_graph <- function() {
+    if (input$midterms) {
+      selected_years <- 1980 + 0:21 * 2
+    } else {
+      selected_years <- 1980 + 0:10 * 4
     }
-  )
+    sdr_year <- filter(sdr, state == input$state)$sdr_start_year
+    current_graph <-
+      filter(
+        turnout,
+        State == input$state,
+        is.element(Year, selected_years)
+      ) %>%
+      ggplot() + 
+        geom_line(
+          aes(
+            x = Year,
+            y = Turnout * 100,
+            col = Group
+          )
+        ) +
+        geom_vline(
+          xintercept = sdr_year
+        ) +
+        labs(
+          y = "Voter Turnout (%)",
+          caption = "| = Year SDR was Implemented"
+        )
+    output$graph <- renderPlot(current_graph)
+  }
+  observeEvent(input$state, {construct_graph()})
+  observeEvent(input$midterms, {construct_graph()})
 }
 
 shinyApp(ui = ui, server = server)
