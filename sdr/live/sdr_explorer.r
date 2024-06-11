@@ -18,7 +18,11 @@ ui <- fluidPage(
       inputId = "midterms",
       label = "Include midterms",
       value = TRUE
-    )
+    ),
+    hr(),
+    strong("Sources"),
+    p("Sarah Flood, Miriam King, Renae Rodgers, Steven Ruggles, J. Robert Warren, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Megan Schouweiler, and Michael Westberry. IPUMS CPS: Version 11.0 [dataset]. Minneapolis, MN: IPUMS, 2023. https://doi.org/10.18128/D030.V11.0"),
+    p("Michael McDonald. 2024. “1980-2022 General Election Turnout Rates (v1.1).” https://election.lab.ufl.edu/dataset/1980-2022-general-election-turnout-rates-v1-1/")
   ),
   mainPanel(
     h4("Voter Turnout By Group And State Over Time"),
