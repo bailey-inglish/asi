@@ -25,7 +25,6 @@ ui <- fluidPage(
     p("Michael McDonald. 2024. “1980-2022 General Election Turnout Rates (v1.1).” https://election.lab.ufl.edu/dataset/1980-2022-general-election-turnout-rates-v1-1/")
   ),
   mainPanel(
-    h4("Voter Turnout By Group And State Over Time"),
     plotOutput("graph")
   )
 )
@@ -56,8 +55,9 @@ server <- function(input, output) {
           xintercept = sdr_year
         ) +
         labs(
+          title = str_c("Voter Turnout Over Time in ", input$state),
           y = "Voter Turnout (%)",
-          caption = "| = Year SDR was Implemented"
+          caption = str_c("| = Year SDR was Implemented (", sdr_year, ")")
         )
     output$graph <- renderPlot(current_graph)
   }
