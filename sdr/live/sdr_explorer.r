@@ -45,6 +45,10 @@ server <- function(input, output) {
       selected_years <- 1980 + 0:10 * 4
     }
     sdr_year <- filter(sdr, state == input$state | state == input$comp)
+    post_title <- ""
+    if (input$comp != "(None)" & input$state != input$comp) {
+      post_title <- str_c(" and ", input$comp)
+    }
     current_graph <-
       filter(
         turnout,
@@ -72,12 +76,15 @@ server <- function(input, output) {
           )
         ) +
         labs(
-          title = str_c("Voter Turnout Over Time in ", input$state),
+          title = str_c("Voter Turnout Over Time in ", input$state, post_title),
           y = "Voter Turnout (%)",
           caption = str_c("| = Year SDR was Implemented")
         ) +
         ylim(
           c(0, 100)
+        ) +
+        xlim(
+          c(1980, 2024)
         )
     output$graph <- renderPlot(current_graph)
   }
