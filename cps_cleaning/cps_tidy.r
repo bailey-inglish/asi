@@ -1,6 +1,6 @@
 # Setup & import
 library(tidyverse)
-library(labelled)
+library(haven)
 setwd("cps_cleaning")
 
 fips_conv <- read_csv("fips_name_abbr.csv")
@@ -9,8 +9,6 @@ fips_conv$fips <- as.numeric(fips_conv$fips)
 cps20 <- read_csv("nov20pub.csv")
 cps20$GESTFIPS <- cps20$gestfips # for some reason this was lowercase :(
 cps22 <- read_csv("nov22pub.csv")
-
-table(cps20$HEFAMINC)
 
 # Variables renamed to be human readable
 clean_vars <- function(cps_data) {
@@ -46,11 +44,98 @@ clean_vars <- function(cps_data) {
   return(spec_cps_data)
 }
 
-cps <- rows_append(clean_vars(cps20), clean_vars(cps22))
+# Immigrant year of entry is a range that was recoded between 2020 and 2022
+immi20 <- tribble(
+  ~immigrant_year_of_entry, ~value,
+  -1, NA,
+  00, "NOT FOREIGN BORN",
+  01, "BEFORE 1950",
+  02, "1950-1959",
+  03, "1960-1964",
+  04, "1965-1969",
+  05, "1970-1974",
+  06, "1975-1979",
+  07, "1980-1981",
+  08, "1982-1983",
+  09, "1984-1985",
+  10, "1986-1987",
+  11, "1988-1989",
+  12, "1990-1991",
+  13, "1992-1993",
+  14, "1994-1995",
+  15, "1996-1997",
+  16, "1998-1999",
+  17, "2000-2001",
+  18, "2002-2003",
+  19, "2004-2005",
+  20, "2006-2007",
+  21, "2008-2009",
+  22, "2010-2011",
+  23, "2012-2013",
+  24, "2014-2015",
+  25, "2016-2017",
+  26, "2018-2020" # cps 2020 tech docs are missing top values
+)
 
-conv_table <- c(
-  "family_income_range" = tribble(
-    ~key, ~value,
+immi22 <- tribble(
+  ~immigrant_year_of_entry, ~value,
+  -1, NA,
+  00, "NOT FOREIGN BORN",
+  01, "BEFORE 1950",
+  02, "1950-1959",
+  03, "1960-1964",
+  04, "1965-1969",
+  05, "1970-1974",
+  06, "1975-1979",
+  07, "1980-1981",
+  08, "1982-1983",
+  09, "1984-1985",
+  10, "1986-1987",
+  11, "1988-1989",
+  12, "1990-1991",
+  13, "1992-1993",
+  14, "1994-1995",
+  15, "1996-1997",
+  16, "1998-1999",
+  17, "2000-2001",
+  18, "2002-2003",
+  19, "2004-2005",
+  20, "2006-2007",
+  21, "2008-2009",
+  22, "2010-2011",
+  23, "2012-2013",
+  24, "2014-2015",
+  25, "2016-2017",
+  26, "2018-2019",
+  27, "2020-2022"
+)
+
+cps20 <- clean_vars(cps20) %>%
+  left_join(
+    immi20,
+    by = "immigrant_year_of_entry"
+  ) %>%
+  mutate(
+    immigrant_year_of_entry = value,
+    .keep = "unused"
+  )
+
+cps22 <- clean_vars(cps22) %>%
+  left_join(
+    immi22,
+    by = "immigrant_year_of_entry"
+  ) %>%
+  mutate(
+    immigrant_year_of_entry = value,
+    .keep = "unused"
+  )
+
+cps <- rows_append(cps20, cps22)
+
+conv_table <- tribble(
+  ~var, ~conv,
+  "family_income_range", tribble(
+    ~family_income_range, ~value,
     -1, NA,
     1, "LESS THAN $5,000",
     2, "$5,000 TO $7,499",
@@ -69,32 +154,32 @@ conv_table <- c(
     15, "100,000 TO 149,999",
     16, "150,000 OR MORE"
   ),
-  "geo_region" = tribble(
-    ~key, ~value,
+  "geo_region", tribble(
+    ~geo_region, ~value,
     1, "NORTHEAST",
     2, "MIDWEST",
     3, "SOUTH",
     4, "WEST"
   ),
-  "state" = tibble(
-    key = fips_conv$fips,
+  "state", tibble(
+    state = fips_conv$fips,
     value = fips_conv$name
   ),
-  "principal_city_balance_status" = tribble(
-    ~key, ~value,
+  "principal_city_balance_status", tribble(
+    ~principal_city_balance_status, ~value,
     1, "PRINCIPAL CITY",
     2, "BALANCE",
     3, "NONMETROPOLITAN",
     4, NA
   ),
-  "is_metro" = tribble(
-    ~key, ~value,
+  "is_metro", tribble(
+    ~is_metro, ~value,
     1, "METROPOLITAN",
     2, "NONMETROPOLITAN",
     3, NA
   ),
-  "metro_size" = tribble(
-    ~key, ~value,
+  "metro_size", tribble(
+    ~metro_size, ~value,
     0, NA,
     2, "100,000 - 249,999",
     3, "250,000 - 499,999",
@@ -103,17 +188,17 @@ conv_table <- c(
     6, "2,500,000 - 4,999,999",
     7, "5,000,000+"
   ),
-  "age" = tibble(
-    key = c(0:79, 80, 85),
+  "age", tibble(
+    age = c(0:79, 80, 85),
     value = c(0:79, "80-84 Years Old", "85+ Years Old")
   ),
-  "is_age_top_coded" = tribble(
-    ~key, ~value,
+  "is_age_top_coded", tribble(
+    ~is_age_top_coded, ~value,
     0, FALSE,
     1, TRUE
   ),
-  "marital_status" = tribble(
-    ~key, ~value,
+  "marital_status", tribble(
+    ~marital_status, ~value,
     -1, NA,
     1, "MARRIED - SPOUSE PRESENT",
     2, "MARRIED - SPOUSE ABSENT",
@@ -122,14 +207,14 @@ conv_table <- c(
     5, "SEPARATED",
     6, "NEVER MARRIED"
   ),
-  "sex" = tribble(
-    ~key, ~value,
+  "sex", tribble(
+    ~sex, ~value,
     -1, NA,
     1, "MALE",
     2, "FEMALE"
   ),
-  "highest_edu" = tribble(
-    ~key, ~value,
+  "highest_edu", tribble(
+    ~highest_edu, ~value,
     -1, NA,
     31, "LESS THAN 1ST GRADE",
     32, "1ST, 2ND, 3RD OR 4TH GRADE",
@@ -148,8 +233,8 @@ conv_table <- c(
     45, "PROFESSIONAL SCHOOL DEG (EX: MD, DDS, DVM)",
     46, "DOCTORATE DEGREE (EX: PhD, EdD)"
   ),
-  "race" = tribble(
-    ~key, ~value,
+  "race", tribble(
+    ~race, ~value,
     -1, NA,
     1, "White Only",
     2, "Black Only",
@@ -178,8 +263,8 @@ conv_table <- c(
     25, "Other 3 Race Combinations",
     26, "Other 4 and 5 Race Combination"
   ),
-  "armed_forces_marital_status" = tribble(
-    ~key, ~value,
+  "armed_forces_marital_status", tribble(
+    ~armed_forces_marital_status, ~value,
     -1, NA,
     1, "MARRIED, CIVILIAN SPOUSE PRESENT",
     2, "MARRIED, ARMED FORCES SPOUSE PRESENT",
@@ -189,8 +274,8 @@ conv_table <- c(
     6, "SEPARATED",
     7, "NEVER MARRIED",
   ),
-  "citizen_status" = tribble(
-    ~key, ~value,
+  "citizen_status", tribble(
+    ~citizen_status, ~value,
     -1, NA,
     1, "NATIVE, BORN IN THE UNITED STATES",
     2, "NATIVE, BORN IN PUERTO RICO OR OTHER U.S. ISLAND AREAS",
@@ -198,8 +283,8 @@ conv_table <- c(
     4, "FOREIGN BORN, U.S. CITIZEN BY NATURALIZATION",
     5, "FOREIGN BORN, NOT A CITIZEN OF THE UNITED STATES"
   ),
-  "voted" = tribble(
-    ~key, ~value,
+  "voted", tribble(
+    ~voted, ~value,
     1, "Yes",
     2, "No",
     -1, NA,
@@ -207,8 +292,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "registered_voter" =  tribble(
-    ~key, ~value,
+  "registered_voter",  tribble(
+    ~registered_voter, ~value,
     1, "Yes",
     2, "No",
     -1, NA,
@@ -216,8 +301,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "main_reason_not_registered" = tribble(
-    ~key, ~value,
+  "main_reason_not_registered", tribble(
+    ~main_reason_not_registered, ~value,
     1, "Did not meet registration deadlines",
     2, "Did now know where or how to register",
     3, "Did not meet residency requirements/did not live here long enough",
@@ -232,8 +317,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "main_reason_not_voted" = tribble(
-    ~key, ~value,
+  "main_reason_not_voted", tribble(
+    ~main_reason_not_voted, ~value,
     1, "Illness or disability (own or family's)",
     2, "Out of town or away from home",
     3, "Forgot to vote (or send in absentee ballot)",
@@ -250,8 +335,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "voted_in_person_or_mail" = tribble(
-    ~key, ~value,
+  "voted_in_person_or_mail", tribble(
+    ~voted_in_person_or_mail, ~value,
     1, "In person",
     2, "By mail",
     -1, NA,
@@ -259,8 +344,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "voted_on_election_day" = tribble(
-    ~key, ~value,
+  "voted_on_election_day", tribble(
+    ~voted_on_election_day, ~value,
     1, "On election day",
     2, "Before election day",
     -1, NA,
@@ -268,8 +353,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "where_registered_to_vote" = tribble(
-    ~key, ~value,
+  "where_registered_to_vote", tribble(
+    ~where_registered_to_vote, ~value,
     1, "At a department of motor vehicles (for example, when obtaining a driver's license or other identification card)",
     2, "At a public assistance agency (for example, a Medicaid, AFDC, or Food Stamps office, an office serving disabled persons, or an unemployment office)",
     3, "Registered by mail",
@@ -284,8 +369,8 @@ conv_table <- c(
     -3, "Refused",
     -9, "No Response"
   ),
-  "lived_at_address_range" = tribble(
-    ~key, ~value,
+  "lived_at_address_range", tribble(
+    ~lived_at_address_range, ~value,
     -1, NA,
     1, "Less than 1 year",
     2, "1-2 years",
@@ -294,4 +379,24 @@ conv_table <- c(
   )
 )
 
-# come back to immigrant year of entry - cross-walking issues with 20-22 recodes
+for (var_name in conv_table$var) {
+  conv <- filter(conv_table, var == var_name)$conv
+  cps <- cps %>%
+    left_join(
+      conv,
+      by = var_name,
+      copy = TRUE
+    ) %>%
+    mutate(
+      !!sym(var_name) := value,
+      .keep = "unused"
+    )
+}
+
+setwd("final_data")
+write_dta(cps, "cps_clean_20_22.dta")
+write_csv(cps, "cps_clean_20_22.csv")
+write_dta(filter(cps, year == 2020), "cps_clean_20_only.dta")
+write_csv(filter(cps, year == 2020), "cps_clean_20_only.csv")
+write_dta(filter(cps, year == 2022), "cps_clean_22_only.dta")
+write_csv(filter(cps, year == 2022), "cps_clean_22_only.csv")
