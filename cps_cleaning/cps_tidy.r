@@ -6,9 +6,10 @@ setwd("cps_cleaning")
 fips_conv <- read_csv("fips_name_abbr.csv")
 fips_conv$fips <- as.numeric(fips_conv$fips)
 
-cps20 <- read_csv("nov20pub.csv")
+cps18 <- read_table("raw_data/nov18pub.dat", skip = 3)
+cps20 <- read_csv("raw_data/nov20pub.csv")
 cps20$GESTFIPS <- cps20$gestfips # for some reason this was lowercase :(
-cps22 <- read_csv("nov22pub.csv")
+cps22 <- read_csv("raw_data/nov22pub.csv")
 
 # Variables renamed to be human readable
 clean_vars <- function(cps_data) {
