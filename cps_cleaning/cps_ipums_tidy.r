@@ -5,7 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps_raw <- read_ipums_ddi("raw_data/cps_00009.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00009.xml") %>% read_ipums_micro()
 
 # Note: income data from https://www.test.census.gov/data/tables/time-series/demo/income-poverty/historical-income-households.html
 
@@ -74,13 +74,19 @@ cps$work_status[is.element(cps$WKSTAT, c(11, 14, 15))] <- "full-time"
 cps$work_status[is.element(cps$WKSTAT, c(12, 21, 22, 41))] <- "part-time"
 cps$work_status[is.element(cps$WKSTAT, c(13, 41, 50, 60))] <- "not working"
 
-# Massive block of NA recoding
+# Large block of NA recoding
 cps$COUNTY[cps$COUNTY == 0] <- NA
 cps$METFIPS[cps$METFIPS == 99998] <- NA
 cps$METRO[cps$METRO == 0] <- NA
 cps$CBSASZ[cps$CBSASZ == 0] <- NA
 cps$MARST[cps$MARST == 9] <- NA
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
+
+# Vote/reg NA recoding for 90+ outputs
+for (v in 29:36) {
+  v_name <- colnames(cps)[v]
+  cps[cps[, v_name] > 90, v_name] <- NA
+}
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")

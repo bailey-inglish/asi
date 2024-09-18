@@ -1,0 +1,161 @@
+---
+title: "CPS Data and Electoral Strength"
+subtitle: "Preliminary Report 9-18"
+author: "Bailey Inglish"
+date: "September 18, 2024"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+## Question 1: Income & voting
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(kableExtra)
+library(forcats)
+
+cps <- read_csv("C:/Users/baile/Desktop/asi/cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
+
+income_strength <- group_by(cps, FAMINC) %>%
+  summarize(
+    count = round(sum(WTFINL), 1),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
+    pop_pct = 100 * round(count / sum(cps$WTFINL), 3),
+    voter_pct = 100 * round(voted / sum(cps$WTFINL * (!is.na(cps$VOTED) & cps$VOTED == 2)), 3),
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+  )
+
+income_conv <- tribble(
+  ~FAMINC, ~income_range,
+  100, "$5,000 or less",
+  210, "$5,000 - 7,499",
+  300, "$7,500 - 9,999",
+  430, "$10,000 - 12,499",
+  470, "$12,500 - 14,999",
+  500, "$15,000 - 19,999",
+  600, "$20,000 - 24,999",
+  710, "$25,000 - 29,999",
+  720, "$30,000 - 34,999",
+  730, "$35,000 - 39,999",
+  740, "$40,000 - 49,999",
+  820, "$50,000 - 59,999",
+  830, "$60,000 - 74,999",
+  841, "$75,000 - 99,999",
+  842, "$100,000 - 149,999",
+  843, "$150,000 and over",
+  996, "Refused",
+  997, "Don't know",
+  999, "Blank"
+)
+
+income_strength <- left_join(income_strength, income_conv, by = "FAMINC") %>%
+  filter(
+    FAMINC != 999
+  )
+
+ggplot(
+  income_strength,
+  aes(
+    x = fct_reorder(
+      income_range,
+      FAMINC
+    )
+  )
+) +
+  geom_col(
+    aes(
+      y = pop_pct
+    ),
+    fill = "red",
+    width = .1
+  ) +
+  geom_point(
+    aes(
+      y = voter_pct
+    ),
+    col = "blue"
+  ) +
+  labs(
+    title = "Relative comparison of voting power of income groups",
+    subtitle = "Across all general federal elections 2008-2022",
+    x = "Household Income Range",
+    y = "% of population (red) vs. % of electorate (blue)"
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      vjust = 1,
+      hjust = 1
+    )
+  )
+
+ggplot(
+  income_strength,
+  aes(
+    x = fct_reorder(
+      income_range,
+      FAMINC
+    )
+  )
+) +
+  geom_col(
+    aes(
+      y = pct_diff
+    ),
+    width = 0.5
+  ) +
+  labs(
+    title = "Percent difference in voting power of income groups",
+    subtitle = "Across all general federal elections 2008-2022",
+    x = "Household Income Range",
+    y = "Over-/under-represenation in electorate"
+  ) +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      vjust = 1,
+      hjust = 1
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(-45, 25),
+    breaks = (-9:5 * 5)
+  ) +
+  geom_hline(
+    yintercept = 0,
+    col = "black",
+    linewidth = 0.5
+  )
+
+kable_styling(
+  kbl(
+    income_strength %>% 
+      select(income_range, pop_pct, voter_pct, pct_diff),
+    col.names = c("Household Income Range", "% of Population", "% of Electorate", "(% Difference)")
+  )
+)
+```
+
+## Question 2: 2008 vs. 2010 & The Youth voted
+
+```{r echo = FALSE, message = FALSE}
+age_conv <- c(
+  rep("young", 31),
+  rep("middle", 35),
+  rep("old", 20)
+)
+
+age_power <- mutate(cps, age_group = age_conv[AGE + 1]) %>%
+  filter(is.element(YEAR, c(2008, 2010))) %>%
+  group_by(age_group, YEAR) %>%
+  summarize(
+    count = round(sum(WTFINL), 1),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
+    pop_pct = 200 * round(count / sum(filter(cps, is.element(YEAR, c(2008, 2010)))$WTFINL), 3),
+    voter_pct = 200 * round(voted / sum(filter(cps, is.element(YEAR, c(2008, 2010)))$WTFINL * (!is.na(filter(cps, is.element(YEAR, c(2008, 2010)))$VOTED) & filter(cps, is.element(YEAR, c(2008, 2010)))$VOTED == 2)), 3),
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+  )
+
+kable_styling(kbl(age_power))
+```
