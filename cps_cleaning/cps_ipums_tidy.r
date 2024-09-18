@@ -1,29 +1,13 @@
-# Setup options(dplyr.width = Inf)
+# Setup
 library(tidyverse)
 library(haven)
 library(ipumsr)
 setwd("cps_cleaning")
 
-# Beautiful function that lets me use haven in ggplot <3
-label_x <- function(p) {
-  b <- ggplot_build(p)
-  x <- b$plot$data[[b$plot$labels$x]]
-
-  p + scale_x_continuous(
-    attributes(x)$label, 
-    breaks = attributes(x)$labels, 
-    labels = names(attributes(x)$labels)
-  )
-}
-
-# Angle lbl- theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
-
 # Import data
 cps_raw <- read_ipums_ddi("raw_data/cps_00009.xml") %>% read_ipums_micro()
-# https://www.test.census.gov/data/tables/time-series/demo/income-poverty/historical-income-households.html
-income_cutoffs <- read_csv("income_cutoffs_08-23.csv")
 
-cps <- cps_raw
+# Note: income data from https://www.test.census.gov/data/tables/time-series/demo/income-poverty/historical-income-households.html
 
 quintize_income <- function(cps) {
   cps$income_cluster <- rep(NA, nrow(cps))
@@ -61,15 +45,6 @@ quintize_income <- function(cps) {
 
 cps <- quintize_income(cps)
 
-qcps %>% group_by(income_cluster) %>% summarize(avg_reg = mean(VOTED ==2 | VOREG == 2)) %>%
-  ggplot() +
-    geom_col(
-      aes(
-        y = avg_reg,
-        x = income_cluster
-      )
-    )
-
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
 cps$min_immi_years_in_us <- rep(NA, nrow(cps))
@@ -90,10 +65,14 @@ cps$race_cluster[cps$RACE == 651] <- "asian"
 cps$employment <- rep(NA, nrow(cps))
 cps$employment[cps$EMPSTAT == 1] <- "armed forces"
 cps$employment[cps$EMPSTAT == 10 | cps$EMPSTAT == 12] <- "employed"
-cps$employment[cps$EMPSTAT == 10 | cps$EMPSTAT == 12] <- "unemployed"
+cps$employment[cps$EMPSTAT == 21 | cps$EMPSTAT == 22] <- "unemployed"
 cps$employment[cps$EMPSTAT > 30] <- "not in labor force"
 
 # Work status simplifying recode
+cps$work_status <- rep(NA, nrow(cps))
+cps$work_status[is.element(cps$WKSTAT, c(11, 14, 15))] <- "full-time"
+cps$work_status[is.element(cps$WKSTAT, c(12, 21, 22, 41))] <- "part-time"
+cps$work_status[is.element(cps$WKSTAT, c(13, 41, 50, 60))] <- "not working"
 
 # Massive block of NA recoding
 cps$COUNTY[cps$COUNTY == 0] <- NA
@@ -102,3 +81,7 @@ cps$METRO[cps$METRO == 0] <- NA
 cps$CBSASZ[cps$CBSASZ == 0] <- NA
 cps$MARST[cps$MARST == 9] <- NA
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
+
+# Write final outputs
+write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
+write_dta(cps, "final_data/cps_clean_ipums_2008-2022.dta")
