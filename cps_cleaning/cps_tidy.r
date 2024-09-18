@@ -1,3 +1,6 @@
+######################### DEPRECATED ###############################
+# Use only for 2020-2022 direct Census files. `cps_tidy.r`` is is preferred.
+
 # Setup & import
 library(tidyverse)
 library(haven)
