@@ -1,15 +1,15 @@
 ---
 title: "CPS Data and Electoral Strength"
-subtitle: "Preliminary Report 9-18"
+subtitle: "Revised Report 9-21"
 author: "Bailey Inglish"
-date: "September 18, 2024"
+date: "September 21, 2024"
 output:
   html_document: default
   pdf_document: default
   word_document: default
 ---
 
-## Question 1: Income & voting
+## Question 1: Income & Voting
 ```{r echo = FALSE, message = FALSE}
 library(tidyverse)
 library(kableExtra)
@@ -19,11 +19,11 @@ cps <- read_csv("C:/Users/baile/Desktop/asi/cps_cleaning/final_data/cps_clean_ip
 
 income_strength <- group_by(cps, FAMINC) %>%
   summarize(
-    count = round(sum(WTFINL), 1),
+    count = round(sum(WTFINL * (AGE >= 18 & CITIZEN < 5)), 1),
     voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
-    pop_pct = 100 * round(count / sum(cps$WTFINL), 3),
+    pop_pct = 100 * round(count / sum(filter(cps, AGE >= 18 & CITIZEN < 5)$WTFINL), 3),
     voter_pct = 100 * round(voted / sum(cps$WTFINL * (!is.na(cps$VOTED) & cps$VOTED == 2)), 3),
-    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (Obs - True) / True
   )
 
 income_conv <- tribble(
@@ -51,7 +51,7 @@ income_conv <- tribble(
 
 income_strength <- left_join(income_strength, income_conv, by = "FAMINC") %>%
   filter(
-    FAMINC != 999
+    FAMINC < 900
   )
 
 ggplot(
@@ -80,7 +80,8 @@ ggplot(
     title = "Relative comparison of voting power of income groups",
     subtitle = "Across all general federal elections 2008-2022",
     x = "Household Income Range",
-    y = "% of population (red) vs. % of electorate (blue)"
+    y = "% of Voting-Eligible Population (red) vs. % of Electorate (blue)",
+    caption = "Excluding respondents who refused the income question or answered 'Don't know'."
   ) +
   theme(
     axis.text.x = element_text(
@@ -109,7 +110,7 @@ ggplot(
     title = "Percent difference in voting power of income groups",
     subtitle = "Across all general federal elections 2008-2022",
     x = "Household Income Range",
-    y = "Over-/under-represenation in electorate"
+    y = "Represenation in the Electorate vs. Population (% difference)"
   ) +
   theme(
     axis.text.x = element_text(
@@ -119,8 +120,8 @@ ggplot(
     )
   ) +
   scale_y_continuous(
-    limits = c(-45, 25),
-    breaks = (-9:5 * 5)
+    limits = c(-40, 25),
+    breaks = (-8:5 * 5)
   ) +
   geom_hline(
     yintercept = 0,
@@ -137,25 +138,75 @@ kable_styling(
 )
 ```
 
-## Question 2: 2008 vs. 2010 & The Youth voted
+## Question 2: 2008 vs. 2010 & The Youth Vote
 
 ```{r echo = FALSE, message = FALSE}
 age_conv <- c(
-  rep("young", 31),
-  rep("middle", 35),
-  rep("old", 20)
+  rep("<30", 30),
+  rep("30-64", 35),
+  rep("65+", 21)
 )
 
-age_power <- mutate(cps, age_group = age_conv[AGE + 1]) %>%
-  filter(is.element(YEAR, c(2008, 2010))) %>%
+age_power_filtered <- mutate(cps, age_group = age_conv[AGE + 1]) %>%
+  filter(is.element(YEAR, c(2008, 2010)))  
+
+age_power_groups <- age_power_filtered %>%
   group_by(age_group, YEAR) %>%
-  summarize(
+  reframe(
     count = round(sum(WTFINL), 1),
-    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
-    pop_pct = 200 * round(count / sum(filter(cps, is.element(YEAR, c(2008, 2010)))$WTFINL), 3),
-    voter_pct = 200 * round(voted / sum(filter(cps, is.element(YEAR, c(2008, 2010)))$WTFINL * (!is.na(filter(cps, is.element(YEAR, c(2008, 2010)))$VOTED) & filter(cps, is.element(YEAR, c(2008, 2010)))$VOTED == 2)), 3),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+  ) %>%
+  left_join(
+    group_by(age_power_filtered, YEAR) %>%
+      summarize(
+        total_count = round(sum(WTFINL), 1),
+        total_voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+      ),
+    by = "YEAR") %>%
+  mutate(
+    pop_pct = 100 * round(count / total_count, 3),
+    voter_pct = 100 * round(voted / total_voted, 3),
     pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
   )
 
-kable_styling(kbl(age_power))
+ggplot(age_power_groups) +
+  geom_col(
+    aes(
+      x = age_group,
+      y = voter_pct,
+      fill = age_group
+    ),
+    alpha = 0.75
+  ) +
+  geom_point(
+    aes(
+      x = age_group,
+      y = pop_pct
+    ),
+    shape = 4
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Relative voting strength of young vs. old voters",
+    subtitle = "For the Novemeber 2008 and 2010 general elections",
+    x = "Age group (years)",
+    y = "Share of Electorate (%)",
+    fill = "Age group (years)",
+    caption = "For reference: x = Share of Overall Population (%)"
+  ) +
+  scale_y_continuous(
+    breaks = 0:7 * 10
+  )
+
+kable_styling(
+  kbl(
+    select(
+      age_power_groups,
+      age_group, YEAR, count, voted, pop_pct, voter_pct, pct_diff
+    ),
+    col.names = c("Age Group", "Year", "# in Population", "# in Electorate", "% of Population", "% of Voters", "(% Difference)")
+  )
+)
 ```
