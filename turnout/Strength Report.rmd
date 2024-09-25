@@ -1,8 +1,8 @@
 ---
 title: "CPS Data and Electoral Strength"
-subtitle: "Revised Report 9-21"
+subtitle: "Draft Report"
 author: "Bailey Inglish"
-date: "September 21, 2024"
+date: "September 25, 2024"
 output:
   html_document: default
   pdf_document: default
@@ -10,7 +10,7 @@ output:
 ---
 
 ## Question 1: Income & Voting
-```{r echo = FALSE, message = FALSE}
+```{r echo = FALSE, message = FALSE, dpi = 300}
 library(tidyverse)
 library(kableExtra)
 library(forcats)
@@ -80,8 +80,7 @@ ggplot(
     title = "Relative comparison of voting power of income groups",
     subtitle = "Across all general federal elections 2008-2022",
     x = "Household Income Range",
-    y = "% of Voting-Eligible Population (red) vs. % of Electorate (blue)",
-    caption = "Excluding respondents who refused the income question or answered 'Don't know'."
+    y = "% of Voting-Eligible Population (red) vs. % of Electorate (blue)"
   ) +
   theme(
     axis.text.x = element_text(
@@ -140,15 +139,15 @@ kable_styling(
 
 ## Question 2: 2008 vs. 2010 & The Youth Vote
 
-```{r echo = FALSE, message = FALSE}
+```{r echo = FALSE, message = FALSE, dpi = 300}
 age_conv <- c(
-  rep("<30", 30),
-  rep("30-64", 35),
-  rep("65+", 21)
+  rep("18-30", 31),
+  rep("31-54", 24),
+  rep("55+", 31)
 )
 
 age_power_filtered <- mutate(cps, age_group = age_conv[AGE + 1]) %>%
-  filter(is.element(YEAR, c(2008, 2010)))  
+  filter(is.element(YEAR, c(2008, 2010)) & AGE >= 18 & CITIZEN < 5)  
 
 age_power_groups <- age_power_filtered %>%
   group_by(age_group, YEAR) %>%
@@ -190,15 +189,78 @@ ggplot(age_power_groups) +
   ) +
   labs(
     title = "Relative voting strength of young vs. old voters",
-    subtitle = "For the Novemeber 2008 and 2010 general elections",
+    subtitle = "For the November 2008 and 2010 general elections",
     x = "Age group (years)",
     y = "Share of Electorate (%)",
     fill = "Age group (years)",
-    caption = "For reference: x = Share of Overall Population (%)"
+    caption = "Note: X = % of population"
   ) +
   scale_y_continuous(
     breaks = 0:7 * 10
   )
+
+age_power_cont <- filter(cps, is.element(YEAR, c(2008, 2010)) & AGE >= 18 & CITIZEN < 5) %>%
+  group_by(AGE, YEAR) %>%
+  reframe(
+    count = round(sum(WTFINL), 1),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+  ) %>%
+  left_join(
+    group_by(cps, YEAR) %>%
+      summarize(
+        total_count = round(sum(WTFINL * (CITIZEN < 5 & AGE >= 18)), 1),
+        total_voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+      ),
+    by = "YEAR") %>%
+  mutate(
+    pop_pct = 100 * round(count / total_count, 3),
+    voter_pct = 100 * round(voted / total_voted, 3),
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+  )
+
+ggplot(age_power_cont) +
+  geom_line(
+    aes(
+      x = AGE,
+      y = voter_pct,
+      col = "Voting Eligible\nPopulation"
+    ),
+    alpha = 0.75
+  ) +
+  geom_line(
+    aes(
+      x = AGE,
+      y = pop_pct,
+      col = "Electorate"
+    ),
+    alpha = 0.75
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Relative voting strength of young vs. old voters",
+    subtitle = "For the November 2008 and 2010 general elections",
+    x = "Age",
+    y = "% of Population vs. % of Electorate",
+    col = "Group",
+    caption = "Note: 80-84 topcoded at 80; 85+ topcoded at 85"
+  ) +
+  scale_x_continuous(
+    limits = c(18, 85),
+    breaks = c(18, 10 * 3:8,  85)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 3.5),
+    breaks = c(0.5 * 0:7)
+  ) +
+  scale_color_manual(
+    values = c(
+      "Voting Eligible\nPopulation" = "blue",
+      "Electorate" = "red"
+    )
+  ) +
+  theme(panel.spacing = unit(1, "cm"))
 
 kable_styling(
   kbl(
