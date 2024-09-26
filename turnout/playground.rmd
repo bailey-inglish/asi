@@ -1,0 +1,239 @@
+---
+title: "Gallery of plots"
+author: "Bailey Inglish"
+date: "September 25, 2024"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r echo = FALSE, message = FALSE, dpi = 300}
+library(tidyverse)
+library(kableExtra)
+library(forcats)
+
+cps <- read_csv("C:/Users/baile/Desktop/asi/cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
+
+income_conv <- tribble(
+  ~FAMINC, ~income_range,
+  100, "$5,000 or less",
+  210, "$5,000 - 7,499",
+  300, "$7,500 - 9,999",
+  430, "$10,000 - 12,499",
+  470, "$12,500 - 14,999",
+  500, "$15,000 - 19,999",
+  600, "$20,000 - 24,999",
+  710, "$25,000 - 29,999",
+  720, "$30,000 - 34,999",
+  730, "$35,000 - 39,999",
+  740, "$40,000 - 49,999",
+  820, "$50,000 - 59,999",
+  830, "$60,000 - 74,999",
+  841, "$75,000 - 99,999",
+  842, "$100,000 - 149,999",
+  843, "$150,000 and over",
+  996, "Refused",
+  997, "Don't know",
+  999, "Blank"
+)
+
+for (tx in c(FALSE, TRUE)) {
+  for (y in 2008 + (0:7 * 2)) {
+    cps_c <- cps
+    if (tx) {
+      cps_c <- filter(cps_c, STATEFIP == 48)
+    }
+    income_strength <- filter(cps_c, YEAR == y) %>%
+      group_by(FAMINC) %>%
+      summarize(
+        count = round(sum(WTFINL * (AGE >= 18 & CITIZEN < 5)), 1),
+        voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
+        pop_pct = 100 * round(count / sum(filter(cps, AGE >= 18 & CITIZEN < 5)$WTFINL), 3),
+        voter_pct = 100 * round(voted / sum(cps$WTFINL * (!is.na(cps$VOTED) & cps$VOTED == 2)), 3),
+        pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (Obs - True) / True
+      )
+
+    income_strength <- left_join(income_strength, income_conv, by = "FAMINC") %>%
+      filter(
+        FAMINC < 900
+      )
+
+    p <- ggplot(
+      income_strength,
+      aes(
+        x = fct_reorder(
+          income_range,
+          FAMINC
+        )
+      )
+    ) +
+      geom_col(
+        aes(
+          y = pct_diff
+        ),
+        width = 0.5
+      ) +
+      labs(
+        title = "Percent difference in voting power of income groups",
+        subtitle = paste("In", as.character(y)),
+        x = "Household Income Range",
+        y = "Represenation in the Electorate vs. Population (% difference)",
+        caption = paste("TEXAS ONLY:", as.character(tx))
+      ) +
+      theme(
+        axis.text.x = element_text(
+          angle = 45,
+          vjust = 1,
+          hjust = 1
+        )
+      ) +
+      scale_y_continuous(
+        limits = c(-100, 100),
+        breaks = (-10:10 * 10)
+      ) +
+      geom_hline(
+        yintercept = 0,
+        col = "black",
+        linewidth = 0.5
+      )
+    print(p)
+  }
+}
+```
+
+## Question 2: 2008 vs. 2010 & The Youth Vote
+
+```{r echo = FALSE, message = FALSE, dpi = 300}
+age_conv <- c(
+  rep("18-30", 31),
+  rep("31-54", 24),
+  rep("55+", 31)
+)
+
+age_power_filtered <- mutate(cps, age_group = age_conv[AGE + 1]) %>%
+  filter(is.element(YEAR, c(2008, 2010)) & AGE >= 18 & CITIZEN < 5)  
+
+age_power_groups <- age_power_filtered %>%
+  group_by(age_group, YEAR) %>%
+  reframe(
+    count = round(sum(WTFINL), 1),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+  ) %>%
+  left_join(
+    group_by(age_power_filtered, YEAR) %>%
+      summarize(
+        total_count = round(sum(WTFINL), 1),
+        total_voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+      ),
+    by = "YEAR") %>%
+  mutate(
+    pop_pct = 100 * round(count / total_count, 3),
+    voter_pct = 100 * round(voted / total_voted, 3),
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+  )
+
+ggplot(age_power_groups) +
+  geom_col(
+    aes(
+      x = age_group,
+      y = voter_pct,
+      fill = age_group
+    ),
+    alpha = 0.75
+  ) +
+  geom_point(
+    aes(
+      x = age_group,
+      y = pop_pct
+    ),
+    shape = 4
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Relative voting strength of young vs. old voters",
+    subtitle = "For the November 2008 and 2010 general elections",
+    x = "Age group (years)",
+    y = "Share of Electorate (%)",
+    fill = "Age group (years)",
+    caption = "Note: X = % of population"
+  ) +
+  scale_y_continuous(
+    breaks = 0:7 * 10
+  )
+
+age_power_cont <- filter(cps, is.element(YEAR, c(2008, 2010)) & AGE >= 18 & CITIZEN < 5) %>%
+  group_by(AGE, YEAR) %>%
+  reframe(
+    count = round(sum(WTFINL), 1),
+    voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+  ) %>%
+  left_join(
+    group_by(cps, YEAR) %>%
+      summarize(
+        total_count = round(sum(WTFINL * (CITIZEN < 5 & AGE >= 18)), 1),
+        total_voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1)
+      ),
+    by = "YEAR") %>%
+  mutate(
+    pop_pct = 100 * round(count / total_count, 3),
+    voter_pct = 100 * round(voted / total_voted, 3),
+    pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (True - Obs) / True
+  )
+
+ggplot(age_power_cont) +
+  geom_line(
+    aes(
+      x = AGE,
+      y = voter_pct,
+      col = "Voting Eligible\nPopulation"
+    ),
+    alpha = 0.75
+  ) +
+  geom_line(
+    aes(
+      x = AGE,
+      y = pop_pct,
+      col = "Electorate"
+    ),
+    alpha = 0.75
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Relative voting strength of young vs. old voters",
+    subtitle = "For the November 2008 and 2010 general elections",
+    x = "Age",
+    y = "% of Population vs. % of Electorate",
+    col = "Group",
+    caption = "Note: 80-84 topcoded at 80; 85+ topcoded at 85"
+  ) +
+  scale_x_continuous(
+    limits = c(18, 85),
+    breaks = c(18, 10 * 3:8,  85)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 3.5),
+    breaks = c(0.5 * 0:7)
+  ) +
+  scale_color_manual(
+    values = c(
+      "Voting Eligible\nPopulation" = "blue",
+      "Electorate" = "red"
+    )
+  ) +
+  theme(panel.spacing = unit(1, "cm"))
+
+kable_styling(
+  kbl(
+    select(
+      age_power_groups,
+      age_group, YEAR, count, voted, pop_pct, voter_pct, pct_diff
+    ),
+    col.names = c("Age Group", "Year", "# in Population", "# in Electorate", "% of Population", "% of Voters", "(% Difference)")
+  )
+)
+```

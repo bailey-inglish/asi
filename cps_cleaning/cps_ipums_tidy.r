@@ -88,6 +88,8 @@ for (v in 29:36) {
   cps[cps[, v_name] > 90, v_name] <- NA
 }
 
+cps <- mutate(cps, is_registered = (is.na(VOTED) == FALSE & VOTED == 2) | (is.na(VOREG) == FALSE & VOREG == 2))
+
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
 write_dta(cps, "final_data/cps_clean_ipums_2008-2022.dta")
