@@ -5,45 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00009.xml") %>% read_ipums_micro()
-
-# Note: income data from https://www.test.census.gov/data/tables/time-series/demo/income-poverty/historical-income-households.html
-
-quintize_income <- function(cps) {
-  cps$income_cluster <- rep(NA, nrow(cps))
-  for (year in 2008 + 2 * 0:7) {
-    if (is.element(year, c(2008, 2010, 2012, 2014))) {
-      cps[cps$FAMINC < 600 & cps$YEAR == year, "income_cluster"] <- "lowest income"
-      cps[cps$FAMINC >= 600 & cps$FAMINC <= 730 & cps$YEAR == year, "income_cluster"] <- "lower income"
-      cps[cps$FAMINC >= 740 & cps$FAMINC <= 830 & cps$YEAR == year, "income_cluster"] <- "middle income"
-      cps[cps$FAMINC == 841 & cps$YEAR == year, "income_cluster"] <- "higher income"
-      cps[cps$FAMINC > 841 & cps$FAMINC < 900 & cps$YEAR == year, "income_cluster"] <- "higest income"
-    } else if (year == 2016) {
-      cps[cps$FAMINC < 710 & cps$YEAR == year, "income_cluster"] <- "lowest income"
-      cps[cps$FAMINC >= 710 & cps$FAMINC <= 740 & cps$YEAR == year, "income_cluster"] <- "lower income"
-      cps[cps$FAMINC >= 820 & cps$FAMINC <= 830 & cps$YEAR == year, "income_cluster"] <- "middle income"
-      cps[cps$FAMINC == 841 & cps$YEAR == year, "income_cluster"] <- "higher income"
-      cps[cps$FAMINC > 841 & cps$FAMINC < 900 & cps$YEAR == year, "income_cluster"] <- "higest income"
-    }
-    else if (is.element(year, c(2018, 2020))) {
-      cps[cps$FAMINC < 710 & cps$YEAR == year, "income_cluster"] <- "lowest income"
-      cps[cps$FAMINC >= 710 & cps$FAMINC <= 740 & cps$YEAR == year, "income_cluster"] <- "lower income"
-      cps[cps$FAMINC >= 820 & cps$FAMINC <= 830 & cps$YEAR == year, "income_cluster"] <- "middle income"
-      cps[cps$FAMINC >= 841 & cps$FAMINC <= 842 & cps$YEAR == year, "income_cluster"] <- "higher income"
-      cps[cps$FAMINC > 842 & cps$FAMINC < 900 & cps$YEAR == year, "income_cluster"] <- "higest income"
-    }
-    else if (year == 2022) {
-      cps[cps$FAMINC < 720 & cps$YEAR == year, "income_cluster"] <- "lowest income"
-      cps[cps$FAMINC >= 720 & cps$FAMINC <= 820 & cps$YEAR == year, "income_cluster"] <- "lower income"
-      cps[cps$FAMINC >= 830 & cps$FAMINC <= 841 & cps$YEAR == year, "income_cluster"] <- "middle income"
-      cps[cps$FAMINC == 842 & cps$YEAR == year, "income_cluster"] <- "higher income"
-      cps[cps$FAMINC > 842 & cps$FAMINC < 900 & cps$YEAR == year, "income_cluster"] <- "higest income"
-    }
-  }
-  return(cps)
-}
-
-cps <- quintize_income(cps)
+cps <- read_ipums_ddi("raw_data/cps_00010.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -82,13 +44,7 @@ cps$CBSASZ[cps$CBSASZ == 0] <- NA
 cps$MARST[cps$MARST == 9] <- NA
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
 
-# Vote/reg NA recoding for 90+ outputs
-for (v in 29:36) {
-  v_name <- colnames(cps)[v]
-  cps[cps[, v_name] > 90, v_name] <- NA
-}
-
-cps <- mutate(cps, is_registered = (is.na(VOTED) == FALSE & VOTED == 2) | (is.na(VOREG) == FALSE & VOREG == 2))
+cps <- mutate(cps, is_registered = VOTED == 2 | VOREG == 2)
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")

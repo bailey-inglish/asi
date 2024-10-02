@@ -40,17 +40,17 @@ income_conv <- tribble(
 
 for (tx in c(FALSE, TRUE)) {
   for (y in 2008 + (0:7 * 2)) {
-    cps_c <- cps
+    cps_c <- filter(cps, YEAR == y)
     if (tx) {
       cps_c <- filter(cps_c, STATEFIP == 48)
     }
-    income_strength <- filter(cps_c, YEAR == y) %>%
+    income_strength <-  cps_c %>%
       group_by(FAMINC) %>%
       summarize(
         count = round(sum(WTFINL * (AGE >= 18 & CITIZEN < 5)), 1),
-        voted = round(sum(WTFINL * (!is.na(VOTED) & VOTED == 2)), 1),
-        pop_pct = 100 * round(count / sum(filter(cps, AGE >= 18 & CITIZEN < 5)$WTFINL), 3),
-        voter_pct = 100 * round(voted / sum(cps$WTFINL * (!is.na(cps$VOTED) & cps$VOTED == 2)), 3),
+        voted = round(sum(WTFINL * (VOTED == 2)), 1),
+        pop_pct = 100 * round(count / sum(filter(cps_c, AGE >= 18 & CITIZEN < 5)$WTFINL), 3),
+        voter_pct = 100 * round(voted / sum(cps_c$WTFINL * (cps_c$VOTED == 2)), 3),
         pct_diff = 100 * round((voter_pct - pop_pct) / pop_pct, 3) # (Obs - True) / True
       )
 
@@ -72,7 +72,7 @@ for (tx in c(FALSE, TRUE)) {
         aes(
           y = pct_diff
         ),
-        width = 0.5
+        width = 0.25
       ) +
       labs(
         title = "Percent difference in voting power of income groups",
@@ -90,7 +90,7 @@ for (tx in c(FALSE, TRUE)) {
       ) +
       scale_y_continuous(
         limits = c(-100, 100),
-        breaks = (-10:10 * 10)
+        breaks = (-5:5 * 20)
       ) +
       geom_hline(
         yintercept = 0,
@@ -188,7 +188,7 @@ ggplot(age_power_cont) +
     aes(
       x = AGE,
       y = voter_pct,
-      col = "Voting Eligible\nPopulation"
+      col = "Electorate"
     ),
     alpha = 0.75
   ) +
@@ -196,7 +196,7 @@ ggplot(age_power_cont) +
     aes(
       x = AGE,
       y = pop_pct,
-      col = "Electorate"
+      col = "Voting Eligible\nPopulation"
     ),
     alpha = 0.75
   ) +
