@@ -272,3 +272,40 @@ for (tx in c(FALSE, TRUE)) {
     print(p)
   }
 }
+
+resdat <- filter(
+  cps,
+  VOTED < 900,
+  VOTERES < 900
+) %>%
+  mutate(
+    YEAR = YEAR,
+    did_vote = VOTED == 2,
+    has_lived_1_or_fewer_years = VOTERES <= 13,
+    is_over_50 = AGE > 50,
+    .keep = "none"
+  )
+
+for (y in 2008 + 2 * 0:7) {
+  mod <- lm(
+    did_vote ~ has_lived_1_or_fewer_years * is_over_50,
+    data = filter(resdat, YEAR == y)
+  )
+  print(paste(y, "- - - - - - - - -- - - - -- - - - -- "))
+  print(anova(mod))
+  print(confint(mod))
+  print("- - - - - -- - - -- - - - - - - - - - -- - - - - -- - - - - - -")
+}
+
+mod <- lm(
+  did_vote ~ has_lived_1_or_fewer_years * is_over_50,
+  data = resdat
+)
+print(anova(mod))
+print(confint(mod))
+
+tribble(
+  age, res, modeled_turnout,
+  "Under 50", "More than a year", 0.5905 - 0.1618,
+  "Under 50", "Less than a year", 
+)
