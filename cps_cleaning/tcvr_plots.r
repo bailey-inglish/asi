@@ -43,7 +43,7 @@ ggplot(turn_comb) +
     lty = "Election Type"
   ) +
   theme_bw() +
-  scale_color_binned()
+  scale_color_manual(values = c("#bf5700", "black"))
 
 # Census-designated regional comparison
 
