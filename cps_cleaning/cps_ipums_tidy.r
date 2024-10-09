@@ -82,13 +82,8 @@ cps$adj_vosuppwt <- rep(NA, nrow(cps))
 cps$adj_vosuppwt[cps$VOTED == 2] <- cps$VOSUPPWT[cps$VOTED == 2] * cps$adj_voter_wt[cps$VOTED == 2]
 cps$adj_vosuppwt[cps$VOTED == 1] <- cps$VOSUPPWT[cps$VOTED == 1] * cps$adj_non_voter_wt[cps$VOTED == 1]
 
-cps <- filter(VOTED == 1 | VOTED == 2)
+cps <- filter(cps, VOTED == 1 | VOTED == 2)
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
 write_dta(cps, "final_data/cps_clean_ipums_2008-2022.dta")
-
-test <- filter(cps, YEAR == 2020) %>% group_by(STATEFIP) %>%
-  summarize(
-    turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
-  )
