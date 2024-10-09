@@ -5,7 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00013.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00014.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -61,12 +61,12 @@ raw_turn <- filter(
   AGE >= 18
 ) %>%
   select(YEAR, VOSUPPWT, STATEFIP, VOTED) %>%
-  group_by(STATEFIP) %>%
-  summarize(
+  group_by(STATEFIP, YEAR) %>%
+  reframe(
     est_vep_turnout = sum(VOSUPPWT * (VOTED == 2)) / sum(VOSUPPWT)
   )
 
-fin_turn <- left_join(act_turn, raw_turn, by = c("fips" = "STATEFIP")) %>%
+fin_turn <- left_join(act_turn, raw_turn, by = c("fips" = "STATEFIP", "YEAR" = "YEAR")) %>%
   mutate(
     adj_voter_wt = (vep_turnout / est_vep_turnout),
     adj_non_voter_wt = ((1 - vep_turnout) / (1 - est_vep_turnout))
@@ -78,6 +78,19 @@ cps <- left_join(
   by = c("STATEFIP" = "fips", "YEAR" = "YEAR")
 )
 
+cps$adj_vosuppwt <- rep(NA, nrow(cps))
+cps$adj_vosuppwt[cps$VOTED == 2] <- cps$VOSUPPWT[cps$VOTED == 2] * cps$adj_voter_wt[cps$VOTED == 2]
+cps$adj_vosuppwt[cps$VOTED == 1] <- cps$VOSUPPWT[cps$VOTED == 1] * cps$adj_non_voter_wt[cps$VOTED == 1]
+
+cps <- cps %>%
+  select(-vep_turnout, -est_vep_turnout, -adj_non_voter_wt, -adj_voter_wt) %>%
+  filter(VOTED == 1 | VOTED == 2)
+
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
 write_dta(cps, "final_data/cps_clean_ipums_2008-2022.dta")
+
+test <- filter(cps, YEAR == 2020) %>% group_by(STATEFIP) %>%
+  summarize(
+    turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
+  )
