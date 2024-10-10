@@ -85,9 +85,11 @@ ggplot(turn_reg) +
 ## Voting Strength and VRI
 # Recodes for vis
 vars_of_interest <- tibble(
-  var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status"),
-  name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status")
+  var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "is_hispanic"),
+  name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Ethnicity")
 )
+
+cps$is_hispanic <- c("TRUE" = "Hispanic/Latino", "FALSE" = "Non-Hispanic/Latino")[as.character(cps$is_hispanic)]
 
 for (gvar in vars_of_interest$var) {
   cps_c <- filter(cps, !is.na(!!sym(gvar)), is.element(YEAR, 2016:2022))
@@ -148,7 +150,8 @@ for (gvar in vars_of_interest$var) {
         y = vri,
         fill = scope
       ),
-      position = "dodge"
+      position = "dodge",
+      width = 0.7
     ) +
     scale_fill_manual(values = c("#bf5700", "#3f3f3f")) +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
@@ -158,8 +161,20 @@ for (gvar in vars_of_interest$var) {
     labs(
       title = paste("Voter Representation by", gname),
       x = gname,
-      y = "Voting Representation  (%)",
+      y = "Voting Representation Index (%)",
       fill = "Region"
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.25
     )
+
+  if (gvar == "race_cluster") {
+    p <- p +
+      labs(
+        caption = "Note: very small sample for Native American (n = 3,490 across all four\nsurveys) and multiracial respondents (n = 5,472 across all four surveys)"
+      )
+  }
   print(p)
 }

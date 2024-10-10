@@ -309,3 +309,59 @@ tribble(
   "Under 50", "More than a year", 0.5905 - 0.1618,
   "Under 50", "Less than a year", 
 )
+
+goodcps <- read_csv("cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
+age2020 <- filter(goodcps, YEAR == 2020) %>%
+  group_by(age_cluster) %>%
+  summarize(
+    voted_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    vep_in_group = sum(adj_vosuppwt)
+  ) %>%
+  cbind(
+    filter(goodcps, YEAR == 2020) %>%
+      summarize(
+        voted_ovr = sum(adj_vosuppwt * (VOTED == 2)),
+        vep_ovr = sum(adj_vosuppwt)
+    )
+  ) %>%
+  mutate(
+    share_of_elec = voted_in_group / voted_ovr,
+    share_of_pop = vep_in_group / vep_ovr,
+    turnout_in_group = voted_in_group / vep_in_group,
+    turnout_ovr = voted_ovr / vep_ovr,
+    vri = (share_of_elec - share_of_pop) / share_of_pop
+  )
+
+age2020a <- age2020 %>%
+  arrange(desc(age_cluster)) %>%
+  mutate(prop = share_of_elec / sum(age2020$share_of_elec)) %>%
+  mutate(ypos = cumsum(prop) - 0.5 * prop)
+
+ggplot(age2020a, aes(x = "", y = share_of_elec, fill = age_cluster)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  geom_text(aes(y = ypos, label = str_c(round(share_of_elec * 100), "%")), color = "white", size = 5) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Share of the Electorate by Age Group",
+    subtitle = "2020 General Election",
+    fill = "Age Group"
+  )
+
+age2020b <- age2020 %>%
+  arrange(desc(age_cluster)) %>%
+  mutate(prop = share_of_pop / sum(age2020$share_of_pop)) %>%
+  mutate(ypos = cumsum(prop) - 0.5 * prop)
+
+ggplot(age2020b, aes(x = "", y = share_of_pop, fill = age_cluster)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  geom_text(aes(y = ypos, label = str_c(round(share_of_pop * 100), "%")), color = "white", size = 5) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Share of the Population by Age Group",
+    subtitle = "2020 General Election",
+    fill = "Age Group"
+  )
