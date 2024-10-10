@@ -42,9 +42,124 @@ ggplot(turn_comb) +
     col = "Region",
     lty = "Election Type"
   ) +
-  theme_bw() +
   scale_color_manual(values = c("#bf5700", "black"))
 
 # Census-designated regional comparison
+cps$region <- rep(NA, nrow(cps))
+cps$region[is.element(cps$REGION, c(11, 12))] <- "Northeast"
+cps$region[is.element(cps$REGION, c(21, 22))] <- "Midwest"
+cps$region[is.element(cps$REGION, c(31, 32, 33))] <- "South"
+cps$region[is.element(cps$REGION, c(41, 42))] <- "West"
 
-# Conference comparison
+turn_reg <- group_by(cps, region, YEAR) %>%
+  reframe(
+    turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
+  )
+
+turn_reg <- rows_append(turn_reg, turn_tx)
+turn_reg$elec_type <- rep("Presidential", nrow(turn_reg))
+turn_reg$elec_type[is.element(turn_reg$YEAR, c(2010, 2014, 2018, 2022))] <- "Midterm"
+
+ggplot(turn_reg) +
+  geom_line(
+    aes(
+      x = YEAR,
+      y = turnout * 100,
+      col = region,
+      lty = elec_type
+    )
+  ) +
+  labs(
+    title = "Voter Turnout: Texas vs. US Regions",
+    subtitle = "Presidential and Midterm Elections 2008-2022",
+    x = "Year",
+    y = "VEP Turnout (%)",
+    col = "Region",
+    lty = "Election Type"
+  ) +
+  scale_color_manual(values = c("darkred", "darkblue", "darkgreen", "#bf5700", "gold"))
+
+# Conference comparison - for fun
+# WIP come back later
+
+## Voting Strength and VRI
+# Recodes for vis
+vars_of_interest <- tibble(
+  var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status"),
+  name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status")
+)
+
+for (gvar in vars_of_interest$var) {
+  cps_c <- filter(cps, !is.na(!!sym(gvar)), is.element(YEAR, 2016:2022))
+  gname <- vars_of_interest$name[vars_of_interest$var == gvar]
+
+  tx_tab <- filter(cps_c, STATEFIP == 48) %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = round(sum(adj_vosuppwt), 2),
+      voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+    ) %>%
+    left_join(
+      group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
+        summarize(
+          total_vep = round(sum(adj_vosuppwt), 2),
+          total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
+      pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
+      vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+    )
+
+  us_tab <- cps_c %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = round(sum(adj_vosuppwt), 2),
+      voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+    ) %>%
+    left_join(
+      group_by(cps_c, YEAR) %>%
+        summarize(
+          total_vep = round(sum(adj_vosuppwt), 2),
+          total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
+      pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
+      vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+    )
+
+  cps_grouped <- rows_append(
+    cbind(tx_tab, "scope" = rep("TX", nrow(tx_tab))),
+    cbind(us_tab, "scope" = rep("US", nrow(us_tab)))
+  )
+
+  p <- ggplot(cps_grouped) +
+    geom_col(
+      aes(
+        x = fct_reorder(
+          !!sym(gvar),
+          vri
+        ),
+        y = vri,
+        fill = scope
+      ),
+      position = "dodge"
+    ) +
+    scale_fill_manual(values = c("#bf5700", "#3f3f3f")) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+    facet_grid(
+      ~YEAR
+    ) +
+    labs(
+      title = paste("Voter Representation by", gname),
+      x = gname,
+      y = "Voting Representation  (%)",
+      fill = "Region"
+    )
+  print(p)
+}

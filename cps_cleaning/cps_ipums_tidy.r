@@ -5,7 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00014.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00016.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -83,6 +83,48 @@ cps$adj_vosuppwt[cps$VOTED == 2] <- cps$VOSUPPWT[cps$VOTED == 2] * cps$adj_voter
 cps$adj_vosuppwt[cps$VOTED == 1] <- cps$VOSUPPWT[cps$VOTED == 1] * cps$adj_non_voter_wt[cps$VOTED == 1]
 
 cps <- filter(cps, VOTED == 1 | VOTED == 2)
+
+# One final round of clustering on selected variables
+income_conv <- tribble(
+  ~FAMINC, ~income_range,
+  100, "<$30k",
+  210, "<$30k",
+  300, "<$30k",
+  430, "<$30k",
+  470, "<$30k",
+  500, "<$30k",
+  600, "<$30k",
+  710, "<$30k",
+  720, "$30-50k",
+  730, "$30-50k",
+  740, "$30-50k",
+  820, "$50-100k",
+  830, "$50-100k",
+  841, "$50-100k",
+  842, "$100-150k",
+  843, ">$150k",
+  996, "Refused",
+  997, "Don't know",
+  999, "Blank"
+)
+
+metro_conv <- tribble(
+  ~METRO, ~metro_status,
+  1, "Rural",
+  2, "Urban",
+  3, "Suburban",
+  4, "Suburban"
+)
+
+age_conv <- tibble(
+  AGE = c(18:29, 30:44, 45:59, 60:85),
+  age_cluster = c(rep("18-29", 12), rep("30-44", 15), rep("45-59", 15), rep("60+", 26))
+)
+
+cps <- cps %>%
+  left_join(income_conv) %>%
+  left_join(metro_conv) %>%
+  left_join(age_conv)
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
