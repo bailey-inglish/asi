@@ -178,3 +178,93 @@ for (gvar in vars_of_interest$var) {
   }
   print(p)
 }
+
+## Bonus: plots for gifs!
+income_power_groups <- cps %>%
+  group_by(income_range, YEAR) %>%
+  reframe(
+    vep_in_group = round(sum(adj_vosuppwt), 2),
+    voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+  ) %>%
+  left_join(
+    group_by(cps, YEAR) %>%
+      summarize(
+        total_vep = round(sum(adj_vosuppwt), 2),
+        total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
+    pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
+    vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+  )
+
+for (y in 2008 + (2 * 0:7)) {
+  p <- ggplot(filter(income_power_groups, YEAR == y, !is.element(income_range, c("Don't know", "Refused")))) +
+    geom_col(
+      aes(
+        x = fct_reorder(
+          income_range,
+          c("<30k", "$30-50k", "$50-100k", "$100-150k", ">$150k")
+        ),
+        y = pct_of_electorate,
+        fill = income_range
+      ),
+      alpha = 0.75
+    ) +
+    geom_point(
+      aes(
+        x = income_range,
+        y = pct_of_ve_population
+      ),
+      shape = 4
+    ) +
+    labs(
+      title = "Electoral vs. Population Representation",
+      subtitle = paste("In the", y, "general election"),
+      x = "Income group",
+      y = "Share of Electorate (%)",
+      fill = "Income group",
+      caption = "Note: X = Share of population (%)"
+    ) +
+    theme(legend.position = "none") +
+    scale_y_continuous(
+      breaks = 0:7 * 5,
+      limits = c(0, 35)
+    )
+  print(p)
+}
+
+for (y in 2008 + (2 * 0:7)) {
+  p <- ggplot(filter(income_power_groups, YEAR == y, !is.element(income_range, c("Don't know", "Refused")))) +
+    geom_col(
+      aes(
+       x = fct_reorder(
+          income_range,
+          c("<30k", "$30-50k", "$50-100k", "$100-150k", ">$150k")
+        ),
+        y = vri,
+        fill = income_range
+      ),
+      alpha = 0.75
+    ) +
+    labs(
+      title = "Electoral vs. Population Representation",
+      subtitle = paste("In the", y, "general election"),
+      x = "Income group",
+      y = "Voting Representation Index (%)",
+      fill = "Income group"
+    ) +
+    theme(legend.position = "none") +
+    scale_y_continuous(
+      breaks = -10:10 * 10,
+      limits = c(-40, 40)
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.25
+    )
+  print(p)
+}
