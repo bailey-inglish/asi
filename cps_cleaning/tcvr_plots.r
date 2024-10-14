@@ -98,41 +98,41 @@ for (gvar in vars_of_interest$var) {
   tx_tab <- filter(cps_c, STATEFIP == 48) %>%
     group_by(!!sym(gvar), YEAR) %>%
     reframe(
-      vep_in_group = round(sum(adj_vosuppwt), 2),
-      voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
     ) %>%
     left_join(
       group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
         summarize(
-          total_vep = round(sum(adj_vosuppwt), 2),
-          total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
         ),
       by = "YEAR"
     ) %>%
     mutate(
-      pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
-      pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
-      vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
     )
 
   us_tab <- cps_c %>%
     group_by(!!sym(gvar), YEAR) %>%
     reframe(
-      vep_in_group = round(sum(adj_vosuppwt), 2),
-      voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
     ) %>%
     left_join(
       group_by(cps_c, YEAR) %>%
         summarize(
-          total_vep = round(sum(adj_vosuppwt), 2),
-          total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
         ),
       by = "YEAR"
     ) %>%
     mutate(
-      pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
-      pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
-      vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
     )
 
   cps_grouped <- rows_append(
@@ -173,7 +173,7 @@ for (gvar in vars_of_interest$var) {
   if (gvar == "race_cluster") {
     p <- p +
       labs(
-        caption = "Note: very small sample for Native American (n = 3,490 across all four\nsurveys) and multiracial respondents (n = 5,472 across all four surveys)"
+        caption = "Note: very small Texas sample for Native American (n = 27 + 26 + 17 + 19 = 89)\nand multiracial respondents (n = 53 + 62 + 58 + 42 = 215)"
       )
   }
   print(p)
@@ -266,5 +266,127 @@ for (y in 2008 + (2 * 0:7)) {
       col = "black",
       linewidth = 0.25
     )
+  print(p)
+}
+
+## Longitudinal analysis
+# Line plots of VRI over time for each group/grouping variable
+vars_of_interest <- tibble(
+  var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "is_hispanic"),
+  name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Ethnicity")
+)
+
+cps$is_hispanic <- c("TRUE" = "Hispanic/Latino", "FALSE" = "Non-Hispanic/Latino")[as.character(cps$is_hispanic)]
+
+for (gvar in vars_of_interest$var) {
+  cps_c <- filter(cps, !is.na(!!sym(gvar)))
+  gname <- vars_of_interest$name[vars_of_interest$var == gvar]
+
+  tx_tab <- filter(cps_c, STATEFIP == 48) %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+
+  us_tab <- cps_c %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(cps_c, YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+
+  cps_grouped <- rows_append(
+    cbind(tx_tab, "scope" = rep("TX", nrow(tx_tab))),
+    cbind(us_tab, "scope" = rep("US", nrow(us_tab)))
+  )
+
+  p <- ggplot(cps_grouped) +
+    geom_line(
+      aes(
+        col = fct_reorder(
+          !!sym(gvar),
+          vri
+        ),
+        y = vri,
+        x = YEAR
+      )
+    ) +
+    geom_point(
+      aes(
+        col = !!sym(gvar),
+        y = vri,
+        x = YEAR
+      )
+    ) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+    facet_grid(
+      ~scope
+    ) +
+    labs(
+      title = paste("Voter Representation by", gname),
+      subtitle = "November general elections 2008-2022",
+      x = "Year",
+      y = "Voting Representation Index (%)",
+      col = "Group"
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.3,
+      alpha = 0.5
+    ) +
+    scale_x_continuous(
+      breaks = 2008 + (0:7 * 2)
+    )
+
+  if (gvar == "race_cluster") {
+    p <- p +
+      labs(
+        caption = "Note: very small Texas sample for Native American (N = 27 + 26 + 17 + 19 = 89)\nand multiracial respondents (N = 53 + 62 + 58 + 42 = 215)"
+      )
+  }
+
+  if (gvar != "edu_cluster") {
+    p <- p +
+      scale_y_continuous(
+        limits = c(-65, 65),
+        breaks = -10:10 * 10
+      )
+  } else {
+    p <- p +
+      labs(
+        caption = "Note: y-scale had been enlarged due to high turnout\namong advanced degree holders (N < 110 each year)"
+      ) +
+      scale_y_continuous(
+        breaks = -10:10 * 10
+      )
+  }
   print(p)
 }

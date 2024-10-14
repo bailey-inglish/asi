@@ -17,11 +17,11 @@ cps$is_hispanic <- cps$HISPAN != 0
 cps$is_hispanic[cps$HISPAN > 900] <- NA
 
 # Race simple recoding
-cps$race_cluster <- rep("multiracial", nrow(cps))
-cps$race_cluster[cps$RACE == 100] <- "white"
-cps$race_cluster[cps$RACE == 200] <- "black"
-cps$race_cluster[cps$RACE == 300] <- "native american"
-cps$race_cluster[cps$RACE == 651] <- "asian"
+cps$race_cluster <- rep("Multiracial", nrow(cps))
+cps$race_cluster[cps$RACE == 100] <- "White"
+cps$race_cluster[cps$RACE == 200] <- "Black"
+cps$race_cluster[cps$RACE == 300] <- "American Indian"
+cps$race_cluster[cps$RACE == 651] <- "Asian"
 
 # Geo + citizen recodings
 cps$METFIPS[cps$METFIPS == 99998] <- NA
@@ -52,7 +52,7 @@ cps$vote_res_harmonized[cps$VOTERES == 33] <- "5+ years"
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
-  select(YEAR, fips, vep_turnout = VEP_TURNOUT_RATE)
+  select(YEAR, fips, state_name = name, vep_turnout = VEP_TURNOUT_RATE)
 
 raw_turn <- filter(
   cps,
@@ -103,9 +103,9 @@ income_conv <- tribble(
   841, "$50-100k",
   842, "$100-150k",
   843, ">$150k",
-  996, "Refused",
-  997, "Don't know",
-  999, "Blank"
+  996, NA,
+  997, NA,
+  999, NA
 )
 
 metro_conv <- tribble(
