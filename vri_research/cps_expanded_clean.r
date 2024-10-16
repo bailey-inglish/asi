@@ -2,10 +2,10 @@
 library(tidyverse)
 library(haven)
 library(ipumsr)
-setwd("cps_cleaning")
+setwd("vri_research")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00016.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00017.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -22,20 +22,12 @@ cps$race_cluster <- rep("Multiracial", nrow(cps))
 cps$race_cluster[cps$RACE == 100] <- "White"
 cps$race_cluster[cps$RACE == 200] <- "Black"
 cps$race_cluster[cps$RACE == 300] <- "American Indian"
-cps$race_cluster[cps$RACE == 651] <- "Asian"
+cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
 
 # Geo + citizen recodings
 cps$METFIPS[cps$METFIPS == 99998] <- NA
 cps$METRO[cps$METRO == 0] <- NA
-cps$CBSASZ[cps$CBSASZ == 0] <- NA
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
-
-# Census-designated regional comparison
-cps$region_name <- rep(NA, nrow(cps))
-cps$region_name[is.element(cps$REGION, c(11, 12))] <- "Northeast"
-cps$region_name[is.element(cps$REGION, c(21, 22))] <- "Midwest"
-cps$region_name[is.element(cps$REGION, c(31, 32, 33))] <- "South"
-cps$region_name[is.element(cps$REGION, c(41, 42))] <- "West"
 
 # VOREG recode to account for voter universe specification
 cps <- mutate(cps, is_registered = VOTED == 2 | VOREG == 2)
@@ -48,6 +40,13 @@ cps$edu_cluster[cps$EDUC == 81] <- "Some College But No Degree"
 cps$edu_cluster[is.element(cps$EDUC, c(91, 92))] <- "Associate's Degree"
 cps$edu_cluster[cps$EDUC == 111] <- "Bachelor's Degree"
 cps$edu_cluster[cps$EDUC > 123] <- "Postgraduate Degree"
+
+# Census-designated regional comparison
+cps$region_name <- rep(NA, nrow(cps))
+cps$region_name[is.element(cps$REGION, c(11, 12))] <- "Northeast"
+cps$region_name[is.element(cps$REGION, c(21, 22))] <- "Midwest"
+cps$region_name[is.element(cps$REGION, c(31, 32, 33))] <- "South"
+cps$region_name[is.element(cps$REGION, c(41, 42))] <- "West"
 
 # VOTERES harmonization
 cps$vote_res_harmonized <- rep(NA, nrow(cps))
@@ -108,6 +107,7 @@ income_conv <- tribble(
   740, "$30-50k",
   820, "$50-100k",
   830, "$50-100k",
+  840, ">$75k",
   841, "$50-100k",
   842, "$100-150k",
   843, ">$150k",
@@ -129,11 +129,29 @@ age_conv <- tibble(
   age_cluster = c(rep("18-29", 12), rep("30-44", 15), rep("45-59", 15), rep("60+", 26))
 )
 
+sex_conv <- tibble(
+  SEX = c(1, 2),
+  sex_name = c("Male", "Female")
+)
+
+vetstat_conv <- tibble(
+  VETSTAT = c(0, 1, 2),
+  veteran_status = c(NA, "No service", "Veteran")
+)
+
+diff_conv <- tibble(
+  DIFFANY = c(0, 1, 2),
+  any_difficulty = c(NA, "No difficulty", "Has difficulty")
+)
+
 cps <- cps %>%
   left_join(income_conv) %>%
   left_join(metro_conv) %>%
-  left_join(age_conv)
+  left_join(age_conv) %>%
+  left_join(sex_conv) %>%
+  left_join(diff_conv) %>%
+  left_join(vetstat_conv)
 
 # Write final outputs
-write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
-write_dta(cps, "final_data/cps_clean_ipums_2008-2022.dta")
+write_csv(cps, "final_data/cps_expanded_ipums_1994-2022.csv")
+write_dta(cps, "final_data/cps_expanded_ipums_1994-2022.dta")

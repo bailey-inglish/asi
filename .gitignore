@@ -1,5 +1,5 @@
 cps_*****.dat
 .shiny-token.csv
 ces/*.rds
-cps_cleaning/final_data
-cps_cleaning/raw_data
+*/final_data
+*/raw_data

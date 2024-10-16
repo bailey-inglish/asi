@@ -12,14 +12,14 @@ turn_tx <- filter(cps, STATEFIP == 48) %>%
   summarize(
     turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
   ) %>%
-  cbind("region" = rep("TX", 8))
+  cbind("region_name" = rep("Texas", 8))
 
 turn_us <- cps %>%
   group_by(YEAR) %>%
   summarize(
     turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
   ) %>%
-  cbind("region" = rep("US", 8))
+  cbind("region_name" = rep("United States", 8))
 
 turn_comb <- rows_append(turn_tx, turn_us)
 turn_comb$elec_type <- rep("Presidential", 8)
@@ -30,7 +30,7 @@ ggplot(turn_comb) +
     aes(
       x = YEAR,
       y = turnout * 100,
-      col = region,
+      col = region_name,
       lty = elec_type
     )
   ) +
@@ -39,19 +39,12 @@ ggplot(turn_comb) +
     subtitle = "Presidential and Midterm Elections 2008-2022",
     x = "Year",
     y = "VEP Turnout (%)",
-    col = "Region",
+    col = "",
     lty = "Election Type"
   ) +
   scale_color_manual(values = c("#bf5700", "black"))
 
-# Census-designated regional comparison
-cps$region <- rep(NA, nrow(cps))
-cps$region[is.element(cps$REGION, c(11, 12))] <- "Northeast"
-cps$region[is.element(cps$REGION, c(21, 22))] <- "Midwest"
-cps$region[is.element(cps$REGION, c(31, 32, 33))] <- "South"
-cps$region[is.element(cps$REGION, c(41, 42))] <- "West"
-
-turn_reg <- group_by(cps, region, YEAR) %>%
+turn_reg <- group_by(cps, region_name, YEAR) %>%
   reframe(
     turnout = sum(adj_vosuppwt * (VOTED == 2)) / sum(adj_vosuppwt)
   )
@@ -65,7 +58,7 @@ ggplot(turn_reg) +
     aes(
       x = YEAR,
       y = turnout * 100,
-      col = region,
+      col = region_name,
       lty = elec_type
     )
   ) +
@@ -88,8 +81,6 @@ vars_of_interest <- tibble(
   var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "is_hispanic"),
   name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Ethnicity")
 )
-
-cps$is_hispanic <- c("TRUE" = "Hispanic/Latino", "FALSE" = "Non-Hispanic/Latino")[as.character(cps$is_hispanic)]
 
 for (gvar in vars_of_interest$var) {
   cps_c <- filter(cps, !is.na(!!sym(gvar)), is.element(YEAR, 2016:2022))
@@ -136,8 +127,8 @@ for (gvar in vars_of_interest$var) {
     )
 
   cps_grouped <- rows_append(
-    cbind(tx_tab, "scope" = rep("TX", nrow(tx_tab))),
-    cbind(us_tab, "scope" = rep("US", nrow(us_tab)))
+    cbind(tx_tab, "scope" = rep("Texas", nrow(tx_tab))),
+    cbind(us_tab, "scope" = rep("United States", nrow(us_tab)))
   )
 
   p <- ggplot(cps_grouped) +
@@ -161,8 +152,8 @@ for (gvar in vars_of_interest$var) {
     labs(
       title = paste("Voter Representation by", gname),
       x = gname,
-      y = "Voting Representation Index (%)",
-      fill = "Region"
+      y = "Voter Representation Index (%)",
+      fill = ""
     ) +
     geom_hline(
       yintercept = 0,
@@ -253,7 +244,7 @@ for (y in 2008 + (2 * 0:7)) {
       title = "Electoral vs. Population Representation",
       subtitle = paste("In the", y, "general election"),
       x = "Income group",
-      y = "Voting Representation Index (%)",
+      y = "Voter Representation Index (%)",
       fill = "Income group"
     ) +
     theme(legend.position = "none") +
@@ -275,8 +266,6 @@ vars_of_interest <- tibble(
   var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "is_hispanic"),
   name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Ethnicity")
 )
-
-cps$is_hispanic <- c("TRUE" = "Hispanic/Latino", "FALSE" = "Non-Hispanic/Latino")[as.character(cps$is_hispanic)]
 
 for (gvar in vars_of_interest$var) {
   cps_c <- filter(cps, !is.na(!!sym(gvar)))
@@ -323,17 +312,14 @@ for (gvar in vars_of_interest$var) {
     )
 
   cps_grouped <- rows_append(
-    cbind(tx_tab, "scope" = rep("TX", nrow(tx_tab))),
-    cbind(us_tab, "scope" = rep("US", nrow(us_tab)))
+    cbind(tx_tab, "scope" = rep("Texas", nrow(tx_tab))),
+    cbind(us_tab, "scope" = rep("United States", nrow(us_tab)))
   )
 
   p <- ggplot(cps_grouped) +
     geom_line(
       aes(
-        col = fct_reorder(
-          !!sym(gvar),
-          vri
-        ),
+        col = !!sym(gvar),
         y = vri,
         x = YEAR
       )
@@ -353,8 +339,8 @@ for (gvar in vars_of_interest$var) {
       title = paste("Voter Representation by", gname),
       subtitle = "November general elections 2008-2022",
       x = "Year",
-      y = "Voting Representation Index (%)",
-      col = "Group"
+      y = "Voter Representation Index (%)",
+      col = ""
     ) +
     geom_hline(
       yintercept = 0,
@@ -366,13 +352,6 @@ for (gvar in vars_of_interest$var) {
       breaks = 2008 + (0:7 * 2)
     )
 
-  if (gvar == "race_cluster") {
-    p <- p +
-      labs(
-        caption = "Note: very small Texas sample for Native American (N = 27 + 26 + 17 + 19 = 89)\nand multiracial respondents (N = 53 + 62 + 58 + 42 = 215)"
-      )
-  }
-
   if (gvar != "edu_cluster") {
     p <- p +
       scale_y_continuous(
@@ -381,9 +360,6 @@ for (gvar in vars_of_interest$var) {
       )
   } else {
     p <- p +
-      labs(
-        caption = "Note: y-scale had been enlarged due to high turnout\namong advanced degree holders (N < 110 each year)"
-      ) +
       scale_y_continuous(
         breaks = -10:10 * 10
       )
