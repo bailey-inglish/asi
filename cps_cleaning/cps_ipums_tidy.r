@@ -5,7 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00016.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00018.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -22,12 +22,11 @@ cps$race_cluster <- rep("Multiracial", nrow(cps))
 cps$race_cluster[cps$RACE == 100] <- "White"
 cps$race_cluster[cps$RACE == 200] <- "Black"
 cps$race_cluster[cps$RACE == 300] <- "American Indian"
-cps$race_cluster[cps$RACE == 651] <- "Asian"
+cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
 
 # Geo + citizen recodings
 cps$METFIPS[cps$METFIPS == 99998] <- NA
 cps$METRO[cps$METRO == 0] <- NA
-cps$CBSASZ[cps$CBSASZ == 0] <- NA
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
 
 # Census-designated regional comparison
@@ -46,8 +45,7 @@ cps$edu_cluster[cps$EDUC <= 72 & cps$EDUC > 1] <- "Less than HS Diploma" # 1 is 
 cps$edu_cluster[cps$EDUC == 73] <- "HS Diploma or Equivalent"
 cps$edu_cluster[cps$EDUC == 81] <- "Some College But No Degree"
 cps$edu_cluster[is.element(cps$EDUC, c(91, 92))] <- "Associate's Degree"
-cps$edu_cluster[cps$EDUC == 111] <- "Bachelor's Degree"
-cps$edu_cluster[cps$EDUC > 123] <- "Postgraduate Degree"
+cps$edu_cluster[cps$EDUC >= 111] <- "Bachelor's Degree Or Higher"
 
 # VOTERES harmonization
 cps$vote_res_harmonized <- rep(NA, nrow(cps))
@@ -129,10 +127,23 @@ age_conv <- tibble(
   age_cluster = c(rep("18-29", 12), rep("30-44", 15), rep("45-59", 15), rep("60+", 26))
 )
 
+sex_conv <- tibble(
+  SEX = c(1, 2),
+  sex_name = c("Male", "Female")
+)
+
 cps <- cps %>%
   left_join(income_conv) %>%
   left_join(metro_conv) %>%
-  left_join(age_conv)
+  left_join(age_conv) %>%
+  left_join(sex_conv)
+
+# Combine race and ethnicity
+cps$eth_race_comb_cluster <- rep("Other", nrow(cps))
+cps$eth_race_comb_cluster[cps$race_cluster == "White"] <- "White"
+cps$eth_race_comb_cluster[cps$race_cluster == "Black"] <- "Black"
+cps$eth_race_comb_cluster[cps$race_cluster == "Asian/Pacific Islander"] <- "Asian/Pacific Islander"
+cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")

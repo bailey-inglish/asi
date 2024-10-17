@@ -152,6 +152,13 @@ cps <- cps %>%
   left_join(diff_conv) %>%
   left_join(vetstat_conv)
 
+# Combine race and ethnicity
+cps$eth_race_comb_cluster <- rep(NA, nrow(cps))
+cps$eth_race_comb_cluster[cps$race_cluster == "White"] <- "White"
+cps$eth_race_comb_cluster[cps$race_cluster == "Black"] <- "Black"
+cps$eth_race_comb_cluster[cps$race_cluster == "Asian/Pacific Islander"] <- "Asian/Pacific Islander"
+cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
+
 # Write final outputs
 write_csv(cps, "final_data/cps_expanded_ipums_1994-2022.csv")
 write_dta(cps, "final_data/cps_expanded_ipums_1994-2022.dta")

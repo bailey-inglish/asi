@@ -2,8 +2,106 @@
 # Bailey Inglish
 library(tidyverse)
 library(forcats)
+library(RColorBrewer)
 
 cps <- read_csv("cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
+
+## Longitudinal analysis
+# Line plots of VRI over time for each group/grouping variable
+vars_of_interest <- tibble(
+  var = c("age_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "eth_race_comb_cluster", "sex_name"),
+  name = c("Age Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Race/Ethnicity", "Sex")
+)
+
+for (gvar in vars_of_interest$var) {
+  cps_c <- filter(cps, !is.na(!!sym(gvar)))
+  gname <- vars_of_interest$name[vars_of_interest$var == gvar]
+
+  tx_tab <- filter(cps_c, STATEFIP == 48) %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+
+  us_tab <- cps_c %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(cps_c, YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+
+  cps_grouped <- rows_append(
+    cbind(tx_tab, "scope" = rep("Texas", nrow(tx_tab))),
+    cbind(us_tab, "scope" = rep("United States", nrow(us_tab)))
+  )
+
+  p <- ggplot(
+    cps_grouped,
+    aes(
+      y = vri,
+      x = YEAR,
+      col = fct_reorder(!!sym(gvar), vri)
+    )
+  ) +
+    geom_line() +
+    geom_point() +
+    theme(
+      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+    ) +
+    facet_grid(
+      ~scope
+    ) +
+    labs(
+      title = paste("Voter Representation by", gname),
+      subtitle = "November general elections 2008-2022",
+      x = "Year",
+      y = "Voter Representation Index (%)",
+      col = ""
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.3,
+      alpha = 0.5
+    ) +
+    scale_x_continuous(
+      breaks = 2008 + (0:7 * 2)
+    ) +
+    scale_colour_viridis_d(begin = 0, end = 0.85)+
+    scale_y_continuous(
+      limits = c(-65, 65),
+      breaks = -10:10 * 10
+    )
+
+  print(p)
+}
 
 ## Section 1: State of Texas Turnout
 # TX vs. US
@@ -257,112 +355,5 @@ for (y in 2008 + (2 * 0:7)) {
       col = "black",
       linewidth = 0.25
     )
-  print(p)
-}
-
-## Longitudinal analysis
-# Line plots of VRI over time for each group/grouping variable
-vars_of_interest <- tibble(
-  var = c("age_cluster", "race_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "is_hispanic"),
-  name = c("Age Cluster", "Race Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Ethnicity")
-)
-
-for (gvar in vars_of_interest$var) {
-  cps_c <- filter(cps, !is.na(!!sym(gvar)))
-  gname <- vars_of_interest$name[vars_of_interest$var == gvar]
-
-  tx_tab <- filter(cps_c, STATEFIP == 48) %>%
-    group_by(!!sym(gvar), YEAR) %>%
-    reframe(
-      vep_in_group = sum(adj_vosuppwt),
-      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
-    ) %>%
-    left_join(
-      group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
-        summarize(
-          total_vep = sum(adj_vosuppwt),
-          total_voters = sum(adj_vosuppwt * (VOTED == 2))
-        ),
-      by = "YEAR"
-    ) %>%
-    mutate(
-      pct_of_ve_population = 100 * vep_in_group / total_vep,
-      pct_of_electorate = 100 * voters_in_group / total_voters,
-      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
-    )
-
-  us_tab <- cps_c %>%
-    group_by(!!sym(gvar), YEAR) %>%
-    reframe(
-      vep_in_group = sum(adj_vosuppwt),
-      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
-    ) %>%
-    left_join(
-      group_by(cps_c, YEAR) %>%
-        summarize(
-          total_vep = sum(adj_vosuppwt),
-          total_voters = sum(adj_vosuppwt * (VOTED == 2))
-        ),
-      by = "YEAR"
-    ) %>%
-    mutate(
-      pct_of_ve_population = 100 * vep_in_group / total_vep,
-      pct_of_electorate = 100 * voters_in_group / total_voters,
-      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
-    )
-
-  cps_grouped <- rows_append(
-    cbind(tx_tab, "scope" = rep("Texas", nrow(tx_tab))),
-    cbind(us_tab, "scope" = rep("United States", nrow(us_tab)))
-  )
-
-  p <- ggplot(cps_grouped) +
-    geom_line(
-      aes(
-        col = !!sym(gvar),
-        y = vri,
-        x = YEAR
-      )
-    ) +
-    geom_point(
-      aes(
-        col = !!sym(gvar),
-        y = vri,
-        x = YEAR
-      )
-    ) +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-    facet_grid(
-      ~scope
-    ) +
-    labs(
-      title = paste("Voter Representation by", gname),
-      subtitle = "November general elections 2008-2022",
-      x = "Year",
-      y = "Voter Representation Index (%)",
-      col = ""
-    ) +
-    geom_hline(
-      yintercept = 0,
-      col = "black",
-      linewidth = 0.3,
-      alpha = 0.5
-    ) +
-    scale_x_continuous(
-      breaks = 2008 + (0:7 * 2)
-    )
-
-  if (gvar != "edu_cluster") {
-    p <- p +
-      scale_y_continuous(
-        limits = c(-65, 65),
-        breaks = -10:10 * 10
-      )
-  } else {
-    p <- p +
-      scale_y_continuous(
-        breaks = -10:10 * 10
-      )
-  }
   print(p)
 }
