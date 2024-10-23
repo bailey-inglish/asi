@@ -1,6 +1,7 @@
 library(tidyverse)
 library(forcats)
 library(RColorBrewer)
+library(kableExtra)
 
 cps <- read_csv("cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
 
@@ -147,3 +148,24 @@ earner_power_groups <- cps_c %>%
     pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
     vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
   )
+
+ut_tab <- filter(cps, STATEFIP == 49) %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+  ) %>%
+  left_join(
+    group_by(filter(cps, STATEFIP == 49), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  )
+kbl(ut_tab) %>% kable_styling()

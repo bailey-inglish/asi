@@ -5,7 +5,7 @@ library(ipumsr)
 setwd("cps_cleaning")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00019.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00018.xml") %>% read_ipums_micro()
 
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # values are more subject to varition, see codebook.
@@ -144,15 +144,6 @@ cps$eth_race_comb_cluster[cps$race_cluster == "White"] <- "White"
 cps$eth_race_comb_cluster[cps$race_cluster == "Black"] <- "Black"
 cps$eth_race_comb_cluster[cps$race_cluster == "Asian/Pacific Islander"] <- "Asian/Pacific Islander"
 cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
-
-# Rural/ubran reweighting (see email from Francisco 10/21 for Census data)
-ru10 <- read_csv("raw_data/2010_UA_COUNTY.csv")
-ru20 <- read_csv("raw_data/2020_UA_COUNTY.csv")
-
-
-for (y in 2008 + 2 * 0:3) {
-
-}
 
 # Write final outputs
 write_csv(cps, "final_data/cps_clean_ipums_2008-2022.csv")
