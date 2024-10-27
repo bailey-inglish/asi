@@ -169,3 +169,80 @@ ut_tab <- filter(cps, STATEFIP == 49) %>%
     vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
   )
 kbl(ut_tab) %>% kable_styling()
+
+sum(filter(cps, VOTED == 2, YEAR == 2020, STATEFIP == 48)$adj_vosuppwt) / sum(filter(cps, VOTED == 2, YEAR == 2020)$adj_vosuppwt)
+sum(filter(cps, YEAR == 2020, STATEFIP == 48)$adj_vosuppwt) / sum(filter(cps, YEAR == 2020)$adj_vosuppwt)
+
+vars_of_interest <- tibble(
+  var = c("age_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "metro_status", "eth_race_comb_cluster", "sex_name"),
+  name = c("Age Cluster", "Length of Residence", "Educational Attainment", "Income Range", "Metro Status", "Race/Ethnicity", "Sex")
+)
+
+for (gvar in vars_of_interest$var) {
+  cps_c <- filter(cps, !is.na(!!sym(gvar)))
+  gname <- vars_of_interest$name[vars_of_interest$var == gvar]
+
+  rand <- sample(unique(cps$STATEFIP), 1)
+  print(unique(cps$state_name[cps$STATEFIP == rand]))
+  rand_tab <- filter(cps_c, STATEFIP == rand) %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(filter(cps_c, STATEFIP == rand), YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+  print(rand_tab)
+
+  tx_tab <- filter(cps_c, STATEFIP == 48) %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+  print(tx_tab)
+  us_tab <- cps_c %>%
+    group_by(!!sym(gvar), YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2))
+    ) %>%
+    left_join(
+      group_by(cps_c, YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+  print(us_tab)
+}
