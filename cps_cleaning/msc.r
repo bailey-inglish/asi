@@ -147,7 +147,29 @@ earner_power_groups <- cps_c %>%
     pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
     pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
     vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
-  )
+  ) %>%
+  filter(YEAR >= 2020)
+
+earner_power_groups_tx <- filter(cps_c, STATEFIP == 48) %>%
+  group_by(high_earner, YEAR) %>%
+  reframe(
+    vep_in_group = round(sum(adj_vosuppwt), 2),
+    voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+  ) %>%
+  left_join(
+    group_by(filter(cps_c, STATEFIP == 48), YEAR) %>%
+      reframe(
+        total_vep = round(sum(adj_vosuppwt), 2),
+        total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+      ),
+    by = c("YEAR")
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
+    pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
+    vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+  ) %>%
+  filter(YEAR >= 2020)
 
 ut_tab <- filter(cps, STATEFIP == 49) %>%
   group_by(age_cluster, YEAR) %>%
