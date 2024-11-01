@@ -112,7 +112,7 @@ for (gvar in vars_of_interest$var) {
     labs(
       title = paste("Voting Representation Disparities by", gname),
       fill = "",
-      tag = "{round((frame_time - 0.99) / 2) * 2}",
+      tag = "{round((frame_time - 0.5) / 2) * 2}",
       caption = "Full report available at annettestrauss.org\nData: IPUMS CPS, UF Election Lab"
     ) +
     xlab(gname) +
