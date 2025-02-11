@@ -66,14 +66,6 @@ income_conv <- tribble(
   999, NA
 )
 
-metro_conv <- tribble(
-  ~METRO, ~is_metro,
-  1, FALSE,
-  2, TRUE,
-  3, FALSE,
-  4, FALSE
-)
-
 age_conv <- tibble(
   AGE = c(18:29, 30:44, 45:59, 60:85),
   is_over_30 = c(rep(FALSE, 12), rep(TRUE, 15), rep(TRUE, 15), rep(TRUE, 26))
@@ -96,7 +88,6 @@ diff_conv <- tibble(
 
 cps <- cps %>%
   left_join(income_conv) %>%
-  left_join(metro_conv) %>%
   left_join(age_conv) %>%
   left_join(sex_conv) %>%
   left_join(diff_conv) %>%
@@ -107,7 +98,7 @@ cps <- cps %>%
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
-  select(YEAR, fips, state_name = name, vep_turnout = VEP_TURNOUT_RATE)
+  select(YEAR, fips, locality = name, vep_turnout = VEP_TURNOUT_RATE)
 
 raw_turn <- filter(
   cps,
@@ -143,12 +134,15 @@ cps <- filter(cps, VOTED == 1 | VOTED == 2)
 cps <- select(
   cps,
   year = YEAR,
-  state_name,
+  locality,
   voted = VOTED,
   adj_vosuppwt,
   starts_with("is_")
 )
 
+# Filter to just be 2008-2022, which is the scope of the paper
+cps <- filter(cps, year >= 2008)
+
 # Write final outputs
-write_csv(cps, "final_data/cps_reduced_ipums_1994-2022.csv")
-write_dta(cps, "final_data/cps_reduced_ipums_1994-2022.dta")
+write_csv(cps, "final_data/cps_reduced_ipums_2008-2022.csv")
+write_dta(cps, "final_data/cps_reduced_ipums_2008-2022.dta")
