@@ -10,7 +10,7 @@ library(ipumsr)
 setwd("electoral_studies_paper")
 
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00017.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00020.xml") %>% read_ipums_micro()
 
 # Hispanic simple recoding
 cps$is_hispanic <- rep(TRUE, nrow(cps))
@@ -130,7 +130,7 @@ cps$adj_vosuppwt[cps$VOTED == 1] <- cps$VOSUPPWT[cps$VOTED == 1] * cps$adj_non_v
 
 cps <- filter(cps, VOTED == 1 | VOTED == 2)
 
-# Pick out only the variables we analyze (comment out for debugging prn)
+# Pick out only the variables we analyze (comment out for debugging)
 cps <- select(
   cps,
   year = YEAR,
