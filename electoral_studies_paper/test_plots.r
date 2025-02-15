@@ -5,20 +5,40 @@ ovr_vri <- read_csv("final_data/vri_ratio_2008-2022.csv")
 
 vdi <- read_csv("final_data/vdi_ratio_2008-2022.csv")
 
-for (gvar in unique(ovr_vri$grouping_var)) {
-  for (loc in unique(ovr_vri$locality)) {
-    sub <- filter(ovr_vri, locality == loc & grouping_var == gvar)
-    
-  }
+current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes))
+for (gvar in unique(ovr_vdi$grouping_var)) {
+  sub <- filter(current_vdi, grouping_var == gvar)
+  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+  print(paste("GROUPING VAR:", gvar, "YEARS: ALL 2004-2022", "—————————————————————"))
+  print(anova(mod))
+  print("——————————————————————————————————————————————————————————————")
 }
 
-gvar <- "is_over_30"
+current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes), is.element(year, 2004:2012))
+for (gvar in unique(ovr_vdi$grouping_var)) {
+  sub <- filter(current_vdi, grouping_var == gvar)
+  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+  print(paste("GROUPING VAR:", gvar, "YEARS: 2004-2012", "—————————————————————"))
+  print(anova(mod))
+  print("——————————————————————————————————————————————————————————————")
+}
+
+current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes), is.element(year, 2014:2022))
+for (gvar in unique(ovr_vdi$grouping_var)) {
+  sub <- filter(current_vdi, grouping_var == gvar)
+  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+  print(paste("GROUPING VAR:", gvar, "YEARS: 2014-2022", "—————————————————————"))
+  print(anova(mod))
+  print("——————————————————————————————————————————————————————————————")
+}
+
+gvar <- "is_college_educ"
 loc <- "United States"
 sub <- filter(vdi, locality != loc & grouping_var == gvar)
 mod <- lm(more_dem_votes ~ vdi_ratio + locality + has_sdr, data = sub)
 anova(mod)
 
-ggplot(vdi) +
+ggplot(sub) +
   geom_boxplot(
     aes(
       fill = more_dem_votes,
@@ -28,7 +48,12 @@ ggplot(vdi) +
     ),
     alpha = 0.2
   ) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Boxplot of VDI by electoral outcomes and state across years"
+  ) +
+  geom_hline(yintercept = mean(filter(sub, more_dem_votes == TRUE)$vdi_ratio), col = "blue") +
+  geom_hline(yintercept = mean(filter(sub, more_dem_votes == FALSE)$vdi_ratio), col = "red")
 
 ggplot(vdi) +
   geom_histogram(

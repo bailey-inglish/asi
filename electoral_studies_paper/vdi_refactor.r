@@ -8,9 +8,9 @@ library(tidyverse)
 library(haven)
 setwd("electoral_studies_paper")
 
-cps <- read_csv("final_data/cps_reduced_ipums_2008-2022.csv") %>%
-  select(!is_registered) # is_registered is redundant to calculate vdi
+cps <- read_csv("final_data/cps_reduced_ipums_1994-2022.csv")
 
+# Reframe the data to be in terms of grouping variables, filter out NA values
 cps_c <- cps %>%
   pivot_longer(
     cols = starts_with("is_"),
@@ -19,6 +19,7 @@ cps_c <- cps %>%
   ) %>%
   filter(!is.na(gvar_value))
 
+# Calculate the state and federal VDI values for each group
 state_vdi <- group_by(cps_c, grouping_var, year, locality, gvar_value) %>%
   reframe(
     vep_in_group = sum(adj_vosuppwt),
@@ -59,7 +60,7 @@ fed_vdi <- group_by(cps_c, grouping_var, year, gvar_value) %>%
   ) %>%
   select(year, grouping_var, gvar_value, vdi)
 
-
+# Combine the two tibbles
 ovr_vdi <- fed_vdi %>%
   mutate(
     locality = "United States"
@@ -84,10 +85,17 @@ for (state_name in sdr_years$state_name) {
 }
 
 # General election total federal votes from the FEC (converted to logical)
-# https://www.fec.gov/resources/cms-content/documents/federalelections20XX.pdf
+# https://utexas.box.com/s/wp4lwnqpvrewnfpf5qxrvz641ikccgrb
 election_results <- read_csv("raw_data/election_results.csv")
 ovr_vdi <- left_join(ovr_vdi, election_results, by = c("locality" = "name", "year" = "year"))
 
+# Midterm/presidential year elections
+ovr_vdi$midterm <- round(ovr_vdi$year / 4) == ovr_vdi$year / 4
+
+# Presidential incumbency status on the ballot
+ovr_vdi$pres_incumb <- is.element(ovr_vdi$year, c(1996, 2004, 2012, 2020))
+
+# Calculate the VDI as the gap between the over and underrepesented VRIs
 t_ovr_vdi <- filter(ovr_vdi, gvar_value == TRUE) %>%
   mutate(t_vdi = vdi, .keep = "unused") %>%
   select(!gvar_value)
@@ -95,7 +103,8 @@ f_ovr_vdi <- filter(ovr_vdi, gvar_value == FALSE) %>%
   mutate(f_vdi = vdi, .keep = "unused") %>%
   select(!gvar_value)
 ovr_vdi <- left_join(f_ovr_vdi, t_ovr_vdi) %>%
-  mutate(vdi_ratio = f_vdi + t_vdi, .keep = "unused")
+  mutate(vdi = f_vdi + t_vdi, .keep = "unused")
 
-write_csv(ovr_vdi, "final_data/vdi_ratio_2008-2022.csv")
-write_dta(ovr_vdi, "final_data/vdi_ratio_2008-2022.dta")
+# Write final outputs
+write_csv(ovr_vdi, "final_data/vdi_1994-2022.csv")
+write_dta(ovr_vdi, "final_data/vdi_1994-2022.dta")
