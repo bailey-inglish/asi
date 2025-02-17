@@ -3,30 +3,30 @@ setwd("electoral_studies_paper")
 
 ovr_vri <- read_csv("final_data/vri_ratio_2008-2022.csv")
 
-vdi <- read_csv("final_data/vdi_ratio_2008-2022.csv")
+vdi <- read_csv("final_data/vdi_1994-2022.csv")
 
-current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes))
-for (gvar in unique(ovr_vdi$grouping_var)) {
-  sub <- filter(current_vdi, grouping_var == gvar)
-  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+current_vdi <- filter(vdi, !is.na(more_dem_votes))
+for (gvar in unique(vdi$grouping_var)) {
+  sub <- filter(current_vdi_f, grouping_var == gvar)
+  mod <- lm(more_dem_votes ~ pres_incumb + midterm + vdi, data = sub)
   print(paste("GROUPING VAR:", gvar, "YEARS: ALL 2004-2022", "—————————————————————"))
-  print(anova(mod))
+  print((mod))
   print("——————————————————————————————————————————————————————————————")
 }
 
-current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes), is.element(year, 2004:2012))
-for (gvar in unique(ovr_vdi$grouping_var)) {
+current_vdi <- filter(vdi, !is.na(more_dem_votes), is.element(year, 2004:2012))
+for (gvar in unique(vdi$grouping_var)) {
   sub <- filter(current_vdi, grouping_var == gvar)
-  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+  mod <- lm(more_dem_votes ~ year + has_sdr + midterm + pres_incumb + vdi, data = sub)
   print(paste("GROUPING VAR:", gvar, "YEARS: 2004-2012", "—————————————————————"))
   print(anova(mod))
   print("——————————————————————————————————————————————————————————————")
 }
 
-current_vdi <- filter(ovr_vdi, !is.na(more_dem_votes), is.element(year, 2014:2022))
-for (gvar in unique(ovr_vdi$grouping_var)) {
+current_vdi <- filter(vdi, !is.na(more_dem_votes), is.element(year, 2014:2022))
+for (gvar in unique(vdi$grouping_var)) {
   sub <- filter(current_vdi, grouping_var == gvar)
-  mod <- lm(more_dem_votes ~ year + locality + has_sdr + midterm + pres_incumb + vdi, data = sub)
+  mod <- lm(more_dem_votes ~ year + has_sdr + midterm + pres_incumb + vdi, data = sub)
   print(paste("GROUPING VAR:", gvar, "YEARS: 2014-2022", "—————————————————————"))
   print(anova(mod))
   print("——————————————————————————————————————————————————————————————")
