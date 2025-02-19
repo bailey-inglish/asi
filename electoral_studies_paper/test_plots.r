@@ -1,9 +1,29 @@
 library(tidyverse)
+library(aod)
 setwd("electoral_studies_paper")
 
-ovr_vri <- read_csv("final_data/vri_ratio_2008-2022.csv")
-
 vdi <- read_csv("final_data/vdi_1994-2022.csv")
+
+print("FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED ")
+for (g in unique(vdi$grouping_var)) {
+  vdi_fed <- filter(vdi, locality == "United States", grouping_var == g)
+  fed_mod <- glm(more_dem_votes ~ dem_pres_incumb + midterm + vdi, data = vdi_fed) # fed mod
+  print(paste(g, "- - - - - - - - - - - - - - - - - "))
+  print(summary(fed_mod))
+}
+
+for (r in unique(vdi$region)[!is.na(unique(vdi$region))]) {
+  print(paste(r, r, r, r, r, r, r, r))
+  for (g in unique(vdi$grouping_var)) {
+    vdi_reg <- filter(vdi, grouping_var == g, region == r)
+    reg_mod <- glm(more_dem_votes ~ dem_pres_incumb + midterm + vdi + locality, data = vdi_reg) # reg mod
+    print(paste(g, "- - - - - - - - - - - - - - - - - "))
+    print(summary(reg_mod))
+  }
+}
+
+
+for (reg in names(vdi$region))
 
 current_vdi <- filter(vdi, !is.na(more_dem_votes))
 for (gvar in unique(vdi$grouping_var)) {
