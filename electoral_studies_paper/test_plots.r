@@ -2,7 +2,9 @@ library(tidyverse)
 library(aod)
 setwd("electoral_studies_paper")
 
-vdi <- read_csv("final_data/vdi_1994-2022.csv")
+vdi <- read_csv("final_data/vdi_2004-2022.csv")
+
+lm(dem_diff ~ )
 
 print("FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED FED ")
 for (g in unique(vdi$grouping_var)) {
