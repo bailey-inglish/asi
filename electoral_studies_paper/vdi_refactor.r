@@ -9,6 +9,7 @@ library(haven)
 setwd("electoral_studies_paper")
 
 cps <- read_csv("final_data/cps_reduced_ipums_1994-2022.csv")
+props <- read_csv("final_data/cps_state_proportions_1994-2022.csv")
 
 # Reframe the data to be in terms of grouping variables, filter out NA values
 cps_c <- cps %>%
@@ -68,7 +69,11 @@ ovr_vri <- fed_vri %>%
   mutate(
     locality = "United States"
   ) %>%
-  rows_append(state_vri)
+  rows_append(state_vri) %>%
+  left_join(
+    props,
+    by = c("year", "locality")
+  )
 
 # Add in covariates of interest
 # SDR status and years from NCSL
@@ -105,6 +110,17 @@ ovr_vri$dem_pres_incumb <- is.element(ovr_vri$year, c(1996, 2012))
 # Add region flags using Census region specifications
 reg_conv <- read_csv("raw_data/region_conv.csv")
 ovr_vri <- left_join(ovr_vri, reg_conv, by = c("locality" = "name"))
+
+# Cost of Voting Index
+covi <- read_csv("raw_data/covi_1996-2024.csv") %>%
+  left_join(fips_conv, by = c("state" = "abbr")) %>%
+  select(
+    locality = name,
+    year,
+    final_covi
+  )
+
+ovr_vri <- left_join(ovr_vri, covi, by = c("year", "locality"))
 
 # Calculate the VDI as the gap between the over and underrepesented VRIs
 t_ovr_vri <- filter(ovr_vri, gvar_value == TRUE) %>%

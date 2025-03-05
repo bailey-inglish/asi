@@ -59,11 +59,11 @@ cps <- filter(cps, VOTED == 1 | VOTED == 2)
 var_bin_recodes <- tribble(
   ~name, ~var, ~min, ~max,
   # var, 0, 999, <- inclusive bounds
-  "college_educ", "EDUC", 73, 125,
-  "long_res", "VOTERES", 33, 899,
-  "higher_income", "FAMINC", 720, 899,
+  "any_college_educ", "EDUC", 80, 125,
+  "5_plus_years_at_address", "VOTERES", 33, 899,
+  "50k_plus", "FAMINC", 820, 899,
   "30_under", "AGE", 18, 30,
-  "65_plus", "AGE", 30, 90,
+  "65_plus", "AGE", 65, 90,
   "female", "SEX", 2, 2,
   "in_metro", "METRO", 2, 4,
   "white", "RACE", 100, 100,
@@ -74,26 +74,48 @@ var_bin_recodes <- tribble(
 
 cps$METRO[cps$METRO == 0] <- 999
 
+prop_totals <- tibble(
+  year = rep(unique(cps$YEAR), length(unique(cps$locality)) + 1),
+  locality = rep(c(unique(cps$locality), "United States"), length(unique(cps$YEAR)))
+)
+
 for (name in var_bin_recodes$name) {
-  print(name)
   vmin <- var_bin_recodes$min[var_bin_recodes$name == name]
   vmax <- var_bin_recodes$max[var_bin_recodes$name == name]
   v <- var_bin_recodes$var[var_bin_recodes$name == name]
 
+  cps[, str_c("is_", name)] <- c(NA, TRUE)[(cps[, v] <= vmax) + 1]
   cps[, str_c("is_", name)] <- cps[, v] <= vmax & cps[, v] >= vmin
-  cps[, str_c("is_", name)] <- c(NA, TRUE)[cps[, v] <= vmax]
 
+  # State level
   in_group_count <- cps %>%
     filter(!!sym(str_c("is_", name)) == TRUE) %>%
-    group_by(YEAR, STATEFIP, !!sym(str_c("is_", name))) %>%
+    group_by(YEAR, locality, !!sym(str_c("is_", name))) %>%
     summarize(ig_count = sum(adj_vosuppwt))
   overall_count <- cps %>%
-    group_by(YEAR, STATEFIP) %>%
+    group_by(YEAR, locality) %>%
     summarize(ovr_count = sum(adj_vosuppwt))
   ratio_tab <- left_join(overall_count, in_group_count)
   ratio_tab[, str_c("prop_", name)] <- ratio_tab[, "ig_count"] / ratio_tab[, "ovr_count"]
-  ratio_tab <- select(ratio_tab, YEAR, STATEFIP, str_c("prop_", name))
-  cps <- left_join(cps, ratio_tab, by = c("YEAR", "STATEFIP"))
+  ratio_tab <- select(ratio_tab, YEAR, locality, str_c("prop_", name))
+  state_r <- ratio_tab
+
+  # Federal level
+  in_group_count <- cps %>%
+    filter(!!sym(str_c("is_", name)) == TRUE) %>%
+    group_by(YEAR, !!sym(str_c("is_", name))) %>%
+    summarize(ig_count = sum(adj_vosuppwt))
+  overall_count <- cps %>%
+    group_by(YEAR) %>%
+    summarize(ovr_count = sum(adj_vosuppwt))
+  ratio_tab <- left_join(overall_count, in_group_count)
+  ratio_tab[, str_c("prop_", name)] <- ratio_tab[, "ig_count"] / ratio_tab[, "ovr_count"]
+  ratio_tab <- select(ratio_tab, YEAR, str_c("prop_", name)) %>%
+    mutate(locality = "United States")
+  fed_r <- ratio_tab
+
+  ovr_r <- rows_append(state_r, fed_r)
+  prop_totals <- left_join(prop_totals, ovr_r, by = c("year" = "YEAR", "locality"))
 }
 
 # Pick out only the variables we analyze (comment out this part for debugging)
@@ -104,9 +126,11 @@ cps <- select(
   voted = VOTED,
   registered,
   adj_vosuppwt,
-  starts_with("is_", "prop_")
+  starts_with("is_")
 )
 
 # Write final outputs
 write_csv(cps, "final_data/cps_reduced_ipums_1994-2022.csv")
 write_dta(cps, "final_data/cps_reduced_ipums_1994-2022.dta")
+write_csv(prop_totals, "final_data/cps_state_proportions_1994-2022.csv")
+write_dta(prop_totals, "final_data/cps_state_proportions_1994-2022.dta")
