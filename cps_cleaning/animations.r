@@ -4,8 +4,10 @@ library(gifski)
 library(ggthemes)
 library(forcats)
 library(magick)
-logo <- image_read("cps_cleaning/raw_data/strauss_rgb.png")
-cps <- read_csv("cps_cleaning/final_data/cps_clean_ipums_2008-2022_CUSTOM.csv")
+
+setwd("cps_cleaning")
+logo <- image_read("raw_data/strauss_rgb.png")
+cps <- read_csv("final_data/cps_clean_ipums_2008-2022_CUSTOM.csv")
 
 vars_of_interest <- tibble(
   var = c("age_cluster", "vote_res_harmonized", "edu_cluster", "income_range", "eth_race_comb_cluster", "sex_name"),
