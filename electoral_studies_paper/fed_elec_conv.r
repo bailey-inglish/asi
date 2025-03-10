@@ -93,7 +93,8 @@ fed_elec_final <- fed_elec_comb %>%
     indep_pct = other_votes / (dem_votes + rep_votes + other_votes),
     swing_state5 = abs(dem_diff) < 0.05,
     swing_state10 = abs(dem_diff) < 0.1,
-    swing_state25 = abs(dem_diff) < 0.10
+    swing_state15 = abs(dem_diff) < 0.15,
+    swing_state25 = abs(dem_diff) < 0.25
   )
 
 write_csv(fed_elec_final, str_c(
