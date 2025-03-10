@@ -56,7 +56,6 @@ for (year in raw_text$year) {
 
   other_vals <- get_vals(0)
   rep_vals <- get_vals(1)
-  print(rep_vals[length(rep_vals)])
   dem_vals <- get_vals(2)
 
   # Putting it all together
@@ -92,7 +91,9 @@ fed_elec_final <- fed_elec_comb %>%
     dem_margin = dem_votes - rep_votes - other_votes,
     dem_diff = dem_margin / (dem_votes + rep_votes + other_votes),
     indep_pct = other_votes / (dem_votes + rep_votes + other_votes),
-    swing_state = abs(dem_diff) < 0.05
+    swing_state5 = abs(dem_diff) < 0.05,
+    swing_state10 = abs(dem_diff) < 0.1,
+    swing_state25 = abs(dem_diff) < 0.10
   )
 
 write_csv(fed_elec_final, str_c(
