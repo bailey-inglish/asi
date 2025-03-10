@@ -106,6 +106,7 @@ ovr_vri$midterm <- round(ovr_vri$year / 4) == ovr_vri$year / 4
 
 # Presidential incumbency status on the ballot
 ovr_vri$dem_pres_incumb <- is.element(ovr_vri$year, c(1996, 2012))
+ovr_vri$dem_pres_in_office <- is.element(ovr_vri$year, c(1994, 1996, 1998, 2000, 2010, 2012, 2014, 2016, 2022, 2024))
 
 # Add region flags using Census region specifications
 reg_conv <- read_csv("raw_data/region_conv.csv")
