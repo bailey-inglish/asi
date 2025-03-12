@@ -1,6 +1,6 @@
 library(tidyverse)
 library(aod)
-setwd("electoral_studies_paper")
+setwd("disparities")
 
 vdi <- read_csv("final_data/vdi_2004-2022.csv")
 fancy_cps <- read_csv("../cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")

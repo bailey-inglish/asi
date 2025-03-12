@@ -7,7 +7,7 @@
 # Libaries and datasets
 library(tidyverse)
 
-setwd("electoral_studies_paper")
+setwd("disparities")
 
 abbr_conv <- read_csv("raw_data/fips_name_abbr.csv")
 

@@ -6,7 +6,7 @@
 # Setup
 library(tidyverse)
 library(haven)
-setwd("electoral_studies_paper")
+setwd("disparities")
 
 cps <- read_csv("final_data/cps_reduced_ipums_1994-2022.csv")
 props <- read_csv("final_data/cps_state_proportions_1994-2022.csv")

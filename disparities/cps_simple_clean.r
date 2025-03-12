@@ -7,7 +7,7 @@
 library(tidyverse)
 library(haven)
 library(ipumsr)
-setwd("electoral_studies_paper")
+setwd("disparities")
 
 # Import data
 cps <- read_ipums_ddi("raw_data/cps_00022.xml") %>% read_ipums_micro()
