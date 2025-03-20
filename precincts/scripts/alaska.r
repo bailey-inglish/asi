@@ -10,7 +10,7 @@ library(kableExtra)
 
 setwd("precincts")
 
-ak <- read_csv("returns/alaska.csv")
+ak <- read_csv("returns/alaska.csv") # Source: AK Elections Division 2024 Results
 
 ak2 <- pivot_wider(
   ak,
