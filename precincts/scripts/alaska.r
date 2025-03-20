@@ -1,5 +1,5 @@
 # File name: alaska.r
-# Purpose:   Given the 2024 election returns for Alaska, evluate the
+# Purpose:   Given the 2024 election returns for Alaska, evaluate the
 #            relationships between presidential preference and support for
 #            ranked-choice voting.
 # Author:    Bailey Inglish
@@ -12,6 +12,7 @@ setwd("precincts")
 
 ak <- read_csv("returns/alaska.csv") # Source: AK Elections Division 2024 Results
 
+# Reframe the data from ak -> ak2 (creative name I know :P)
 ak2 <- pivot_wider(
   ak,
   names_from = cand_party,
@@ -32,6 +33,7 @@ ak2 <- pivot_wider(
 
 write_csv(ak2, "products/ak2.csv")
 
+# Print out pretty tables of the results for each precint
 for (i in 1:6) {
   filter(ak2, exception == TRUE) %>%
     arrange(desc(prop_yes)) %>%
@@ -63,6 +65,7 @@ for (i in 1:6) {
     print()
 }
 
+# Pretty pictures of the overall trends!
 ggplot(
   ak2,
   aes(
