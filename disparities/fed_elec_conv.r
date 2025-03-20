@@ -90,6 +90,8 @@ fed_elec_final <- fed_elec_comb %>%
   mutate(
     dem_margin = dem_votes - rep_votes - other_votes,
     dem_diff = dem_margin / (dem_votes + rep_votes + other_votes),
+    dem_pct = dem_votes / (dem_votes + rep_votes + other_votes),
+    rep_pct = rep_votes / (dem_votes + rep_votes + other_votes),
     indep_pct = other_votes / (dem_votes + rep_votes + other_votes),
     swing_state5 = abs(dem_diff) < 0.05,
     swing_state10 = abs(dem_diff) < 0.1,

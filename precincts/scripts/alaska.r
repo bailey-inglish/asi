@@ -6,6 +6,7 @@
 
 # Libraries and files
 library(tidyverse)
+library(kableExtra)
 
 setwd("precincts")
 
@@ -17,6 +18,7 @@ ak2 <- pivot_wider(
   id_cols = starts_with("pct") | starts_with("reg"),
   values_from = votes
 ) %>%
+  filter(!is.na(YES)) %>%
   mutate(
     total_pres = DEM + RFK + LIB + ASP + GRN + CON + REP + AUR,
     total_rcv = YES + NO,
@@ -24,14 +26,49 @@ ak2 <- pivot_wider(
     prop_rep = REP / total_pres,
     prop_rfk = RFK / total_pres,
     prop_yes = YES / total_rcv,
-    prop_no = NO / total_rcv
+    prop_no = NO / total_rcv,
+    exception = (prop_yes > 0.6 & prop_dem > 0.6) | (prop_no > 0.6 & prop_rep > 0.6)
   )
+
+write_csv(ak2, "products/ak2.csv")
+
+for (i in 1:6) {
+  filter(ak2, exception == TRUE) %>%
+    arrange(desc(prop_yes)) %>%
+    mutate(
+      pct_name,
+      reg_vot,
+      total_pres,
+      total_rcv,
+      prop_dem = round(prop_dem * 100, 1),
+      prop_rep = round(prop_rep * 100, 1),
+      prop_keep_rcv = round(prop_no * 100, 1),
+      prop_axe_rcv = round(prop_yes * 100, 1),
+      .keep = "none"
+    ) %>%
+    slice(i) %>%
+    kbl(
+      col.names = c(
+        "Precinct",
+        "Reg. Voters",
+        "Pres. Votes",
+        "RCV Votes",
+        "% Dem",
+        "% Rep",
+        "% For RCV",
+        "% Against RCV"
+      )
+    ) %>%
+    kable_styling() %>%
+    print()
+}
 
 ggplot(
   ak2,
   aes(
     x = 100 * prop_dem,
-    y = 100 * prop_yes
+    y = 100 * prop_yes,
+    pch = exception
   )
 ) +
   geom_point(col = "blue") +
