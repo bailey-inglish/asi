@@ -11,10 +11,10 @@ library(rjson)
 setwd("midnight_sun")
 
 ## Manifests
-# bc: Blank Check - ensures empty lists are counted as NA rather than lst()
+# bc: Blank Check - ensures empty lists are counted as "None" rather than lst()
 bc <- function(value) {
   if (is.list(value)) {
-    return(NA)
+    return("None")
   }
   return(value)
 }
