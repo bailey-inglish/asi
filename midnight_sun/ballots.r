@@ -3,6 +3,7 @@
 #            tidying up!
 # Author:    Bailey Inglish
 
+## Setup
 # Libaries
 library(tidyverse)
 library(rjson)
@@ -11,15 +12,6 @@ library(rjson)
 setwd("midnight_sun")
 
 ## Manifests
-# bc: Blank Check - ensures empty lists are counted as "None" rather than lst()
-bc <- function(value) {
-  if (is.list(value)) {
-    return("None")
-  }
-  return(value)
-}
-
-
 # BallotType Manifest
 BallotTypeManifestRaw <- fromJSON(file = "manifests/BallotTypeManifest.json")[[2]]
 BallotTypeM2 <- tibble(
@@ -44,6 +36,14 @@ CandidateM2 <- tibble(
   ContestId = integer(),
   PartyId = integer()
 )
+
+# bc: Blank Check - ensures empty lists are counted as 1 (Nonpartisan) rather than lst()
+bc <- function(value) {
+  if (is.list(value)) {
+    return(1)
+  }
+  return(value)
+}
 
 for (i in seq_len(length(CandidateManifestRaw))) {
   info <- CandidateManifestRaw[[i]]
@@ -246,126 +246,126 @@ for (i in seq_len(length(TabulatorManifestRaw))) {
 ## Reframing data from JSON files using the manifests
 cvr <- tibble(
   TabulatorId = integer(),
-  TabulatorName = character(),#>TabulatorM2
+  TabulatorName = character(),
   VotingLocationNumber = integer(),
   VotingLocationName = character(),
   TabulatorType = character(),
   TabulatorThresholdMin = integer(),
   TabulatorThresholdMax = integer(),
   TabulatorWriteInThresholdMin = integer(),
-  TabulatorWriteInThresholdMax = integer(),#^
+  TabulatorWriteInThresholdMax = integer(),
   BatchId = integer(),
   RecordId = integer(),
   CountingGroupId = integer(),
-  CountingGroupName = character(),#CountingGroupM2
+  CountingGroupName = character(),
   ImageMask = character(),
   SessionType = character(),
   VotingSessionIdentifier = character(),
   UniqueVotingIdentifier = character(),
   PrecinctPortionId = integer(),
-  PrecinctPortionName = character(),#>PrecinctPortionM2
+  PrecinctPortionName = character(),
   PrecinctExternalId = character(),
-  PrecinctId = integer(),#^
+  PrecinctId = integer(),
   PrecinctName = character(),
   BallotTypeId = integer(),
-  BallotTypeName = character(),#BallotTypeM2
-  IsCurrent = logical(), #<<<<< end of bl data
+  BallotTypeName = character(),
+  IsCurrent = logical(),
   Pres1Id = integer(),
   Pres1Name = character(),
   Pres1PartyId = integer(),
-  Pres1PartyName = integer(),
+  Pres1PartyName = character(),
   Pres2Id = integer(),
   Pres2Name = character(),
   Pres2PartyId = integer(),
-  Pres2PartyName = integer(),
+  Pres2PartyName = character(),
   Pres3Id = integer(),
   Pres3Name = character(),
   Pres3PartyId = integer(),
-  Pres3PartyName = integer(),
+  Pres3PartyName = character(),
   Pres4Id = integer(),
   Pres4Name = character(),
   Pres4PartyId = integer(),
-  Pres4PartyName = integer(),
+  Pres4PartyName = character(),
   Pres5Id = integer(),
   Pres5Name = character(),
   Pres5PartyId = integer(),
-  Pres5PartyName = integer(),
+  Pres5PartyName = character(),
   Pres6Id = integer(),
   Pres6Name = character(),
   Pres6PartyId = integer(),
-  Pres6PartyName = integer(),
+  Pres6PartyName = character(),
   Pres7Id = integer(),
   Pres7Name = character(),
   Pres7PartyId = integer(),
-  Pres7PartyName = integer(),
+  Pres7PartyName = character(),
   Pres8Id = integer(),
   Pres8Name = character(),
   Pres8PartyId = integer(),
-  Pres8PartyName = integer(),
+  Pres8PartyName = character(),
   Rep1Id = integer(),
   Rep1Name = character(),
   Rep1PartyId = integer(),
-  Rep1PartyName = integer(),
+  Rep1PartyName = character(),
   Rep2Id = integer(),
   Rep2Name = character(),
   Rep2PartyId = integer(),
-  Rep2PartyName = integer(),
+  Rep2PartyName = character(),
   Rep3Id = integer(),
   Rep3Name = character(),
   Rep3PartyId = integer(),
-  Rep3PartyName = integer(),
+  Rep3PartyName = character(),
   Rep4Id = integer(),
   Rep4Name = character(),
   Rep4PartyId = integer(),
-  Rep4PartyName = integer(),
+  Rep4PartyName = character(),
   Rep5Id = integer(),
   Rep5Name = character(),
   Rep5PartyId = integer(),
-  Rep5PartyName = integer(),
+  Rep5PartyName = character(),
   SDContestId = integer(),
   SDContestName = character(),
   SD1Id = integer(),
   SD1Name = character(),
   SD1PartyId = integer(),
-  SD1PartyName = integer(),
+  SD1PartyName = character(),
   SD2Id = integer(),
   SD2Name = character(),
   SD2PartyId = integer(),
-  SD2PartyName = integer(),
+  SD2PartyName = character(),
   SD3Id = integer(),
   SD3Name = character(),
   SD3PartyId = integer(),
-  SD3PartyName = integer(),
+  SD3PartyName = character(),
   SD4Id = integer(),
   SD4Name = character(),
   SD4PartyId = integer(),
-  SD4PartyName = integer(),
+  SD4PartyName = character(),
   HDContestId = integer(),
   HDContestName = character(),
   HD1Id = integer(),
   HD1Name = character(),
   HD1PartyId = integer(),
-  HD1PartyName = integer(),
+  HD1PartyName = character(),
   HD2Id = integer(),
   HD2Name = character(),
   HD2PartyId = integer(),
-  HD2PartyName = integer(),
+  HD2PartyName = character(),
   HD3Id = integer(),
   HD3Name = character(),
   HD3PartyId = integer(),
-  HD3PartyName = integer(),
+  HD3PartyName = character(),
   HD4Id = integer(),
   HD4Name = character(),
   HD4PartyId = integer(),
-  HD4PartyName = integer(),
+  HD4PartyName = character(),
   HD5Id = integer(),
   HD5Name = character(),
   HD5PartyId = integer(),
-  HD5PartyName = integer(),
+  HD5PartyName = character(),
   BM1Id = integer(),
   BM1Name = character(),
   BM2Id = integer(),
-  BBM2Name = character(),
+  BM2Name = character(),
   SC1Id = integer(),
   SC1Name = character(),
   SC2Id = integer(),
@@ -406,37 +406,35 @@ cvr <- tibble(
   DIST_JD4_2Name = character()
 )
 
+measure_vs_contest <- tribble(
+  ~MeasureColName, ~ContestId,
+  "BM1", 68,
+  "BM2", 69,
+  "SC1", 71,
+  "SC2", 72,
+  "COA1", 76,
+  "COA2", 77,
+  "DIST_JD1", 85,
+  "SUP_JD3_1", 90,
+  "SUP_JD3_2", 91,
+  "SUP_JD3_3", 92,
+  "SUP_JD3_4", 93,
+  "DIST_JD3_1", 116,
+  "DIST_JD3_2", 117,
+  "DIST_JD3_3", 118,
+  "DIST_JD3_4", 119,
+  "DIST_JD3_5", 120,
+  "DIST_JD3_6", 121,
+  "DIST_JD3_7", 122,
+  "SUP_JD4", 129,
+  "DIST_JD4_1", 137,
+  "DIST_JD4_2", 138
+)
+
 conv <- function(M2, new_col_name, known_col_name, known_col_val) {
   return(M2[M2[, known_col_name] == known_col_val, new_col_name][[1]])
 }
 
-cvr <- tibble(
-  TabulatorId = integer(),
-  TabulatorName = character(),#>TabulatorM2
-  VotingLocationNumber = integer(),
-  VotingLocationName = character(),
-  TabulatorType = character(),
-  TabulatorThresholdMin = integer(),
-  TabulatorThresholdMax = integer(),
-  TabulatorWriteInThresholdMin = integer(),
-  TabulatorWriteInThresholdMax = integer(),#^
-  BatchId = integer(),
-  RecordId = integer(),
-  CountingGroupId = integer(),
-  CountingGroupName = character(),#CountingGroupM2
-  ImageMask = character(),
-  SessionType = character(),
-  VotingSessionIdentifier = character(),
-  UniqueVotingIdentifier = character(),
-  PrecinctPortionId = integer(),
-  PrecinctPortionName = character(),#>PrecinctPortionM2
-  PrecinctExternalId = character(),
-  PrecinctId = integer(),#^
-  PrecinctName = character(),
-  BallotTypeId = integer(),
-  BallotTypeName = character(),#BallotTypeM2
-  IsCurrent = logical()
-)
 for (i in 18:2046) {
   current_batch <- fromJSON(file = str_c("cvr/CvrExport_", i, ".json"))[[3]]
   for (j in seq_along(current_batch)) {
@@ -472,9 +470,229 @@ for (i in 18:2046) {
       PrecinctExternalId = conv(PrecinctM2, "PrecinctExternalId", "PrecinctId", p_id),
       BallotTypeId = bt_id,
       BallotTypeName = conv(BallotTypeM2, "BallotTypeName", "BallotTypeId", bt_id),
-      IsCurrent = current_session$Original$IsCurrent
+      IsCurrent = current_session$Original$IsCurrent,
+      Pres1Id = NA,
+      Pres1Name = NA,
+      Pres1PartyId = NA,
+      Pres1PartyName = NA,
+      Pres2Id = NA,
+      Pres2Name = NA,
+      Pres2PartyId = NA,
+      Pres2PartyName = NA,
+      Pres3Id = NA,
+      Pres3Name = NA,
+      Pres3PartyId = NA,
+      Pres3PartyName = NA,
+      Pres4Id = NA,
+      Pres4Name = NA,
+      Pres4PartyId = NA,
+      Pres4PartyName = NA,
+      Pres5Id = NA,
+      Pres5Name = NA,
+      Pres5PartyId = NA,
+      Pres5PartyName = NA,
+      Pres6Id = NA,
+      Pres6Name = NA,
+      Pres6PartyId = NA,
+      Pres6PartyName = NA,
+      Pres7Id = NA,
+      Pres7Name = NA,
+      Pres7PartyId = NA,
+      Pres7PartyName = NA,
+      Pres8Id = NA,
+      Pres8Name = NA,
+      Pres8PartyId = NA,
+      Pres8PartyName = NA,
+      Rep1Id = NA,
+      Rep1Name = NA,
+      Rep1PartyId = NA,
+      Rep1PartyName = NA,
+      Rep2Id = NA,
+      Rep2Name = NA,
+      Rep2PartyId = NA,
+      Rep2PartyName = NA,
+      Rep3Id = NA,
+      Rep3Name = NA,
+      Rep3PartyId = NA,
+      Rep3PartyName = NA,
+      Rep4Id = NA,
+      Rep4Name = NA,
+      Rep4PartyId = NA,
+      Rep4PartyName = NA,
+      Rep5Id = NA,
+      Rep5Name = NA,
+      Rep5PartyId = NA,
+      Rep5PartyName = NA,
+      SDContestId = NA,
+      SDContestName = NA,
+      SD1Id = NA,
+      SD1Name = NA,
+      SD1PartyId = NA,
+      SD1PartyName = NA,
+      SD2Id = NA,
+      SD2Name = NA,
+      SD2PartyId = NA,
+      SD2PartyName = NA,
+      SD3Id = NA,
+      SD3Name = NA,
+      SD3PartyId = NA,
+      SD3PartyName = NA,
+      SD4Id = NA,
+      SD4Name = NA,
+      SD4PartyId = NA,
+      SD4PartyName = NA,
+      HDContestId = NA,
+      HDContestName = NA,
+      HD1Id = NA,
+      HD1Name = NA,
+      HD1PartyId = NA,
+      HD1PartyName = NA,
+      HD2Id = NA,
+      HD2Name = NA,
+      HD2PartyId = NA,
+      HD2PartyName = NA,
+      HD3Id = NA,
+      HD3Name = NA,
+      HD3PartyId = NA,
+      HD3PartyName = NA,
+      HD4Id = NA,
+      HD4Name = NA,
+      HD4PartyId = NA,
+      HD4PartyName = NA,
+      HD5Id = NA,
+      HD5Name = NA,
+      HD5PartyId = NA,
+      HD5PartyName = NA,
+      BM1Id = NA,
+      BM1Name = NA,
+      BM2Id = NA,
+      BM2Name = NA,
+      SC1Id = NA,
+      SC1Name = NA,
+      SC2Id = NA,
+      SC2Name = NA,
+      COA1Id = NA,
+      COA1Name = NA,
+      COA2Id = NA,
+      COA2Name = NA,
+      DIST_JD1Id = NA,
+      DIST_JD1Name = NA,
+      SUP_JD3_1Id = NA,
+      SUP_JD3_1Name = NA,
+      SUP_JD3_2Id = NA,
+      SUP_JD3_2Name = NA,
+      SUP_JD3_3Id = NA,
+      SUP_JD3_3Name = NA,
+      SUP_JD3_4Id = NA,
+      SUP_JD3_4Name = NA,
+      DIST_JD3_1Id = NA,
+      DIST_JD3_1Name = NA,
+      DIST_JD3_2Id = NA,
+      DIST_JD3_2Name = NA,
+      DIST_JD3_3Id = NA,
+      DIST_JD3_3Name = NA,
+      DIST_JD3_4Id = NA,
+      DIST_JD3_4Name = NA,
+      DIST_JD3_5Id = NA,
+      DIST_JD3_5Name = NA,
+      DIST_JD3_6Id = NA,
+      DIST_JD3_6Name = NA,
+      DIST_JD3_7Id = NA,
+      DIST_JD3_7Name = NA,
+      SUP_JD4Id = NA,
+      SUP_JD4Name = NA,
+      DIST_JD4_1Id = NA,
+      DIST_JD4_1Name = NA,
+      DIST_JD4_2Id = NA,
+      DIST_JD4_2Name = NA
     )
+    # Voting data
+    for (c in current_session$Original$Cards[[1]]$Contests) {
+      con_id <- c$Id
+      if (con_id == 4) {
+        for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
+          if (n <= length(c$Marks)) {
+            cand_id <- c$Marks[[n]]$CandidateId
+            party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
+            ballot[, str_c("Pres", n, "Id")] <- c(cand_id)
+            ballot[, str_c("Pres", n, "Name")] <- c(conv(CandidateM2, "CandidateName", "CandidateId", cand_id))
+            ballot[, str_c("Pres", n, "PartyId")] <- c(party_id)
+            ballot[, str_c("Pres", n, "PartyName")] <- c(conv(PartyM2, "PartyName", "PartyId", party_id))
+          } else {
+            ballot[, str_c("Pres", n, "Id")] <- c(NA)
+            ballot[, str_c("Pres", n, "Name")] <- c("[Blank]")
+            ballot[, str_c("Pres", n, "PartyId")] <- c(NA)
+            ballot[, str_c("Pres", n, "PartyName")] <- c("[Blank]")
+          }
+        }
+      } else if (con_id == 7) {
+        for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
+          if (n <= length(c$Marks)) {
+            cand_id <- c$Marks[[n]]$CandidateId
+            party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
+            ballot[, str_c("Rep", n, "Id")] <- c(cand_id)
+            ballot[, str_c("Rep", n, "Name")] <- c(conv(CandidateM2, "CandidateName", "CandidateId", cand_id))
+            ballot[, str_c("Rep", n, "PartyId")] <- c(party_id)
+            ballot[, str_c("Rep", n, "PartyName")] <- c(conv(PartyM2, "PartyName", "PartyId", party_id))
+          } else {
+            ballot[, str_c("Rep", n, "Id")] <- c(NA)
+            ballot[, str_c("Rep", n, "Name")] <- c("[Blank]")
+            ballot[, str_c("Rep", n, "PartyId")] <- c(NA)
+            ballot[, str_c("Rep", n, "PartyName")] <- c("[Blank]")
+          }
+        }
+      } else if (is.element(con_id, 9:27)) {
+        c_name <- conv(ContestM2, "ContestName", "ContestId", con_id)
+        ballot[, "SDContestId"] <- c(con_id)
+        ballot[, "SDContestName"] <- c(c_name)
+        for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
+          if (n <= length(c$Marks)) {
+            cand_id <- c$Marks[[n]]$CandidateId
+            party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
+            ballot[, str_c("SD", n, "Id")] <- c(cand_id)
+            ballot[, str_c("SD", n, "Name")] <- c(conv(CandidateM2, "CandidateName", "CandidateId", cand_id))
+            ballot[, str_c("SD", n, "PartyId")] <- c(party_id)
+            ballot[, str_c("SD", n, "PartyName")] <- c(conv(PartyM2, "PartyName", "PartyId", party_id))
+          } else {
+            ballot[, str_c("SD", n, "Id")] <- c(NA)
+            ballot[, str_c("SD", n, "Name")] <- c("[Blank]")
+            ballot[, str_c("SD", n, "PartyId")] <- c(NA)
+            ballot[, str_c("SD", n, "PartyName")] <- c("[Blank]")
+          }
+        }
+      } else if (is.element(con_id, 28:67)) { #hd
+        c_name <- conv(ContestM2, "ContestName", "ContestId", con_id)
+        ballot[, "HDContestId"] <- c(con_id)
+        ballot[, "HDContestName"] <- c(c_name)
+        for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
+          if (n <= length(c$Marks)) {
+            cand_id <- c$Marks[[n]]$CandidateId
+            party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
+            ballot[, str_c("HD", n, "Id")] <- c(cand_id)
+            ballot[, str_c("HD", n, "Name")] <- c(conv(CandidateM2, "CandidateName", "CandidateId", cand_id))
+            ballot[, str_c("HD", n, "PartyId")] <- c(party_id)
+            ballot[, str_c("HD", n, "PartyName")] <- c(conv(PartyM2, "PartyName", "PartyId", party_id))
+          } else {
+            ballot[, str_c("HD", n, "Id")] <- c(NA)
+            ballot[, str_c("HD", n, "Name")] <- c("[Blank]")
+            ballot[, str_c("HD", n, "PartyId")] <- c(NA)
+            ballot[, str_c("HD", n, "PartyName")] <- c("[Blank]")
+          }
+        }
+      } else {
+        col_header <- conv(measure_vs_contest, "MeasureColName", "ContestId", con_id)
+        if (length(c$Marks) == 0) {
+          ballot[, str_c(col_header, "Id")] <- c(NA)
+          ballot[, str_c(col_header, "Name")] <- c("[Blank]")
+        } else {
+          ballot[, str_c(col_header, "Id")] <- c(c$Marks[[1]]$CandidateId)
+          ballot[, str_c(col_header, "Name")] <- c(conv(CandidateM2, "CandidateName", "CandidateId", c$Marks[[1]]$CandidateId))
+        }
+      }
+    }
     cvr <- rows_append(cvr, ballot)
   }
   print(paste(i, "is done"))
 }
+
+write_csv(cvr, "general_election_2024.csv")
