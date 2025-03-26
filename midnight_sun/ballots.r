@@ -1,7 +1,9 @@
 # File name: ballots.r
+# Project:   midnight_sun
 # Purpose:   Converts a massive trove of JSON files to CSV files, while also
-#            tidying up!
+#            tidying up! Takes forever to run though :(
 # Author:    Bailey Inglish
+# Source(s): Alaska Elections Division
 
 ## Setup
 # Libaries
@@ -611,7 +613,7 @@ for (i in 18:2046) {
       con_id <- c$Id
       if (con_id == 4) {
         for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-          if (n <= length(c$Marks)) {
+          if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
             cand_id <- c$Marks[[n]]$CandidateId
             party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
             ballot[, str_c("Pres", n, "Id")] <- c(cand_id)
@@ -627,7 +629,7 @@ for (i in 18:2046) {
         }
       } else if (con_id == 7) {
         for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-          if (n <= length(c$Marks)) {
+          if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
             cand_id <- c$Marks[[n]]$CandidateId
             party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
             ballot[, str_c("Rep", n, "Id")] <- c(cand_id)
@@ -646,7 +648,7 @@ for (i in 18:2046) {
         ballot[, "SDContestId"] <- c(con_id)
         ballot[, "SDContestName"] <- c(c_name)
         for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-          if (n <= length(c$Marks)) {
+          if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
             cand_id <- c$Marks[[n]]$CandidateId
             party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
             ballot[, str_c("SD", n, "Id")] <- c(cand_id)
@@ -665,7 +667,7 @@ for (i in 18:2046) {
         ballot[, "HDContestId"] <- c(con_id)
         ballot[, "HDContestName"] <- c(c_name)
         for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-          if (n <= length(c$Marks)) {
+          if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
             cand_id <- c$Marks[[n]]$CandidateId
             party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
             ballot[, str_c("HD", n, "Id")] <- c(cand_id)
