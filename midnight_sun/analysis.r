@@ -25,32 +25,166 @@ dem_prop <- sum(ge_c$Pres1Id == 542 & ge_c$crossover == TRUE) / sum(ge_c$Pres1Id
 rep_prop <- sum(ge_c$Pres1Id == 543 & ge_c$crossover == TRUE) / sum(ge_c$Pres1Id == 543)
 
 ge_tp <- filter(ge, is.element(Pres1Id, c(554, 540, 547, 545, 546, 541)), !is.na(BM2Name))
-third_party_prop <- sum(ge_tp$BM1Name == "NO") / nrow(ge_tp)
+third_party_prop <- sum(ge_tp$BM2Name == "NO") / nrow(ge_tp)
 
 # Intra-party support for rcv
 rep_rcv_maintain <- nrow(filter(ge, Pres1Id == 543, BM2Name == "NO")) / nrow(filter(ge, Pres1Id == 543))
 dem_rcv_maintain <- nrow(filter(ge, Pres1Id == 542, BM2Name == "NO")) / nrow(filter(ge, Pres1Id == 542))
 
-# Senate district review
-cross_pct <- filter(
-  ge_c,
-  !is.na(PrecinctName)
+# House/senate district review
+sen <- filter(ge, !is.na(BM2Name), !is.na(SDContestName), SD1Name != "[Blank]") %>%
+  group_by(SDContestName) %>%
+  summarize(pct_support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]")) %>%
+  arrange(desc(pct_support_rcv))
+
+house <- filter(ge, !is.na(BM2Name), !is.na(HDContestName), HD1Name != "[Blank]") %>%
+  group_by(HDContestName) %>%
+  summarize(pct_support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]")) %>%
+  arrange(desc(pct_support_rcv))
+
+## Graphs
+ge_safe <- filter(ge, !is.na(Pres1Name), !is.na(BM2Name))
+
+# Overall prefs
+group_by(
+  ge_safe,
+  Pres1Name,
+  BM2Name
 ) %>%
-  group_by(
-    PrecinctName
+  reframe(
+    vote_pct = 100 * n() / nrow(ge_safe)
   ) %>%
-  summarize(
-    prop_cross = sum(crossover) / n()
+  ggplot() +
+  geom_col(
+    aes(
+      x = fct_reorder(
+        Pres1Name,
+        desc(vote_pct)
+      ),
+      y = vote_pct,
+      fill = BM2Name
+    ),
+    width = 0.5
+  ) +
+  scale_y_continuous(
+    breaks = 0:11 * 5
+  ) +
+  labs(
+    title = "Attitudes Toward RCV by Presidential Preference",
+    x = "First Choice Presidential Candidate",
+    y = "% of Votes Cast",
+    fill = "Prop. 2:\nEliminate RCV?"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+group_by(
+  ge_safe,
+  Pres1Name,
+  BM2Name
+) %>%
+  reframe(
+    vote_pct = 100 * n() / nrow(ge_safe)
   ) %>%
-  arrange(
-    desc(prop_cross)
+  ggplot() +
+  geom_col(
+    aes(
+      x = fct_reorder(
+        Pres1Name,
+        desc(vote_pct)
+      ),
+      y = vote_pct,
+      fill = BM2Name
+    ),
+    width = 0.5,
+    position = "dodge"
+  ) +
+  scale_y_continuous(
+    breaks = 0:11 * 5
+  ) +
+  labs(
+    title = "Attitudes Toward RCV by Presidential Preference",
+    x = "First Choice Presidential Candidate",
+    y = "% of Votes Cast",
+    fill = "Prop. 2:\nEliminate RCV?"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+# Share of RCV cause
+group_by(
+  ge_safe,
+  Pres1Name,
+  BM2Name
+) %>%
+  reframe(
+    vote_pct = 100 * n() / nrow(ge_safe)
+  ) %>%
+  ggplot() +
+  geom_col(
+    aes(
+      x = fct_reorder(
+        BM2Name,
+        desc(vote_pct)
+      ),
+      y = vote_pct,
+      fill = fct_reorder(
+        Pres1Name,
+        desc(vote_pct)
+      )
+    ),
+    width = 0.5
+  ) +
+  scale_y_continuous(
+    breaks = 0:11 * 5
+  ) +
+  labs(
+    title = "Presidential Preference by Attitudes Toward RCV",
+    x = "Prop. 2: Eliminate RCV?",
+    y = "% of Votes Cast",
+    fill = "First Choice\nPresidential Candidate"
   )
 
-2 <- filter(
-  ge,
-  PrecinctExternalId == "40-006"
+group_by(
+  ge_safe,
+  Pres1Name,
+  BM2Name
 ) %>%
-  select(
-    starts_with("Pres"),
-    starts_with("BM2")
+  reframe(
+    vote_pct = 100 * n() / nrow(ge_safe)
+  ) %>%
+  ggplot() +
+  geom_col(
+    aes(
+      x = fct_reorder(
+        BM2Name,
+        desc(vote_pct)
+      ),
+      y = vote_pct,
+      fill = fct_reorder(
+        Pres1Name,
+        desc(vote_pct)
+      )
+    ),
+    width = 0.5,
+    position = "dodge"
+  ) +
+  scale_y_continuous(
+    breaks = 0:11 * 5
+  ) +
+  labs(
+    title = "Presidential Preference by Attitudes Toward RCV",
+    x = "Prop. 2: Eliminate RCV?",
+    y = "% of Votes Cast",
+    fill = "First Choice\nPresidential Candidate"
   )
+
+## Hypotheticals
+# People who didn't vote for pres and just voted RCV didn't vote
+ge_nb <- filter(
+  ge,
+  !is.na(Pres1Name),
+  !is.na(BM2Name),
+  Pres1Name != "[Blank]",
+  BM2Name != "[Blank]"
+)
+group_by(ge_nb, BM2Name) %>%
+summarize(n = n(), pct = n() / nrow(ge_nb)) # 173 votes in favor of retaining RCV after blank pres elimination
