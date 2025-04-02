@@ -437,7 +437,16 @@ conv <- function(M2, new_col_name, known_col_name, known_col_val) {
   return(M2[M2[, known_col_name] == known_col_val, new_col_name][[1]])
 }
 
-batches <- list(18:20, 21:30) # list(18:100, 101:200, 201:300, 301:400, 401:500, 501:600, 601:700, 701:800, 801:900, 901:1000, 1001:1100, 1101: 1200, 1201:1300, 1301:1400, 1401:1500, 1501:1600, 1601:1700, 1701:1800, 1801:1900, 1901:2046)
+check_val <- function(n, Marks) {
+  if (n <= length(Marks)) {
+    if (Marks[[n]]$IsVote == TRUE) {
+      return(TRUE)
+    }
+  }
+  return(FALSE)
+}
+
+batches <- list(18:20) #list(18:100, 101:200, 201:300, 301:400, 401:580, 582:600, 601:700, 701:800, 801:900, 901:1000, 1001:1100, 1101: 1200, 1201:1300, 1301:1400, 1401:1500, 1501:1600, 1601:1700, 1701:1800, 1801:1900, 1901:2046)
 
 for (b in batches) {
   cvr <- cvr_template
@@ -617,7 +626,7 @@ for (b in batches) {
         con_id <- c$Id
         if (con_id == 4) {
           for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-            if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
+            if (check_val(n, c$Marks)) {
               cand_id <- c$Marks[[n]]$CandidateId
               party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
               ballot[, str_c("Pres", n, "Id")] <- c(cand_id)
@@ -633,7 +642,7 @@ for (b in batches) {
           }
         } else if (con_id == 7) {
           for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-            if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
+            if (check_val(n, c$Marks)) {
               cand_id <- c$Marks[[n]]$CandidateId
               party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
               ballot[, str_c("Rep", n, "Id")] <- c(cand_id)
@@ -652,7 +661,7 @@ for (b in batches) {
           ballot[, "SDContestId"] <- c(con_id)
           ballot[, "SDContestName"] <- c(c_name)
           for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-            if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
+            if (check_val(n, c$Marks)) {
               cand_id <- c$Marks[[n]]$CandidateId
               party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
               ballot[, str_c("SD", n, "Id")] <- c(cand_id)
@@ -671,7 +680,7 @@ for (b in batches) {
           ballot[, "HDContestId"] <- c(con_id)
           ballot[, "HDContestName"] <- c(c_name)
           for (n in seq_len(conv(ContestM2, "NumOfRanks", "ContestId", con_id))) {
-            if (n <= length(c$Marks) && c$Marks[[n]]$IsVote == TRUE) {
+            if (check_val(n, c$Marks)) {
               cand_id <- c$Marks[[n]]$CandidateId
               party_id <- c(conv(CandidateM2, "PartyId", "CandidateId", cand_id))
               ballot[, str_c("HD", n, "Id")] <- c(cand_id)
@@ -687,7 +696,7 @@ for (b in batches) {
           }
         } else {
           col_header <- conv(measure_vs_contest, "MeasureColName", "ContestId", con_id)
-          if (length(c$Marks) == 0) {
+          if (length(c$Marks) != 1) {
             ballot[, str_c(col_header, "Id")] <- c(NA)
             ballot[, str_c(col_header, "Name")] <- c("[Blank]")
           } else {
@@ -701,5 +710,13 @@ for (b in batches) {
     print(paste(i, "is done"))
   }
   write_csv(cvr, str_c("products/general_election_2024-", b[1], ".csv"))
-  rm(cvr)
+  #rm(cvr)
 }
+
+cvr <- cvr_template
+for (b in batches) {
+  chunk <- read_csv(str_c("products/general_election_2024-", b[1], ".csv"))
+  cvr <- rows_append(cvr, chunk)
+}
+
+write_csv(cvr, str_c("general_election_2024.csv"))
