@@ -5,3 +5,4 @@ ces/*.rds
 */raw_data
 *.json
 midnight_sun/*.csv
+****/products/*
