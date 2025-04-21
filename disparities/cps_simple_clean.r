@@ -75,8 +75,7 @@ var_bin_recodes <- tribble(
 cps$METRO[cps$METRO == 0] <- 999
 
 prop_totals <- tibble(
-  year = rep(unique(cps$YEAR), length(unique(cps$locality)) + 1),
-  locality = rep(c(unique(cps$locality), "United States"), length(unique(cps$YEAR)))
+  expand.grid(year = unique(ces$year), locality = c(unique(ces$locality), "United States"))
 )
 
 for (name in var_bin_recodes$name) {
