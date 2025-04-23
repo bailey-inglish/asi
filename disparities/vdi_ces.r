@@ -8,8 +8,9 @@ library(tidyverse)
 library(haven)
 setwd("disparities")
 
-cps <- read_csv("final_data/cps_reduced_ipums_1994-2022.csv")
-props <- read_csv("final_data/cps_state_proportions_1994-2022.csv")
+cps <- read_csv("final_data/ces_reduced_2006-2022.csv")
+props <- read_csv("final_data/ces_state_proportions_2006-2022.csv")
+fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 
 # Reframe the data to be in terms of grouping variables, filter out NA values
 cps_c <- cps %>%
@@ -20,20 +21,21 @@ cps_c <- cps %>%
   ) %>%
   filter(
     !is.na(gvar_value),
-    year >= 2004
+    year >= 2004,
+    year %% 2 == 0
   )
 
 # Calculate the state and federal VRI values for each group
 state_vri <- group_by(cps_c, grouping_var, year, locality, gvar_value) %>%
   reframe(
-    vep_in_group = sum(adj_vosuppwt),
-    voters_in_group = sum(adj_vosuppwt * (voted == 2))
+    vep_in_group = sum(weight),
+    voters_in_group = sum(weight * (voted == 2))
   ) %>%
   left_join(
     group_by(cps_c, grouping_var, year, locality) %>%
       reframe(
-        total_vep = sum(adj_vosuppwt),
-        total_voters = sum(adj_vosuppwt * (voted == 2))
+        total_vep = sum(weight),
+        total_voters = sum(weight * (voted == 2))
       ),
     by = c("year", "locality", "grouping_var")
   ) %>%
@@ -46,14 +48,14 @@ state_vri <- group_by(cps_c, grouping_var, year, locality, gvar_value) %>%
 
 fed_vri <- group_by(cps_c, grouping_var, year, gvar_value) %>%
   reframe(
-    vep_in_group = sum(adj_vosuppwt),
-    voters_in_group = sum(adj_vosuppwt * (voted == 2))
+    vep_in_group = sum(weight),
+    voters_in_group = sum(weight * (voted == 2))
   ) %>%
   left_join(
     group_by(cps_c, grouping_var, year) %>%
       reframe(
-        total_vep = sum(adj_vosuppwt),
-        total_voters = sum(adj_vosuppwt * (voted == 2))
+        total_vep = sum(weight),
+        total_voters = sum(weight * (voted == 2))
       ),
     by = c("year", "grouping_var")
   ) %>%
@@ -134,5 +136,5 @@ ovr_vdi <- inner_join(f_ovr_vri, t_ovr_vri) %>%
   mutate(vdi = f_vri + t_vri, .keep = "unused")
 
 # Write final outputs
-write_csv(ovr_vdi, "final_data/vdi_2004-2022.csv")
-write_dta(ovr_vdi, "final_data/vdi_2004-2022.dta")
+write_csv(ovr_vdi, "final_data/vdi_ces_2006-2022.csv")
+write_dta(ovr_vdi, "final_data/vdi_ces_2006-2022.dta")

@@ -10,6 +10,7 @@ setwd("disparities")
 
 cps <- read_csv("final_data/cps_reduced_ipums_1994-2022.csv")
 props <- read_csv("final_data/cps_state_proportions_1994-2022.csv")
+fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 
 # Reframe the data to be in terms of grouping variables, filter out NA values
 cps_c <- cps %>%
