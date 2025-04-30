@@ -62,10 +62,17 @@ sen <- filter(
 ) %>%
   group_by(SDContestName) %>%
   summarize(
-    prop_support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]"),
-    prop_support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]")
-  ) %>%
-  arrange(desc(prop_support_trump))
+    support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]"),
+    support_harris = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
+    support_rfk = sum(Pres1Id == 554) / sum(Pres1Name != "[Blank]"),
+    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    third_party_and_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    third_party_no_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]")
+  )
 
 house <- filter(
   ge,
@@ -76,16 +83,17 @@ house <- filter(
 ) %>%
   group_by(HDContestName) %>%
   summarize(
-    prop_support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]"),
-    prop_support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]"),
-    prop_support_harris = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
-    prop_support_rfk = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
-    prop_trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    prop_harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    prop_trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    prop_harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]")
-  ) %>%
-  arrange(desc(prop_support_trump))
+    support_rcv = sum(BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]"),
+    support_harris = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
+    support_rfk = sum(Pres1Id == 554) / sum(Pres1Name != "[Blank]"),
+    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    third_party_and_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
+    third_party_no_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]")
+  )
 
 ## Graphs
 ge_safe <- filter(ge, !is.na(Pres1Name), !is.na(BM2Name))
