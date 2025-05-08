@@ -57,7 +57,6 @@ sen <- filter(
   ge,
   !is.na(BM2Name),
   !is.na(SDContestName),
-  SD1Name != "[Blank]",
   !is.na(Pres1Id)
 ) %>%
   group_by(SDContestName) %>%
@@ -66,19 +65,23 @@ sen <- filter(
     support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]"),
     support_harris = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
     support_rfk = sum(Pres1Id == 554) / sum(Pres1Name != "[Blank]"),
-    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    third_party_and_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    third_party_no_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]")
+    support_other = sum(!is.element(Pres1Id, c(543, 542, 554))) / sum(Pres1Name != "[Blank]"),
+    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    rfk_and_rcv = sum(Pres1Id == 554 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    rfk_no_rcv = sum(Pres1Id == 554 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    other_and_rcv = sum(!is.element(Pres1Id, c(542, 543, 554)) & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    other_no_rcv = sum(!is.element(Pres1Id, c(542, 543, 554)) & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    pres_ballots_counted = sum(Pres1Name != "[Blank]"),
+    rcv_ballots_counted = sum(BM2Name != "[Blank]")
   )
 
 house <- filter(
   ge,
   !is.na(BM2Name),
   !is.na(HDContestName),
-  HD1Name != "[Blank]",
   !is.na(Pres1Id)
 ) %>%
   group_by(HDContestName) %>%
@@ -87,13 +90,26 @@ house <- filter(
     support_trump = sum(Pres1Id == 543) / sum(Pres1Name != "[Blank]"),
     support_harris = sum(Pres1Id == 542) / sum(Pres1Name != "[Blank]"),
     support_rfk = sum(Pres1Id == 554) / sum(Pres1Name != "[Blank]"),
-    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    third_party_and_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "NO") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]"),
-    third_party_no_rcv = sum(!is.element(Pres1Id, c(542, 543)) & BM2Name == "YES") / sum(Pres1Name != "[Blank]" & BM2Name != "[Blank]")
+    support_other = sum(!is.element(Pres1Id, c(543, 542, 554))) / sum(Pres1Name != "[Blank]"),
+    trump_and_rcv = sum(Pres1Id == 543 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    harris_and_rcv = sum(Pres1Id == 542 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    rfk_and_rcv = sum(Pres1Id == 554 & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    trump_no_rcv = sum(Pres1Id == 543 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    harris_no_rcv = sum(Pres1Id == 542 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    rfk_no_rcv = sum(Pres1Id == 554 & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    other_and_rcv = sum(!is.element(Pres1Id, c(542, 543, 554)) & BM2Name == "NO") / sum(BM2Name != "[Blank]"),
+    other_no_rcv = sum(!is.element(Pres1Id, c(542, 543, 554)) & BM2Name == "YES") / sum(BM2Name != "[Blank]"),
+    pres_ballots_counted = sum(Pres1Name != "[Blank]"),
+    rcv_ballots_counted = sum(BM2Name != "[Blank]")
   )
+
+for (i in seq_len(nrow(house))) {
+  if (nchar(house$HDContestName[i]) == 16) {
+    house$HDContestName[i] <- str_replace(house$HDContestName[i], "House District ", "House District 0")
+  }
+}
+
+house <- arrange(house, HDContestName)
 
 ## Graphs
 ge_safe <- filter(ge, !is.na(Pres1Name), !is.na(BM2Name))
