@@ -142,11 +142,12 @@ cps$is_hispanic[cps$HISPAN == 0] <- "Non-Hispanic/Latino"
 cps$is_hispanic[cps$HISPAN > 900] <- NA
 
 # Race simple recoding
-cps$race_cluster <- rep("Multiracial", nrow(cps))
+cps$race_cluster <- rep(NA, nrow(cps))
 cps$race_cluster[cps$RACE == 100] <- "White"
 cps$race_cluster[cps$RACE == 200] <- "Black"
 cps$race_cluster[cps$RACE == 300] <- "American Indian"
 cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
+cps$race_cluster[cps$RACE >= 800] <- "Multiracial"
 
 # CITIZEN NA recode
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
@@ -202,8 +203,8 @@ metro_conv <- tribble(
 )
 
 age_conv <- tibble(
-  AGE = c(18:29, 30:44, 45:59, 60:85),
-  age_cluster = c(rep("18-29", 12), rep("30-44", 15), rep("45-59", 15), rep("60+", 26))
+  AGE = c(18:29, 30:44, 45:59, 60:100),
+  age_cluster = c(rep("18-29", 12), rep("30-44", 15), rep("45-59", 15), rep("60+", 41))
 )
 
 sex_conv <- tibble(
@@ -218,10 +219,7 @@ cps <- cps %>%
   left_join(sex_conv)
 
 # Combine race and ethnicity
-cps$eth_race_comb_cluster <- rep("Other", nrow(cps))
-cps$eth_race_comb_cluster[cps$race_cluster == "White"] <- "White"
-cps$eth_race_comb_cluster[cps$race_cluster == "Black"] <- "Black"
-cps$eth_race_comb_cluster[cps$race_cluster == "Asian/Pacific Islander"] <- "Asian/Pacific Islander"
+cps$eth_race_comb_cluster <- cps$race_cluster
 cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
 
 # Write final outputs
@@ -234,87 +232,3 @@ cps_expanded <- select(
 )
 write_csv(cps_expanded, "final_data/cps_expanded_ipums_1994-2024.csv")
 write_csv(cps, "final_data/cps_expanded_ipums_repro_1994-2024.csv")
-
-### VDI
-# Reframe the data to be in terms of grouping variables, filter out NA values
-cps_c <- cps %>%
-  pivot_longer(
-    cols = starts_with("is_"),
-    names_to = "grouping_var",
-    values_to = "gvar_value"
-  ) %>%
-  filter(
-    !is.na(gvar_value)
-  )
-
-# Calculate the state and federal VRI values for each group
-state_vri <- group_by(cps_c, grouping_var, year, locality, gvar_value) %>%
-  reframe(
-    vep_in_group = sum(adj_vosuppwt),
-    voters_in_group = sum(adj_vosuppwt * (voted == 2))
-  ) %>%
-  left_join(
-    group_by(cps_c, grouping_var, year, locality) %>%
-      reframe(
-        total_vep = sum(adj_vosuppwt),
-        total_voters = sum(adj_vosuppwt * (voted == 2))
-      ),
-    by = c("year", "locality", "grouping_var")
-  ) %>%
-  mutate(
-    pct_of_ve_population = vep_in_group / total_vep,
-    pct_of_voters = voters_in_group / total_voters,
-    vri = (pct_of_voters - pct_of_ve_population) / pct_of_ve_population
-  ) %>%
-  select(year, locality, grouping_var, gvar_value, vri)
-
-fed_vri <- group_by(cps_c, grouping_var, year, gvar_value) %>%
-  reframe(
-    vep_in_group = sum(adj_vosuppwt),
-    voters_in_group = sum(adj_vosuppwt * (voted == 2))
-  ) %>%
-  left_join(
-    group_by(cps_c, grouping_var, year) %>%
-      reframe(
-        total_vep = sum(adj_vosuppwt),
-        total_voters = sum(adj_vosuppwt * (voted == 2))
-      ),
-    by = c("year", "grouping_var")
-  ) %>%
-  mutate(
-    pct_of_ve_population = vep_in_group / total_vep,
-    pct_of_voters = voters_in_group / total_voters,
-    vri = (pct_of_voters - pct_of_ve_population) / pct_of_ve_population
-  ) %>%
-  select(year, grouping_var, gvar_value, vri)
-
-# Combine the two tibbles
-ovr_vri <- fed_vri %>%
-  mutate(
-    locality = "United States"
-  ) %>%
-  rows_append(state_vri) %>%
-  left_join(
-    props,
-    by = c("year", "locality")
-  )
-
-# Midterm/presidential year elections
-ovr_vri$midterm <- round(ovr_vri$year / 4) == ovr_vri$year / 4
-
-# Add region flags using Census region specifications
-reg_conv <- read_csv("raw_data/region_conv.csv")
-ovr_vri <- left_join(ovr_vri, reg_conv, by = c("locality" = "name"))
-
-# Calculate the VDI as the gap between the over and underrepesented VRIs
-t_ovr_vri <- filter(ovr_vri, gvar_value == TRUE) %>%
-  mutate(t_vri = abs(vri), .keep = "unused") %>%
-  select(!gvar_value)
-f_ovr_vri <- filter(ovr_vri, gvar_value == FALSE) %>%
-  mutate(f_vri = abs(vri), .keep = "unused") %>%
-  select(!gvar_value)
-ovr_vdi <- inner_join(f_ovr_vri, t_ovr_vri) %>%
-  mutate(vdi = f_vri + t_vri, .keep = "unused")
-
-# Write final outputs
-write_csv(ovr_vdi, "final_data/vdi_1994-2024.csv")
