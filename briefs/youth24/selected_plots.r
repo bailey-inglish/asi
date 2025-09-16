@@ -9,6 +9,7 @@ library(aod)
 setwd("briefs/youth24")
 
 fancy_cps <- read_csv("final_data/cps_expanded_ipums_1994-2024.csv")
+covi <- read_csv("raw_data/covi96-24.csv")
 
 ## Longitudinal analysis
 # Line plots of VRI over time for each group/grouping variable
@@ -89,6 +90,7 @@ for (gvar in vars_of_interest$var) {
     ) +
     facet_wrap(~elec_type)
   print(p)
+  print(filter(us_tab, YEAR == 2024) %>% select(vri, starts_with("pct")), n = 100)
 }
 
 # Line plot of turnout by age group over time
@@ -209,3 +211,68 @@ ggplot(
     breaks = 0:10 * 10
   ) +
   facet_grid(elec_type~eth_race_comb_cluster)
+
+# Generation w/ x as Age
+upper_bound_gen_years <- tibble(
+  generation = c("Greatest", "Silent", "Boomer", "Generation X", "Millenial", "Generation Z", "Generation Alpha"),
+  end_year = c(1927, 1945, 1964, 1980, 1996, 2012, 2024)
+)
+for (y in (1994 + (0:15 * 2))) {
+  gen_by_age <- fancy_cps %>%
+    filter(YEAR <= y) %>%
+    group_by(generation, AGE) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+      turnout = 100 * (voters_in_group / vep_in_group),
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population,
+    ) %>%
+    left_join(
+      upper_bound_gen_years,
+      by = "generation"
+    ) %>%
+    mutate(
+      is_stable = (y >= AGE + end_year)
+    )
+
+  p <- ggplot(
+    gen_by_age,
+    aes(
+      y = turnout,
+      x = AGE,
+      col = fct_reorder(generation, turnout),
+      linetype = is_stable,
+      shape = is_stable
+    )
+  ) +
+    geom_line() +
+    geom_point() +
+    theme(
+      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+      legend.position = "right",
+      panel.background = element_rect(fill = "grey85")
+    ) +
+    labs(
+      title = paste("Voter Turnout by Generation and Age in", y),
+      x = "Age",
+      y = "Voter Turnout (%)",
+      col = ""
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.3,
+      alpha = 0.5
+    ) +
+    scale_y_continuous(
+      limits = c(0, 100),
+      breaks = 0:10 * 10
+    ) +
+    scale_x_continuous(
+      breaks = 20 + (0:7 * 10),
+      limits = c(18, 90)
+    )
+  print(p)
+}

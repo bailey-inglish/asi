@@ -10,7 +10,7 @@ setwd("briefs/youth24")
 
 ### CPS REDUCED
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00023.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00024.xml") %>% read_ipums_micro()
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
@@ -147,7 +147,7 @@ cps$race_cluster[cps$RACE == 100] <- "White"
 cps$race_cluster[cps$RACE == 200] <- "Black"
 cps$race_cluster[cps$RACE == 300] <- "American Indian"
 cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
-cps$race_cluster[cps$RACE >= 800] <- "Multiracial"
+cps$race_cluster[cps$RACE >= 700] <- "Multiracial"
 
 # CITIZEN NA recode
 cps$CITIZEN[cps$CITIZEN == 9] <- NA
@@ -186,6 +186,7 @@ income_conv <- tribble(
   740, "$30-50k",
   820, "$50-100k",
   830, "$50-100k",
+  840, ">$70k",
   841, "$50-100k",
   842, "$100-150k",
   843, ">$150k",
@@ -222,13 +223,102 @@ cps <- cps %>%
 cps$eth_race_comb_cluster <- cps$race_cluster
 cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
 
-# Write final outputs
+# Remove original variables
 cps_expanded <- select(
   cps,
   YEAR,
   VOTED,
-  c(23, 24),
-  29:39
+  AGE,
+  FAMINC,
+  FAMSIZE,
+  17:18, # make sure this still works
+  23:33
 )
-write_csv(cps_expanded, "final_data/cps_expanded_ipums_1994-2024.csv")
+
+# Export `cps` with original variables for reproducability and bugtesting
 write_csv(cps, "final_data/cps_expanded_ipums_repro_1994-2024.csv")
+
+### CPS EXTRAS
+# New dataset(s)
+poverty_line <- read_csv("raw_data/poverty_line.csv")
+
+# Poverty line variable addition
+max_income_conv <- tribble(
+  ~FAMINC, ~max_inc,
+  100, 5000,
+  210, 7499,
+  300, 9999,
+  430, 12499,
+  470, 14999,
+  500, 19999,
+  600, 24999,
+  710, 29999,
+  720, 34999,
+  730, 39999,
+  740, 49999,
+  820, 59999,
+  830, 74999,
+  840, 100000, # dummy value
+  841, 99999,
+  842, 149999,
+  843, 1000000, # dummy value, no ceiling
+  996, NA,
+  997, NA,
+  999, NA
+)
+
+cps_expanded <- cps_expanded %>%
+  left_join(
+    max_income_conv,
+    by = "FAMINC"
+  ) %>%
+  left_join(
+    poverty_line,
+    by = c(
+      "YEAR" = "year",
+      "FAMSIZE" = "hh_size"
+    )
+  ) %>%
+  mutate(
+    is_in_poverty = max_inc < pov_line
+  ) %>%
+  select(
+    !max_inc,
+    !pov_line
+  )
+
+# Generations coding (according to Pew)
+generation_conv <- tibble(
+  birth_year = c(
+    1901:1927,
+    1928:1945,
+    1946:1964,
+    1965:1980,
+    1981:1996,
+    1997:2012,
+    2013:2024
+  ),
+  generation = c(
+    rep("Greatest", 27),
+    rep("Silent", 18),
+    rep("Boomer", 19),
+    rep("Generation X", 16),
+    rep("Millenial", 16),
+    rep("Generation Z", 16),
+    rep("Generation Alpha", 12)
+  )
+)
+
+cps_expanded <- cps_expanded %>%
+  mutate(
+    birth_year = YEAR - AGE
+  ) %>%
+  left_join(
+    generation_conv,
+    by = "birth_year"
+  ) %>%
+  select(!birth_year)
+
+# Write final outputs
+cps_expanded <- cps_expanded %>% select(!FAMINC, !FAMSIZE)
+write_csv(cps_expanded, "final_data/cps_expanded_ipums_1994-2024.csv")

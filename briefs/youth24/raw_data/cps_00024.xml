@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="ipums-ddi-xslt.xsl"?>
-<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00023.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
+<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00024.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
   <docDscr>
     <citation>
       <titlStmt>
         <titl>Codebook for an IPUMS CPS Data Extract</titl>
-        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00023.dat'</subTitl>
-        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00023.dat-cps.ipums.org</IDNo>
+        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00024.dat'</subTitl>
+        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00024.dat-cps.ipums.org</IDNo>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="IPUMS" affiliation="University of Minnesota" role="Documentation">IPUMS</producer>
-        <prodDate date="2025-09-09">September 9, 2025</prodDate>
+        <prodDate date="2025-09-11">September 11, 2025</prodDate>
         <prodPlac>IPUMS, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -24,14 +24,14 @@
   <stdyDscr>
     <citation>
       <titlStmt>
-        <titl>User Extract cps_00023.dat</titl>
+        <titl>User Extract cps_00024.dat</titl>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="IPUMS" affiliation="University of Minnesota" role="Documentation">IPUMS</producer>
-        <prodDate date="2025-09-09">September 9, 2025</prodDate>
+        <prodDate date="2025-09-11">September 11, 2025</prodDate>
         <prodPlac>IPUMS, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -42,18 +42,17 @@
         <serInfo>DOI:10.18128/D030.V12.0</serInfo>
       </serStmt>
       <verStmt>
-        <version date="2025-09-09"/>
+        <version date="2025-09-11"/>
       </verStmt>
     </citation>
     <stdyInfo>
       <subject>
         <topcClas vocab="IPUMS">Technical Variables -- HOUSEHOLD</topcClas>
-        <topcClas vocab="IPUMS">Linking Variables -- HOUSEHOLD</topcClas>
         <topcClas vocab="IPUMS">Geographic Variables -- HOUSEHOLD</topcClas>
         <topcClas vocab="IPUMS">Economic Characteristics Variables -- HOUSEHOLD</topcClas>
         <topcClas vocab="IPUMS">Technical Variables -- PERSON</topcClas>
-        <topcClas vocab="IPUMS">Linking Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Demographics Variables -- PERSON</topcClas>
+        <topcClas vocab="IPUMS">Family Interrelationships Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Ethnicity/Nativity Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Education Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Voter Supplement Variables -- PERSON</topcClas>
@@ -208,12 +207,12 @@ The licensing agreement for use of IPUMS CPS data requires that users supply us 
         <disclaimer>The user of the data acknowledges that the original collector of the data, the authorized distributor of the data, and the relevant funding agency bear no responsibility for use of the data or for interpretations or inferences based upon such uses.</disclaimer>
       </useStmt>
     </dataAccs>
-    <notes><![CDATA[User-provided description:  New 2024 data!!!! :D]]></notes>
-    <notes>This extract is a revision of the user's previous extract, ID 18690492.</notes>
+    <notes><![CDATA[User-provided description:  Adding in HH size for poverty line calculations]]></notes>
+    <notes>This extract is a revision of the user's previous extract, ID 21237612.</notes>
   </stdyDscr>
   <fileDscr ID="ExtractData">
     <fileTxt>
-      <fileName>cps_00023.dat</fileName>
+      <fileName>cps_00024.dat</fileName>
       <fileCont>Microdata records</fileCont>
       <fileStrc type="rectangular"/>
       <fileType charset="ISO-8859-1">ISO-8859-1 data file</fileType>
@@ -229,97 +228,8 @@ The licensing agreement for use of IPUMS CPS data requires that users supply us 
   <concept vocab="IPUMS">Technical Variables -- HOUSEHOLD</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
-<var ID="SERIAL" dcml="0" files="ExtractData" intrvl="contin" name="SERIAL">
-  <location EndPos="9" StartPos="5" width="5"/>
-  <labl>Household serial number</labl>
-  <txt><![CDATA[SERIAL is an identifying number unique to each household in a given survey month and year.  All person records are assigned the same serial number as the household record they follow.  A combination of YEAR, MONTH, and SERIAL provides a within-sample unique identifier for every household in IPUMS-CPS; YEAR, MONTH, SERIAL, and PERNUM uniquely identify every person within a single sample.
-
-SERIAL is a new value generated for IPUMS-CPS and should not be confused with the household serial number created by the Census Bureau and included in the original CPS data.]]></txt>
-  <codInstr><![CDATA[CodesSERIAL is a 5-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Technical Variables -- HOUSEHOLD</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
-<var ID="MONTH" dcml="0" files="ExtractData" intrvl="discrete" name="MONTH">
-  <location EndPos="11" StartPos="10" width="2"/>
-  <labl>Month</labl>
-  <txt><![CDATA[MONTH indicates the calendar month of the CPS interview.]]></txt>
-  <catgry>
-    <catValu>01</catValu>
-    <labl>January</labl>
-  </catgry>
-  <catgry>
-    <catValu>02</catValu>
-    <labl>February</labl>
-  </catgry>
-  <catgry>
-    <catValu>03</catValu>
-    <labl>March</labl>
-  </catgry>
-  <catgry>
-    <catValu>04</catValu>
-    <labl>April</labl>
-  </catgry>
-  <catgry>
-    <catValu>05</catValu>
-    <labl>May</labl>
-  </catgry>
-  <catgry>
-    <catValu>06</catValu>
-    <labl>June</labl>
-  </catgry>
-  <catgry>
-    <catValu>07</catValu>
-    <labl>July</labl>
-  </catgry>
-  <catgry>
-    <catValu>08</catValu>
-    <labl>August</labl>
-  </catgry>
-  <catgry>
-    <catValu>09</catValu>
-    <labl>September</labl>
-  </catgry>
-  <catgry>
-    <catValu>10</catValu>
-    <labl>October</labl>
-  </catgry>
-  <catgry>
-    <catValu>11</catValu>
-    <labl>November</labl>
-  </catgry>
-  <catgry>
-    <catValu>12</catValu>
-    <labl>December</labl>
-  </catgry>
-  <concept vocab="IPUMS">Technical Variables -- HOUSEHOLD</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
-<var ID="HWTFINL" dcml="4" files="ExtractData" intrvl="contin" name="HWTFINL">
-  <location EndPos="21" StartPos="12" width="10"/>
-  <labl>Household weight, Basic Monthly</labl>
-  <txt><![CDATA[HWTFINL is a household-level weight that should be used to generate statistics about households. The CPS uses a complex stratified sampling scheme, and HWTFINL must be used to produce unbiased household-level statistics from IPUMS-CPS basic monthly samples. For analyses of March Annual Social and Economic (ASEC) data, researchers should use HWTSUPP (This variable was renamed. Please see this renaming scheme for more information.). For individual-level analyses, researchers should use WTFINL, WTSUPP, or EARNWT. 
-
-HWTFINL generally has the same value as WTFINL for the household head or reference person. Vacant housing units and households that could not be interviewed due to residents' absence or refusal to participate have a value of zero in HWTFINL; such sampled units were included in the public use CPS data beginning in 1988.]]></txt>
-  <codInstr><![CDATA[CodesHWTFINL is a 10-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Technical Variables -- HOUSEHOLD</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
-<var ID="CPSID" dcml="0" files="ExtractData" intrvl="contin" name="CPSID">
-  <location EndPos="35" StartPos="22" width="14"/>
-  <labl>CPSID, household record</labl>
-  <txt><![CDATA[CPSID is an IPUMS-CPS defined variable that uniquely identifies households across CPS samples. The first six digits of CPSID index the four-digit year and two-digit month that the household was first in the CPS. CPSID allows users to link a household record across samples, based on the 4-8-4 rotation pattern, by assigning a unique CPSID value based on a combination of household identifiers. CPSID will only ever appear for a maximum of 8 times, which is the number of times a household may be observed in the CPS survey (as indexed by MISH). In some cases, a household will appear fewer than 8 times due to migration, mortality, non-response, and recording errors. CPSID Extensive documentation about the creation of CPSID is available elsewhere.
-
-CPSID may also be used to link ASEC households that appear in the March Basic Monthly file to other months of CPS data. This linking is made possible by IPUMS through the creation of MARBASECIDH. For further information about the relationship between the March Basic and the ASEC, please see our additional documentation.
-
-Households that are part of the ASEC oversample (as indicated by ASECOVERH) may also be linked across ASEC samples, but not to the March or any other Basic Monthly sample. Note that MISH is not a reliable indicator of rotation pattern status for ASEC oversample records and should not be used to validate matches. For further information on linking records across ASEC samples, please see our additional documentation.
-
-Users may also want to see CPSIDP and CPSIDV for more information about linking individuals across time using a person-specific version of CPSID.]]></txt>
-  <codInstr><![CDATA[CodesCPSID is a 14-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Linking Variables -- HOUSEHOLD</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
 <var ID="STATEFIP" dcml="0" files="ExtractData" intrvl="discrete" name="STATEFIP">
-  <location EndPos="37" StartPos="36" width="2"/>
+  <location EndPos="6" StartPos="5" width="2"/>
   <labl>State (FIPS code)</labl>
   <txt><![CDATA[STATEFIP identifies the household's state of residence, using the Federal Information Processing Standards (FIPS) coding scheme, which orders the states alphabetically.
 
@@ -628,7 +538,7 @@ In 1973-1975 ASEC samples, all households in the Anaheim-Santa Ana-Garden Grove,
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="METRO" dcml="0" files="ExtractData" intrvl="discrete" name="METRO">
-  <location EndPos="38" StartPos="38" width="1"/>
+  <location EndPos="7" StartPos="7" width="1"/>
   <labl>Metropolitan and central/principal city status</labl>
   <txt><![CDATA[METRO indicates whether a household resided in a metropolitan area. For households within metropolitan areas, METRO also indicates whether the housing unit was inside or outside of a central/principal city. The Census Bureau adds this information itself and does not collect it directly from respondents.]]></txt>
   <catgry>
@@ -659,7 +569,7 @@ In 1973-1975 ASEC samples, all households in the Anaheim-Santa Ana-Garden Grove,
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="FAMINC" dcml="0" files="ExtractData" intrvl="discrete" name="FAMINC">
-  <location EndPos="41" StartPos="39" width="3"/>
+  <location EndPos="10" StartPos="8" width="3"/>
   <labl>Family income of householder</labl>
   <txt><![CDATA[FAMINC reports annual family income, in categories, of all persons related to the head of household/householder. For individuals who are not part of the householder's family, FAMINC reports the value for the householder's family. 
 
@@ -921,16 +831,8 @@ Family income is collected as part of the basic monthly survey. At the end of th
   <concept vocab="IPUMS">Economic Characteristics Variables -- HOUSEHOLD</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
-<var ID="PERNUM" dcml="0" files="ExtractData" intrvl="contin" name="PERNUM">
-  <location EndPos="43" StartPos="42" width="2"/>
-  <labl>Person number in sample unit</labl>
-  <txt><![CDATA[PERNUM numbers all persons within each household consecutively (starting with "1") in the order in which they are listed in the original CPS data.  When combined with YEAR , MONTH, and SERIAL, PERNUM uniquely identifies each person within IPUMS-CPS samples, though not across IPUMS-CPS samples.]]></txt>
-  <codInstr><![CDATA[CodesPERNUM is a 2-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Technical Variables -- PERSON</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
 <var ID="WTFINL" dcml="4" files="ExtractData" intrvl="contin" name="WTFINL">
-  <location EndPos="57" StartPos="44" width="14"/>
+  <location EndPos="24" StartPos="11" width="14"/>
   <labl>Final Basic Weight</labl>
   <txt><![CDATA[WTFINL is the final person-level weight that should be used in analyses of basic monthly data. 
 
@@ -941,42 +843,8 @@ WTFINL is the second stage weight in CPS (see technical documentation). It is ba
   <concept vocab="IPUMS">Technical Variables -- PERSON</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
-<var ID="CPSIDP" dcml="0" files="ExtractData" intrvl="contin" name="CPSIDP">
-  <location EndPos="71" StartPos="58" width="14"/>
-  <labl>CPSID, person record</labl>
-  <txt><![CDATA[CPSIDP is an IPUMS CPS defined variable that uniquely identifies individuals across CPS samples. The first six digits of CPSIDP index the four-digit year and two-digit month that the household was first in the CPS. CPSIDP allows users to link a respondent appearing with a designated household roster line number (LINENO) across samples, based on the 4-8-4 rotation pattern, by assigning a unique CPSIDP value to this line number. CPSIDP will only ever appear for a maximum of 8 times, which is the number of times a household may be observed in the CPS survey (as indexed by MISH). In some cases, individuals will appear fewer than 8 times due to migration, mortality, non-response, and recording errors. Extensive documentation about the creation of CPSIDP is available elsewhere.
-
-To get started using CPSIDP, users may want to sort their data file by CPSIDP and MISH to create a person-time file.
-
-Users should note that it is important to verify CPSIDP linkages with AGE, SEX, and RACE. In some cases CPSIDP will result in erroneous links, which are due to errors in the source data. Cases with the same CPSIDP value may also have inconsistent responses across samples due to errors on the part of the respondent or in recording the response. Ultimately, it is up to the individual researcher to determine the acceptability of the linkages made using CPSIDP. IPUMS CPS also offers CPSIDV which creates linkages across months that have been validated based on demographic characteristics.
-
-CPSIDP may also be used to link ASEC respondents who are in the March Basic Monthly file to other months of CPS data. This linking is made possible by IPUMS through the creation of MARBASECIDP. For further information about the relationship between the March Basic and the ASEC, please see our additional documentation.
-
-Respondents who are part of the ASEC oversample (as indicated by ASECOVERP) may also be linked across ASEC samples, but not to the March or any other Basic Monthly sample. Note also that MISH is not a reliable indicator of rotation pattern status for ASEC oversample records and should not be used to validate matches. For further information on linking records across ASEC samples, please see our additional documentation.]]></txt>
-  <codInstr><![CDATA[CodesCPSIDP is a 14-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Linking Variables -- PERSON</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
-<var ID="CPSIDV" dcml="0" files="ExtractData" intrvl="contin" name="CPSIDV">
-  <location EndPos="86" StartPos="72" width="15"/>
-  <labl>Validated Longitudinal Identifier</labl>
-  <txt><![CDATA[CPSIDV is an IPUMS CPS-created variable that uniquely identifies individuals across CPS samples. In addition to linking records across the CPS 4-8-4 rotation pattern, CPSIDV only makes links between those records whose SEX and RACE values do not change and whose AGE values change in expected ways over time. 
-
-CPSIDV is based on CPSIDP and so there are some structural similarities between them. The first six digits of CPSIDV are identical to CPSIDP - the four-digit year and two-digit month that the household was first in the CPS. Like CPSIDP, CPSIDV allows users to link a respondent appearing with a designated household roster line number (LINENO) across samples, based on the 4-8-4 rotation pattern. 
-
-Only records that link using CPSIDP that also have consistent race and sex values and age values that increase at least one but not more than two years over the course of the 16-month CPS rotation are linkable using CPSIDV. As a result, linkage rates using CPSIDV are slightly lower than those achieved using CPSIDP. However, linkages created with CPSIDV do not require the recommended post-linking verification steps recommended for use with CPSIDP links. Users should note that original, unharmonized values of age, sex, and race are used in the creation of CPSIDV. The procedure and validation criteria for creating CPSIDV are described in detail in A Holistic Approach to Validating Current Population Survey Panel Data. 
-
-To get started using CPSIDV, users may want to sort their data file by CPSIDV and MISH to create a person-time file. 
-
-CPSIDV may also be used to link ASEC respondents across years. This linking is made possible, in part, by IPUMS through the creation of MARBASECIDP. For further information about the relationship between the March Basic and the ASEC, please see our additional documentation. In addition, persons in the ASEC oversample (as indicated by ASECOVERP) can be linked across ASEC samples using CPSIDV. Note however, that ASEC oversample individuals cannot be linked to the March Basic or any other Basic Monthly survey using CPSIDV. Note also that MISH is not a reliable indicator of rotation pattern status for ASEC oversample records and should not be used to validate matches. For further information on linking ASEC oversamples using CPSIDV, please refer to our additional documentation.
-
-Users should take care when including the March Basic or ASEC as part of their linking. Respondents who are part of the ASEC oversample (as indicated by ASECOVERP) have a CPSIDV value of 0.]]></txt>
-  <codInstr><![CDATA[CodesCPSIDV is a 15-digit numeric variable.]]></codInstr>
-  <concept vocab="IPUMS">Linking Variables -- PERSON</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
 <var ID="AGE" dcml="0" files="ExtractData" intrvl="discrete" name="AGE">
-  <location EndPos="88" StartPos="87" width="2"/>
+  <location EndPos="26" StartPos="25" width="2"/>
   <labl>Age</labl>
   <txt><![CDATA[Age gives each person's age at last birthday.]]></txt>
   <catgry>
@@ -1383,7 +1251,7 @@ Users should take care when including the March Basic or ASEC as part of their l
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="SEX" dcml="0" files="ExtractData" intrvl="discrete" name="SEX">
-  <location EndPos="89" StartPos="89" width="1"/>
+  <location EndPos="27" StartPos="27" width="1"/>
   <labl>Sex</labl>
   <txt><![CDATA[SEX gives each person's sex.]]></txt>
   <catgry>
@@ -1402,7 +1270,7 @@ Users should take care when including the March Basic or ASEC as part of their l
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="RACE" dcml="0" files="ExtractData" intrvl="discrete" name="RACE">
-  <location EndPos="92" StartPos="90" width="3"/>
+  <location EndPos="30" StartPos="28" width="3"/>
   <labl>Race</labl>
   <txt><![CDATA[Racial categories in the CPS have been more consistent than racial categories in the census.  Up through 2002, the number of race categories ranged from 3 (white, negro, and other) to 5 (white, black, American Indian/Eskimo/Aleut, Asian or Pacific Islander, and other).   Beginning in 2003, respondents could report more than one race, and the number of codes rose to 21, and then up to 26 codes in 2013.]]></txt>
   <catgry>
@@ -1524,8 +1392,139 @@ Users should take care when including the March Basic or ASEC as part of their l
   <concept vocab="IPUMS">Demographics Variables -- PERSON</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
+<var ID="FAMSIZE" dcml="0" files="ExtractData" intrvl="discrete" name="FAMSIZE">
+  <location EndPos="32" StartPos="31" width="2"/>
+  <labl>Number of own family members in hh</labl>
+  <txt><![CDATA[FAMSIZE counts the number of own family members residing with each individual, including the person her/himself. Persons not living with others related to them by blood, marriage, or adoption are coded 1.
+
+Note that FAMSIZE is an IPUMS-derived variable using IPUMS-derived family interrelationships, which will not necessarily correspond to the Census Bureau's family definitions. See FTYPE, FAMKIND, and FAMREL for variables that correspond to Census family units. IPUMS does not currently offer a corresponding variable for the size of the Census family unit, but variables necessitating this information such as POVERTY already take the Census family unit size into account.
+
+An Introduction to the Family Interrelationship Variables can be found on IPUMS-USA. On this page you'll find information on how IPUMS family interrelationship variables are constructed, common uses of these variables, and specific examples of how these variables can be used efficiently.]]></txt>
+  <catgry>
+    <catValu>00</catValu>
+    <labl>Missing</labl>
+  </catgry>
+  <catgry>
+    <catValu>01</catValu>
+    <labl>1 family member present</labl>
+  </catgry>
+  <catgry>
+    <catValu>02</catValu>
+    <labl>2 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>03</catValu>
+    <labl>3 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>04</catValu>
+    <labl>4 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>05</catValu>
+    <labl>5 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>06</catValu>
+    <labl>6 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>07</catValu>
+    <labl>7 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>08</catValu>
+    <labl>8 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>09</catValu>
+    <labl>9 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>10</catValu>
+    <labl>10 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>11</catValu>
+    <labl>11 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>12</catValu>
+    <labl>12 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>13</catValu>
+    <labl>13 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>14</catValu>
+    <labl>14 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>15</catValu>
+    <labl>15 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>16</catValu>
+    <labl>16 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>17</catValu>
+    <labl>17 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>18</catValu>
+    <labl>18 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>19</catValu>
+    <labl>19 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>20</catValu>
+    <labl>20 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>21</catValu>
+    <labl>21 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>22</catValu>
+    <labl>22 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>23</catValu>
+    <labl>23 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>24</catValu>
+    <labl>24 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>25</catValu>
+    <labl>25 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>26</catValu>
+    <labl>26 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>27</catValu>
+    <labl>27 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>28</catValu>
+    <labl>28 family members present</labl>
+  </catgry>
+  <catgry>
+    <catValu>29</catValu>
+    <labl>29 family members present</labl>
+  </catgry>
+  <concept vocab="IPUMS">Family Interrelationships Variables -- PERSON</concept>
+  <varFormat schema="other" type="numeric"/>
+</var>
 <var ID="CITIZEN" dcml="0" files="ExtractData" intrvl="discrete" name="CITIZEN">
-  <location EndPos="93" StartPos="93" width="1"/>
+  <location EndPos="33" StartPos="33" width="1"/>
   <labl>Citizenship status</labl>
   <txt><![CDATA[CITIZEN reports the citizenship status of foreign-born persons.  In IPUMS-CPS, people born in the U.S., Puerto Rico, or U.S. outlying areas were excluded from the question universe.  Respondents were identified as belonging to one of three groups: citizens by virtue of being born abroad to American parents; naturalized citizens; and non-citizens.]]></txt>
   <catgry>
@@ -1556,7 +1555,7 @@ Users should take care when including the March Basic or ASEC as part of their l
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="HISPAN" dcml="0" files="ExtractData" intrvl="discrete" name="HISPAN">
-  <location EndPos="96" StartPos="94" width="3"/>
+  <location EndPos="36" StartPos="34" width="3"/>
   <labl>Hispanic origin</labl>
   <txt><![CDATA[HISPAN identifies and classifies persons of Hispanic/Spanish/Latino origin.  Origin is ancestry, lineage, heritage, national group, or country of birth.   
 
@@ -1637,7 +1636,7 @@ In 2003 and later years, respondents were asked, "Are you Spanish, Hispanic, or 
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="EDUC" dcml="0" files="ExtractData" intrvl="discrete" name="EDUC">
-  <location EndPos="99" StartPos="97" width="3"/>
+  <location EndPos="39" StartPos="37" width="3"/>
   <labl>Educational attainment recode</labl>
   <txt><![CDATA[EDUC indicates respondents' educational attainment, as measured by the highest year of school or degree completed. Note that completion differs from the highest year of school attendance; for example, respondents whoÂ attendedÂ 10th grade but did not finish were classified in EDUC as havingÂ completedÂ 9th grade.Â 
 
@@ -1792,7 +1791,7 @@ General and detailed codes are not yet available for IPUMS-CPS, but one can cons
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOTED" dcml="0" files="ExtractData" intrvl="discrete" name="VOTED">
-  <location EndPos="101" StartPos="100" width="2"/>
+  <location EndPos="41" StartPos="40" width="2"/>
   <labl>Voted for the most recent November election</labl>
   <txt><![CDATA[VOTED identifies whether the person voted during the most recent November election. 
 
@@ -1825,7 +1824,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOREG" dcml="0" files="ExtractData" intrvl="discrete" name="VOREG">
-  <location EndPos="103" StartPos="102" width="2"/>
+  <location EndPos="43" StartPos="42" width="2"/>
   <labl>Registered for the most recent November election</labl>
   <txt><![CDATA[VOREG identifies whether the person registered to vote for the most recent November election. 
 
@@ -1860,7 +1859,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOTERES" dcml="0" files="ExtractData" intrvl="discrete" name="VOTERES">
-  <location EndPos="106" StartPos="104" width="3"/>
+  <location EndPos="46" StartPos="44" width="3"/>
   <labl>Duration of residence at current address</labl>
   <txt><![CDATA[VOTERES reports the length of time the person has lived at their current address.
 
@@ -1933,7 +1932,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOSUPPWT" dcml="4" files="ExtractData" intrvl="contin" name="VOSUPPWT">
-  <location EndPos="116" StartPos="107" width="10"/>
+  <location EndPos="56" StartPos="47" width="10"/>
   <labl>Voter Supplement Weight</labl>
   <txt><![CDATA[VOSUPPWT is the weight specific to the Voter Supplement, and should be used for all analyses using variables from this supplement.]]></txt>
   <codInstr><![CDATA[CodesVOSUPPWT is a 10-digit numeric variable. In the original data there are four implied decimals. The IPUMS command files automatically make the necessary adjustment, so no further adjustment is needed.]]></codInstr>
