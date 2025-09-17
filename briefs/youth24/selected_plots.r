@@ -276,3 +276,45 @@ for (y in (1994 + (0:15 * 2))) {
     )
   print(p)
 }
+
+# COVI vs. VRI for 2024
+cov_tab <- fancy_cps %>%
+  filter(YEAR == 2024, locality != "District of Columbia") %>%
+  group_by(age_cluster, locality, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = (voters_in_group / vep_in_group - 1) * 100
+  ) %>%
+  left_join(
+    group_by(fancy_cps, YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  left_join(
+    select(
+      covi,
+      locality,
+      YEAR,
+      cov_rank
+    ),
+    by = c("locality", "YEAR")
+  )
+
+ggplot(
+  cov_tab,
+  aes(
+    x = cov_rank,
+    y = turnout,
+    col = age_cluster
+  )
+) +
+  geom_smooth()
