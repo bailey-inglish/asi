@@ -284,7 +284,7 @@ cov_tab <- fancy_cps %>%
   reframe(
     vep_in_group = sum(adj_vosuppwt),
     voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
-    turnout = (voters_in_group / vep_in_group - 1) * 100
+    turnout = voters_in_group / vep_in_group * 100
   ) %>%
   left_join(
     group_by(fancy_cps, YEAR) %>%
@@ -307,14 +307,141 @@ cov_tab <- fancy_cps %>%
       cov_rank
     ),
     by = c("locality", "YEAR")
-  )
+  ) %>%
+  mutate(lab_name = paste(cov_rank, "-", locality))
 
+# Turnout
 ggplot(
   cov_tab,
   aes(
-    x = cov_rank,
+    x = fct_reorder(lab_name, cov_rank),
     y = turnout,
-    col = age_cluster
+    col = age_cluster,
+    group = age_cluster
   )
 ) +
-  geom_smooth()
+  geom_line() + geom_point() +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = 0:10 * 10
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    legend.position = "right",
+    panel.background = element_rect(fill = "grey85")
+  ) +
+  labs(
+    title = paste("Voter Turnout by State"),
+    subtitle = "Ordered by Cost of Voting Index (2024 general election only)",
+    x = "State & COVI Rank",
+    y = "Voter Turnout (%)",
+    col = "Age Cohort"
+  ) +
+  geom_hline(
+    yintercept = 0,
+    col = "black",
+    linewidth = 0.3,
+    alpha = 0.5
+  )
+
+# VRI
+ggplot(
+  cov_tab,
+  aes(
+    x = fct_reorder(lab_name, cov_rank),
+    y = vri,
+    col = age_cluster,
+    group = age_cluster
+  )
+) +
+  geom_smooth() +
+  scale_y_continuous(
+    limits = c(-65, 65),
+    breaks = -10:10 * 10
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    legend.position = "right",
+    panel.background = element_rect(fill = "grey85")
+  ) +
+  labs(
+    title = paste("Voter Representation by State"),
+    subtitle = "Ordered by Cost of Voting Index (2024 general election only)",
+    x = "State & COVI Rank",
+    y = "VRI",
+    col = "Age Cohort"
+  ) +
+  geom_hline(
+    yintercept = 0,
+    col = "black",
+    linewidth = 0.3,
+    alpha = 0.5
+  )
+
+## Poverty Line Level Analysis
+for (loc in c("Texas", "the US")) {
+  if (loc == "the US") {
+    cps_c <- fancy_cps
+  } else {
+    cps_c <- filter(fancy_cps, locality == loc)
+  }
+  pov_tab <- filter(cps_c, !is.na(is_in_poverty)) %>%
+    group_by(age_cluster, is_in_poverty, YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+      turnout = voters_i_group / vep_in_group * 100
+    ) %>%
+    left_join(
+      group_by(fancy_cps, YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+  p <- ggplot(
+    pov_tab,
+    aes(
+      x = YEAR,
+      y = vri,
+      fill = is_in_poverty
+    )
+  ) +
+    geom_col(
+      position = "dodge"
+    ) +
+    scale_y_continuous(
+      limits = c(-75, 75),
+      breaks = -10:10 * 10
+    ) +
+    labs(
+      title = "VRI for Voters by Age and Economic Status",
+      subtitle = paste("Across General Elections 1994-2024 in", loc),
+      x = "Year",
+      y = "VRI",
+      fill = "In poverty?"
+    ) +
+    geom_hline(
+      yintercept = 0,
+      col = "black",
+      linewidth = 0.3,
+      alpha = 0.5
+    ) +
+    scale_x_continuous(
+      breaks = 1994 + (0:15 * 2),
+      limits = c(1993, 2025)
+    ) +
+    facet_wrap(~age_cluster) +
+    theme(
+      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+      legend.position = "right",
+      panel.background = element_rect(fill = "grey85")
+    )
+  print(p)
+}

@@ -267,6 +267,8 @@ max_income_conv <- tribble(
   999, NA
 )
 
+# scale down FAMSIZE
+cps_expanded[cps_expanded$FAMSIZE > 8, ]$FAMSIZE <- 8
 cps_expanded <- cps_expanded %>%
   left_join(
     max_income_conv,
