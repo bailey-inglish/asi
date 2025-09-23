@@ -271,7 +271,10 @@ for (y in (1994 + (0:15 * 2))) {
       breaks = 20 + (0:7 * 10),
       limits = c(18, 90)
     )
-  print(p)
+  #print(p)
+  if (y == 2024) {
+    write_csv(gen_by_age, "final_data/gen_by_age2024.csv")
+  }
 }
 
 # COVI vs. VRI for 2024
@@ -402,7 +405,7 @@ for (loc in c("Texas", "the US")) {
       pct_of_electorate = 100 * voters_in_group / total_voters,
       vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
     )
-  write_csv(pov_tab, str_c("final_data/pov_tab-", loc, ".csv"))
+
   p <- ggplot(
     pov_tab,
     aes(
@@ -441,5 +444,64 @@ for (loc in c("Texas", "the US")) {
       legend.position = "right",
       panel.background = element_rect(fill = "grey85")
     )
-  #print(p)
+  print(p)
 }
+
+# Generic VRI and turnout table
+# tx only
+tx_tab <- fancy_cps %>%
+  filter(locality == "Texas") %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(fancy_cps, YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  select(
+    YEAR,
+    age_cluster,
+    turnout,
+    vri
+  )
+
+us_tab <- fancy_cps %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(fancy_cps, YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  select(
+    YEAR,
+    age_cluster,
+    turnout,
+    vri
+  )
+
+write_csv(us_tab, "final_data/vri-turnout-us.csv")
