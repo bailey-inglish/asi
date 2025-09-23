@@ -224,10 +224,7 @@ for (y in (1994 + (0:15 * 2))) {
     reframe(
       vep_in_group = sum(adj_vosuppwt),
       voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
-      turnout = 100 * (voters_in_group / vep_in_group),
-      pct_of_ve_population = 100 * vep_in_group / total_vep,
-      pct_of_electorate = 100 * voters_in_group / total_voters,
-      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population,
+      turnout = 100 * (voters_in_group / vep_in_group)
     ) %>%
     left_join(
       upper_bound_gen_years,
@@ -237,7 +234,7 @@ for (y in (1994 + (0:15 * 2))) {
       is_stable = (y >= AGE + end_year)
     )
 
-  p <- ggplot(
+    p <- ggplot(
     gen_by_age,
     aes(
       y = turnout,
@@ -390,7 +387,7 @@ for (loc in c("Texas", "the US")) {
     reframe(
       vep_in_group = sum(adj_vosuppwt),
       voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
-      turnout = voters_i_group / vep_in_group * 100
+      turnout = voters_in_group / vep_in_group * 100
     ) %>%
     left_join(
       group_by(fancy_cps, YEAR) %>%
@@ -405,6 +402,7 @@ for (loc in c("Texas", "the US")) {
       pct_of_electorate = 100 * voters_in_group / total_voters,
       vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
     )
+  write_csv(pov_tab, str_c("final_data/pov_tab-", loc, ".csv"))
   p <- ggplot(
     pov_tab,
     aes(
@@ -443,5 +441,5 @@ for (loc in c("Texas", "the US")) {
       legend.position = "right",
       panel.background = element_rect(fill = "grey85")
     )
-  print(p)
+  #print(p)
 }
