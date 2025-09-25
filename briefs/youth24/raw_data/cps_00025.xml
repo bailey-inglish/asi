@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="ipums-ddi-xslt.xsl"?>
-<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00024.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
+<codeBook ID="ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00025.dat-cps.ipums.org" version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
   <docDscr>
     <citation>
       <titlStmt>
         <titl>Codebook for an IPUMS CPS Data Extract</titl>
-        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00024.dat'</subTitl>
-        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00024.dat-cps.ipums.org</IDNo>
+        <subTitl>DDI 2.5 metadata describing the extract file  'cps_00025.dat'</subTitl>
+        <IDNo>ddi2-91080a60-0405-013d-b76c-0242c0a83004-cps_00025.dat-cps.ipums.org</IDNo>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="IPUMS" affiliation="University of Minnesota" role="Documentation">IPUMS</producer>
-        <prodDate date="2025-09-11">September 11, 2025</prodDate>
+        <prodDate date="2025-09-25">September 25, 2025</prodDate>
         <prodPlac>IPUMS, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -24,14 +24,14 @@
   <stdyDscr>
     <citation>
       <titlStmt>
-        <titl>User Extract cps_00024.dat</titl>
+        <titl>User Extract cps_00025.dat</titl>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">IPUMS</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="IPUMS" affiliation="University of Minnesota" role="Documentation">IPUMS</producer>
-        <prodDate date="2025-09-11">September 11, 2025</prodDate>
+        <prodDate date="2025-09-25">September 25, 2025</prodDate>
         <prodPlac>IPUMS, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -42,7 +42,7 @@
         <serInfo>DOI:10.18128/D030.V12.0</serInfo>
       </serStmt>
       <verStmt>
-        <version date="2025-09-11"/>
+        <version date="2025-09-25"/>
       </verStmt>
     </citation>
     <stdyInfo>
@@ -50,13 +50,40 @@
         <topcClas vocab="IPUMS">Technical Variables -- HOUSEHOLD</topcClas>
         <topcClas vocab="IPUMS">Geographic Variables -- HOUSEHOLD</topcClas>
         <topcClas vocab="IPUMS">Economic Characteristics Variables -- HOUSEHOLD</topcClas>
-        <topcClas vocab="IPUMS">Technical Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Demographics Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Family Interrelationships Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Ethnicity/Nativity Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Education Variables -- PERSON</topcClas>
         <topcClas vocab="IPUMS">Voter Supplement Variables -- PERSON</topcClas>
       </subject>
+      <sumDscr ID="sdatref-2868">
+        <timePrd date="1980-11" event="single">1980-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2747">
+        <timePrd date="1982-11" event="single">1982-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2769">
+        <timePrd date="1984-11" event="single">1984-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2791">
+        <timePrd date="1986-11" event="single">1986-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2813">
+        <timePrd date="1988-11" event="single">1988-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2932">
+        <timePrd date="1990-11" event="single">1990-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
+      <sumDscr ID="sdatref-2884">
+        <timePrd date="1992-11" event="single">1992-11</timePrd>
+        <nation abbr="us">United States</nation>
+      </sumDscr>
       <sumDscr ID="sdatref-2698">
         <timePrd date="1994-11" event="single">1994-11</timePrd>
         <nation abbr="us">United States</nation>
@@ -121,6 +148,34 @@
         <timePrd date="2024-11" event="single">2024-11</timePrd>
         <nation abbr="us">United States</nation>
       </sumDscr>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1980
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1982
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1984
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1986
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1988
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1990
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
+      <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1992
+            Density of the full data file:  0.01%
+            Density of this extract: 0.0%
+]]></notes>
       <notes><![CDATA[Additional notes on a sample that is part of this study:  IPUMS-CPS, November 1994
             Density of the full data file:  0.01%
             Density of this extract: 0.0%
@@ -207,12 +262,12 @@ The licensing agreement for use of IPUMS CPS data requires that users supply us 
         <disclaimer>The user of the data acknowledges that the original collector of the data, the authorized distributor of the data, and the relevant funding agency bear no responsibility for use of the data or for interpretations or inferences based upon such uses.</disclaimer>
       </useStmt>
     </dataAccs>
-    <notes><![CDATA[User-provided description:  Adding in HH size for poverty line calculations]]></notes>
-    <notes>This extract is a revision of the user's previous extract, ID 21237612.</notes>
+    <notes><![CDATA[User-provided description:  expanding to 1980 bc apparently we can now]]></notes>
+    <notes>This extract is a revision of the user's previous extract, ID 21260572.</notes>
   </stdyDscr>
   <fileDscr ID="ExtractData">
     <fileTxt>
-      <fileName>cps_00024.dat</fileName>
+      <fileName>cps_00025.dat</fileName>
       <fileCont>Microdata records</fileCont>
       <fileStrc type="rectangular"/>
       <fileType charset="ISO-8859-1">ISO-8859-1 data file</fileType>
@@ -831,20 +886,8 @@ Family income is collected as part of the basic monthly survey. At the end of th
   <concept vocab="IPUMS">Economic Characteristics Variables -- HOUSEHOLD</concept>
   <varFormat schema="other" type="numeric"/>
 </var>
-<var ID="WTFINL" dcml="4" files="ExtractData" intrvl="contin" name="WTFINL">
-  <location EndPos="24" StartPos="11" width="14"/>
-  <labl>Final Basic Weight</labl>
-  <txt><![CDATA[WTFINL is the final person-level weight that should be used in analyses of basic monthly data. 
-
-When analyzing ASEC data, researchers should use the person weight ASECWT. For analyses including the variables EARNWEEK, HOURWAGE, PAIDHOUR, and UNION, researchers should use the EARNWT variable. 
-
-WTFINL is the second stage weight in CPS (see technical documentation). It is based on the inverse probability of selection into the sample and adjustments for the following factors: failure to obtain an interview; sampling within large sample units; adjustments to the known distribution of the entire population according to stage, age, sex, race, and Hispanic ethnicity; and allotting a weight of zero to populations not sampled in other monthly surveys (i.e., persons in the Hispanic oversample and members of the armed forces in ASEC samples).]]></txt>
-  <codInstr><![CDATA[CodesWTFINL is a 14-digit numeric variable with four implied decimals.  That is, 12345678901234 should be interpreted as 1234567890.1234.  The IPUMS command files automatically make the necessary adjustment, so no further adjustment is needed.]]></codInstr>
-  <concept vocab="IPUMS">Technical Variables -- PERSON</concept>
-  <varFormat schema="other" type="numeric"/>
-</var>
 <var ID="AGE" dcml="0" files="ExtractData" intrvl="discrete" name="AGE">
-  <location EndPos="26" StartPos="25" width="2"/>
+  <location EndPos="12" StartPos="11" width="2"/>
   <labl>Age</labl>
   <txt><![CDATA[Age gives each person's age at last birthday.]]></txt>
   <catgry>
@@ -1251,7 +1294,7 @@ WTFINL is the second stage weight in CPS (see technical documentation). It is ba
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="SEX" dcml="0" files="ExtractData" intrvl="discrete" name="SEX">
-  <location EndPos="27" StartPos="27" width="1"/>
+  <location EndPos="13" StartPos="13" width="1"/>
   <labl>Sex</labl>
   <txt><![CDATA[SEX gives each person's sex.]]></txt>
   <catgry>
@@ -1270,7 +1313,7 @@ WTFINL is the second stage weight in CPS (see technical documentation). It is ba
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="RACE" dcml="0" files="ExtractData" intrvl="discrete" name="RACE">
-  <location EndPos="30" StartPos="28" width="3"/>
+  <location EndPos="16" StartPos="14" width="3"/>
   <labl>Race</labl>
   <txt><![CDATA[Racial categories in the CPS have been more consistent than racial categories in the census.  Up through 2002, the number of race categories ranged from 3 (white, negro, and other) to 5 (white, black, American Indian/Eskimo/Aleut, Asian or Pacific Islander, and other).   Beginning in 2003, respondents could report more than one race, and the number of codes rose to 21, and then up to 26 codes in 2013.]]></txt>
   <catgry>
@@ -1393,7 +1436,7 @@ WTFINL is the second stage weight in CPS (see technical documentation). It is ba
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="FAMSIZE" dcml="0" files="ExtractData" intrvl="discrete" name="FAMSIZE">
-  <location EndPos="32" StartPos="31" width="2"/>
+  <location EndPos="18" StartPos="17" width="2"/>
   <labl>Number of own family members in hh</labl>
   <txt><![CDATA[FAMSIZE counts the number of own family members residing with each individual, including the person her/himself. Persons not living with others related to them by blood, marriage, or adoption are coded 1.
 
@@ -1524,7 +1567,7 @@ An Introduction to the Family Interrelationship Variables can be found on IPUMS-
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="CITIZEN" dcml="0" files="ExtractData" intrvl="discrete" name="CITIZEN">
-  <location EndPos="33" StartPos="33" width="1"/>
+  <location EndPos="19" StartPos="19" width="1"/>
   <labl>Citizenship status</labl>
   <txt><![CDATA[CITIZEN reports the citizenship status of foreign-born persons.  In IPUMS-CPS, people born in the U.S., Puerto Rico, or U.S. outlying areas were excluded from the question universe.  Respondents were identified as belonging to one of three groups: citizens by virtue of being born abroad to American parents; naturalized citizens; and non-citizens.]]></txt>
   <catgry>
@@ -1555,7 +1598,7 @@ An Introduction to the Family Interrelationship Variables can be found on IPUMS-
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="HISPAN" dcml="0" files="ExtractData" intrvl="discrete" name="HISPAN">
-  <location EndPos="36" StartPos="34" width="3"/>
+  <location EndPos="22" StartPos="20" width="3"/>
   <labl>Hispanic origin</labl>
   <txt><![CDATA[HISPAN identifies and classifies persons of Hispanic/Spanish/Latino origin.  Origin is ancestry, lineage, heritage, national group, or country of birth.   
 
@@ -1636,7 +1679,7 @@ In 2003 and later years, respondents were asked, "Are you Spanish, Hispanic, or 
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="EDUC" dcml="0" files="ExtractData" intrvl="discrete" name="EDUC">
-  <location EndPos="39" StartPos="37" width="3"/>
+  <location EndPos="25" StartPos="23" width="3"/>
   <labl>Educational attainment recode</labl>
   <txt><![CDATA[EDUC indicates respondents' educational attainment, as measured by the highest year of school or degree completed. Note that completion differs from the highest year of school attendance; for example, respondents whoÂ attendedÂ 10th grade but did not finish were classified in EDUC as havingÂ completedÂ 9th grade.Â 
 
@@ -1791,7 +1834,7 @@ General and detailed codes are not yet available for IPUMS-CPS, but one can cons
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOTED" dcml="0" files="ExtractData" intrvl="discrete" name="VOTED">
-  <location EndPos="41" StartPos="40" width="2"/>
+  <location EndPos="27" StartPos="26" width="2"/>
   <labl>Voted for the most recent November election</labl>
   <txt><![CDATA[VOTED identifies whether the person voted during the most recent November election. 
 
@@ -1824,7 +1867,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOREG" dcml="0" files="ExtractData" intrvl="discrete" name="VOREG">
-  <location EndPos="43" StartPos="42" width="2"/>
+  <location EndPos="29" StartPos="28" width="2"/>
   <labl>Registered for the most recent November election</labl>
   <txt><![CDATA[VOREG identifies whether the person registered to vote for the most recent November election. 
 
@@ -1859,7 +1902,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOTERES" dcml="0" files="ExtractData" intrvl="discrete" name="VOTERES">
-  <location EndPos="46" StartPos="44" width="3"/>
+  <location EndPos="32" StartPos="30" width="3"/>
   <labl>Duration of residence at current address</labl>
   <txt><![CDATA[VOTERES reports the length of time the person has lived at their current address.
 
@@ -1932,7 +1975,7 @@ This variable is part of the Voter Supplement.]]></txt>
   <varFormat schema="other" type="numeric"/>
 </var>
 <var ID="VOSUPPWT" dcml="4" files="ExtractData" intrvl="contin" name="VOSUPPWT">
-  <location EndPos="56" StartPos="47" width="10"/>
+  <location EndPos="42" StartPos="33" width="10"/>
   <labl>Voter Supplement Weight</labl>
   <txt><![CDATA[VOSUPPWT is the weight specific to the Voter Supplement, and should be used for all analyses using variables from this supplement.]]></txt>
   <codInstr><![CDATA[CodesVOSUPPWT is a 10-digit numeric variable. In the original data there are four implied decimals. The IPUMS command files automatically make the necessary adjustment, so no further adjustment is needed.]]></codInstr>

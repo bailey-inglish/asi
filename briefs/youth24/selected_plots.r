@@ -234,7 +234,7 @@ for (y in (1994 + (0:15 * 2))) {
       is_stable = (y >= AGE + end_year)
     )
 
-    p <- ggplot(
+  p <- ggplot(
     gen_by_age,
     aes(
       y = turnout,
@@ -505,3 +505,109 @@ us_tab <- fancy_cps %>%
   )
 
 write_csv(us_tab, "final_data/vri-turnout-us.csv")
+
+## Race and age Line Level Analysis
+for (loc in c("Texas", "the US")) {
+  if (loc == "the US") {
+    cps_c <- fancy_cps
+  } else {
+    cps_c <- filter(fancy_cps, locality == loc)
+  }
+  race_tab <- filter(cps_c, !is.na(eth_race_comb_cluster)) %>%
+    group_by(age_cluster, eth_race_comb_cluster, YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+      turnout = voters_in_group / vep_in_group * 100
+    ) %>%
+    left_join(
+      group_by(fancy_cps, YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+  write_csv(race_tab, str_c("final_data/age_vs_race_vri-", loc, ".csv"))
+}
+
+# Generation breakdown csvs by age but also with VRI
+upper_bound_gen_years <- tibble(
+  generation = c("Lost", "Greatest", "Silent", "Boomer", "Generation X", "Millenial", "Generation Z", "Generation Alpha"),
+  end_year = c(1900, 1927, 1945, 1964, 1980, 1996, 2012, 2024)
+)
+
+gen_by_age <- fancy_cps %>%
+  group_by(generation, AGE) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  left_join(
+    group_by(fancy_cps, generation) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      )
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  left_join(
+    upper_bound_gen_years,
+    by = "generation"
+  ) %>%
+  mutate(
+    is_stable = (2024 >= AGE + end_year)
+  ) %>%
+  select(generation, AGE, turnout, vri, is_stable)
+
+write_csv(gen_by_age, "final_data/gen_by_age_VRI.csv")
+
+ggplot(
+  gen_by_age,
+  aes(
+    y = turnout,
+    x = AGE,
+    col = fct_reorder(generation, turnout),
+    linetype = !is_stable,
+    shape = !is_stable
+  )
+) +
+  geom_line() +
+  geom_point() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    legend.position = "right",
+    panel.background = element_rect(fill = "grey85")
+  ) +
+  labs(
+    title = "Turnout by Generation and Age in 2024",
+    x = "Age",
+    y = "Turnout (%)",
+    col = "",
+    shape = "Data Still\nBeing Collected",
+    linetype = "Data Still\nBeing Collected",
+  ) +
+  geom_hline(
+    yintercept = 0,
+    col = "black",
+    linewidth = 0.3,
+    alpha = 0.5
+  ) +
+  scale_x_continuous(
+    breaks = 20 + (0:9 * 10),
+    limits = c(18, 100)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = 0:10 * 10
+  )

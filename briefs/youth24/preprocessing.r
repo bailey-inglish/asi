@@ -10,12 +10,13 @@ setwd("briefs/youth24")
 
 ### CPS REDUCED
 # Import data
-cps <- read_ipums_ddi("raw_data/cps_00024.xml") %>% read_ipums_micro()
+cps <- read_ipums_ddi("raw_data/cps_00025.xml") %>% read_ipums_micro() %>%
+  filter(YEAR > 1980) # some missing turnout data for 1980
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
   select(YEAR, fips, locality = name, vep_turnout = VEP_TURNOUT_RATE) %>%
-  filter(YEAR >= 1994)
+  filter(YEAR > 1980)
 
 # VOREG recode to account for voter universe specification
 cps <- mutate(cps, registered = VOTED == 2 | VOREG == 2)
@@ -23,9 +24,7 @@ cps <- mutate(cps, registered = VOTED == 2 | VOREG == 2)
 # Reweight according to Hur & Achen using UF Election Lab actual turnout data
 raw_turn <- filter(
   cps,
-  VOTED == 1 | VOTED == 2,
-  CITIZEN < 5,
-  AGE >= 18
+  VOTED == 1 | VOTED == 2 # already filtered to citizen = T & age > 18 by census
 ) %>%
   select(YEAR, VOSUPPWT, STATEFIP, VOTED) %>%
   group_by(STATEFIP, YEAR) %>%
@@ -131,8 +130,8 @@ cps_reduced <- select(
 )
 
 # Write final outputs
-write_csv(cps_reduced, "final_data/cps_reduced_ipums_1994-2024.csv")
-write_csv(prop_totals, "final_data/cps_state_proportions_1994-2024.csv")
+write_csv(cps_reduced, "final_data/cps_reduced_ipums_1982-2024.csv")
+write_csv(prop_totals, "final_data/cps_state_proportions_1982-2024.csv")
 
 ### CPS EXPANDED
 # Uses upper bound year to approx immigrant years in the US (note that higher)
@@ -148,9 +147,6 @@ cps$race_cluster[cps$RACE == 200] <- "Black"
 cps$race_cluster[cps$RACE == 300] <- "American Indian"
 cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
 cps$race_cluster[cps$RACE >= 700] <- "Multiracial"
-
-# CITIZEN NA recode
-cps$CITIZEN[cps$CITIZEN == 9] <- NA
 
 # VOREG recode to account for voter universe specification
 cps <- mutate(cps, is_registered = VOTED == 2 | VOREG == 2)
@@ -231,12 +227,12 @@ cps_expanded <- select(
   AGE,
   FAMINC,
   FAMSIZE,
-  17:18, # make sure this still works
-  23:33
+  16:17, # make sure this still works
+  22:32
 )
 
 # Export `cps` with original variables for reproducability and bugtesting
-write_csv(cps, "final_data/cps_expanded_ipums_repro_1994-2024.csv")
+write_csv(cps, "final_data/cps_expanded_ipums_repro_1982-2024.csv")
 
 ### CPS EXTRAS
 # New dataset(s)
@@ -292,6 +288,7 @@ cps_expanded <- cps_expanded %>%
 # Generations coding (according to Pew)
 generation_conv <- tibble(
   birth_year = c(
+    1881:1900,
     1901:1927,
     1928:1945,
     1946:1964,
@@ -301,6 +298,7 @@ generation_conv <- tibble(
     2013:2024
   ),
   generation = c(
+    rep("Lost", 20),
     rep("Greatest", 27),
     rep("Silent", 18),
     rep("Boomer", 19),
@@ -323,4 +321,4 @@ cps_expanded <- cps_expanded %>%
 
 # Write final outputs
 cps_expanded <- cps_expanded %>% select(!FAMINC, !FAMSIZE)
-write_csv(cps_expanded, "final_data/cps_expanded_ipums_1994-2024.csv")
+write_csv(cps_expanded, "final_data/cps_expanded_ipums_1982-2024.csv")
