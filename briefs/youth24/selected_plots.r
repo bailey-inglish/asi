@@ -386,7 +386,7 @@ for (loc in c("Texas", "the US")) {
     cps_c <- filter(fancy_cps, locality == loc)
   }
   pov_tab <- filter(cps_c, !is.na(is_in_poverty)) %>%
-    group_by(age_cluster, is_in_poverty, YEAR) %>%
+    group_by(is_in_poverty, YEAR) %>%
     reframe(
       vep_in_group = sum(adj_vosuppwt),
       voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),

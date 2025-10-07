@@ -1,0 +1,28 @@
+---
+title: "modelsummary tables"
+output: html_document
+author: "Bailey Inglish"
+---
+
+```{r global_options, echo = FALSE}
+# Setup & global options for code chunks
+knitr::opts_chunk$set(
+  fig.height = 5,
+  fig.width = 10,
+  warning = FALSE,
+  message = FALSE,
+  tidy.opts = list(width.cutoff = 100)
+)
+```
+
+```{r}
+library(tidyverse)
+library(modelsummary)
+library(tinytable)
+
+fancy_cps <- read_csv("final_data/cps_expanded_ipums_1994-2024.csv")
+
+datasummary_skim(fancy_cps)
+
+library(ggthemes)
+```
