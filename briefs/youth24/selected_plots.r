@@ -611,3 +611,24 @@ ggplot(
     limits = c(0, 100),
     breaks = 0:10 * 10
   )
+
+pov_tab <- filter(fancy_cps, !is.na(is_in_poverty), locality == "Texas") %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(filter(fancy_cps, locality == "Texas"), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  )
