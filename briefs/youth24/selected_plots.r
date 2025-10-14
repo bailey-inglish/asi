@@ -476,6 +476,7 @@ tx_tab <- fancy_cps %>%
     turnout,
     vri
   )
+write_csv(tx_tab, "final_data/vri-turnout-tx.csv")
 
 us_tab <- fancy_cps %>%
   group_by(age_cluster, YEAR) %>%
