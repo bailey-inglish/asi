@@ -11,12 +11,12 @@ setwd("briefs/youth24")
 ### CPS REDUCED
 # Import data
 cps <- read_ipums_ddi("raw_data/cps_00025.xml") %>% read_ipums_micro() %>%
-  filter(YEAR > 1980) # some missing turnout data for 1980
+  filter(YEAR >= 1984) # some missing turnout data for 1980
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
   select(YEAR, fips, locality = name, vep_turnout = VEP_TURNOUT_RATE) %>%
-  filter(YEAR > 1980)
+  filter(YEAR >= 1984)
 
 # VOREG recode to account for voter universe specification
 cps <- mutate(cps, registered = VOTED == 2 | VOREG == 2)
@@ -130,8 +130,8 @@ cps_reduced <- select(
 )
 
 # Write final outputs
-write_csv(cps_reduced, "final_data/cps_reduced_ipums_1982-2024.csv")
-write_csv(prop_totals, "final_data/cps_state_proportions_1982-2024.csv")
+write_csv(cps_reduced, "final_data/revised_cps_reduced_ipums_1984-2024.csv")
+write_csv(prop_totals, "final_data/revised_cps_state_proportions_1984-2024.csv")
 
 ### CPS EXPANDED
 # Uses upper bound year to approx immigrant years in the US (note that higher)
@@ -232,7 +232,7 @@ cps_expanded <- select(
 )
 
 # Export `cps` with original variables for reproducability and bugtesting
-write_csv(cps, "final_data/cps_expanded_ipums_repro_1982-2024.csv")
+write_csv(cps, "final_data/revised_cps_expanded_ipums_repro_1984-2024.csv")
 
 ### CPS EXTRAS
 # New dataset(s)
@@ -321,4 +321,4 @@ cps_expanded <- cps_expanded %>%
 
 # Write final outputs
 cps_expanded <- cps_expanded %>% select(!FAMINC, !FAMSIZE)
-write_csv(cps_expanded, "final_data/cps_expanded_ipums_1982-2024.csv")
+write_csv(cps_expanded, "final_data/revised_cps_expanded_ipums_1982-2024.csv")
