@@ -386,7 +386,7 @@ for (loc in c("Texas", "the US")) {
     cps_c <- filter(fancy_cps, locality == loc)
   }
   pov_tab <- filter(cps_c, !is.na(is_in_poverty)) %>%
-    group_by(age_cluster, is_in_poverty, YEAR) %>%
+    group_by(is_in_poverty, YEAR) %>%
     reframe(
       vep_in_group = sum(adj_vosuppwt),
       voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
@@ -476,6 +476,7 @@ tx_tab <- fancy_cps %>%
     turnout,
     vri
   )
+write_csv(tx_tab, "final_data/vri-turnout-tx.csv")
 
 us_tab <- fancy_cps %>%
   group_by(age_cluster, YEAR) %>%
@@ -568,9 +569,10 @@ gen_by_age <- fancy_cps %>%
   mutate(
     is_stable = (2024 >= AGE + end_year)
   ) %>%
-  select(generation, AGE, turnout, vri, is_stable)
+  select(generation, AGE, turnout) %>%
+  filter(AGE <= 25)
 
-write_csv(gen_by_age, "final_data/gen_by_age_VRI.csv")
+write_csv(gen_by_age, "final_data/6revised_gen_by_age_turnout.csv")
 
 ggplot(
   gen_by_age,
@@ -611,3 +613,159 @@ ggplot(
     limits = c(0, 100),
     breaks = 0:10 * 10
   )
+
+# page 10/15
+pov_tab_tx <- fancy_cps %>%
+  filter(!is.na(is_in_poverty), locality == "Texas") %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(filter(fancy_cps, locality == "Texas"), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  )
+pov_tab_tx$elec_type <- c("Midterm", "Presidential")[(round(pov_tab_tx$YEAR / 4) == pov_tab_tx$YEAR / 4) + 1]
+
+pov_tab_us <- fancy_cps %>%
+  filter(!is.na(is_in_poverty)) %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(filter(fancy_cps, !is.na(is_in_poverty)), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  )
+pov_tab_us$elec_type <- c("Midterm", "Presidential")[(round(pov_tab_us$YEAR / 4) == pov_tab_us$YEAR / 4) + 1]
+
+# page 15
+select(pov_tab_tx, vri, YEAR, is_in_poverty) %>%
+  filter(YEAR >= 2014) %>%
+  write_csv("final_data/15_TX_revised_pov_vri.csv")
+select(pov_tab_us, vri, YEAR, is_in_poverty) %>%
+  filter(YEAR >= 2014) %>%
+  write_csv("final_data/15_US_revised_pov_vri.csv")
+
+# page 10
+select(pov_tab_us, turnout, YEAR, is_in_poverty, elec_type) %>%
+  mutate(locality = "United States") %>%
+  filter(YEAR >= 1988) %>%
+  rows_append(
+    select(pov_tab_tx, turnout, YEAR, is_in_poverty, elec_type) %>%
+      mutate(locality = "Texas") %>%
+      filter(YEAR >= 1988)
+  ) %>%
+  write_csv("final_data/10_revised_pov_turnout.csv")
+
+for (l in c("Texas", "United States")) {
+  age_tab <- fancy_cps %>%
+    filter(YEAR >= 1984) %>%
+    group_by(is_in_poverty, YEAR) %>%
+    reframe(
+      vep_in_group = sum(adj_vosuppwt),
+      voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+      turnout = voters_in_group / vep_in_group * 100
+    ) %>%
+    left_join(
+      group_by(filter(fancy_cps, !is.na(is_in_poverty)), YEAR) %>%
+        summarize(
+          total_vep = sum(adj_vosuppwt),
+          total_voters = sum(adj_vosuppwt * (VOTED == 2))
+        ),
+      by = "YEAR"
+    ) %>%
+    mutate(
+      pct_of_ve_population = 100 * vep_in_group / total_vep,
+      pct_of_electorate = 100 * voters_in_group / total_voters,
+      vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+    )
+}
+
+
+age_tab <- fancy_cps %>%
+  filter(!is.na(is_in_poverty)) %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(filter(fancy_cps, !is.na(is_in_poverty)), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  )
+
+# young men vs young women
+# Generic VRI and turnout table
+# tx only
+age_tab_tx <- fancy_cps %>%
+  filter(AGE < 30) %>%
+  filter(locality == "Texas") %>%
+  group_by(sex_name, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = voters_in_group / vep_in_group * 100
+  ) %>%
+  left_join(
+    group_by(filter(fancy_cps, AGE < 30, locality == "Texas"), YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  select(
+    YEAR,
+    sex_name,
+    turnout,
+    vri
+  )
+
+ggplot(
+  age_tab_tx,
+  aes(
+    x = YEAR,
+    y = turnout,
+    col = sex_name
+  )
+) +
+  geom_point() +
+  geom_line()

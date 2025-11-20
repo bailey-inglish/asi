@@ -1,0 +1,178 @@
+---
+title: "Supplementary Tables"
+subtitle: "Understanding Youth Voting - October 2025"
+output: pdf_document
+author: "Dr. Eugenia Quintanilla & Bailey Inglish"
+---
+
+```{r global_options, echo = FALSE}
+# Setup & global options for code chunks
+knitr::opts_chunk$set(
+  fig.height = 5,
+  fig.width = 10,
+  warning = FALSE,
+  message = FALSE,
+  tidy.opts = list(width.cutoff = 100)
+)
+```
+
+```{r echo = FALSE}
+library(gt)
+library(tidyverse)
+#setwd("briefs/youth24")
+fancy_cps <- read_csv("final_data/cps_expanded_ipums_1994-2024.csv")
+library(ggthemes)
+library(kableExtra)
+```
+
+```{r echo = FALSE}
+tab <- fancy_cps %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(age_cluster, YEAR, turnout) %>%
+  mutate(turnout = round(turnout, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = age_cluster,
+    values_from = c(turnout)
+  )
+
+kbl(tab, booktabs = T, caption = "Turnout by Age and Year") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- fancy_cps %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  left_join(
+    group_by(fancy_cps, YEAR) %>%
+      summarize(
+        total_vep = sum(adj_vosuppwt),
+        total_voters = sum(adj_vosuppwt * (VOTED == 2))
+      )
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * vep_in_group / total_vep,
+    pct_of_electorate = 100 * voters_in_group / total_voters,
+    vri = 100 * (pct_of_electorate - pct_of_ve_population) / pct_of_ve_population # (True - Obs) / True
+  ) %>%
+  select(age_cluster, YEAR, vri) %>%
+  mutate(vri = round(vri, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = age_cluster,
+    values_from = c(vri)
+  )
+
+kbl(tab, booktabs = T, caption = "VRI by Age and Year") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- fancy_cps %>%
+  filter(generation != "Lost") %>%
+  group_by(generation, AGE) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(AGE, generation, turnout) %>%
+  mutate(turnout = round(turnout, 1), Generation = generation, Age = AGE, .keep = "unused") %>%
+  pivot_wider(
+    names_from = Generation,
+    values_from = c(turnout)
+  ) %>%
+  relocate(Age, `Generation Z`, Millenial, `Generation X`, Boomer, Greatest, Silent)
+
+kbl(filter(tab, Age < 60), booktabs = T, caption = "Turnout by Age and Generation (pt. 1/2)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+
+kbl(filter(tab, Age >= 60), booktabs = T, caption = "Turnout by Age and Generation (pt. 2/2)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- filter(fancy_cps, AGE < 30) %>%
+  group_by(eth_race_comb_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(eth_race_comb_cluster, YEAR, turnout) %>%
+  mutate(turnout = round(turnout, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = eth_race_comb_cluster,
+    values_from = c(turnout)
+  )
+
+kbl(tab, booktabs = T, caption = "Youth Voter (18-29) Turnout by Race and Year (United States)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- filter(fancy_cps, AGE < 30, locality == "Texas") %>%
+  group_by(eth_race_comb_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(eth_race_comb_cluster, YEAR, turnout) %>%
+  mutate(turnout = round(turnout, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = eth_race_comb_cluster,
+    values_from = c(turnout)
+  )
+
+kbl(tab, booktabs = T, caption = "Youth Voter (18-29) Turnout by Race and Year (Texas)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- filter(fancy_cps, !is.na(is_in_poverty)) %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(is_in_poverty, YEAR, turnout) %>%
+  mutate(turnout = round(turnout, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = is_in_poverty,
+    values_from = c(turnout)
+  ) %>%
+  mutate(`Not In Poverty` = `FALSE`, `Experiencing Poverty` = `TRUE`, .keep = "unused")
+
+kbl(tab, booktabs = T, caption = "Turnout by Poverty Status and Year (United States)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
+
+```{r echo = FALSE}
+tab <- filter(fancy_cps, !is.na(is_in_poverty), locality == "Texas") %>%
+  group_by(is_in_poverty, YEAR) %>%
+  reframe(
+    vep_in_group = sum(adj_vosuppwt),
+    voters_in_group = sum(adj_vosuppwt * (VOTED == 2)),
+    turnout = 100 * (voters_in_group / vep_in_group)
+  ) %>%
+  select(is_in_poverty, YEAR, turnout) %>%
+  mutate(turnout = round(turnout, 1), Year = YEAR, .keep = "unused") %>%
+  pivot_wider(
+    names_from = is_in_poverty,
+    values_from = c(turnout)
+  ) %>%
+  mutate(`Not In Poverty` = `FALSE`, `Experiencing Poverty` = `TRUE`, .keep = "unused")
+
+kbl(tab, booktabs = T, caption = "Turnout by Poverty Status and Year (Texas)") %>%
+  kable_styling(latex_options = c("striped", "hold_position"), full_width = F)
+```
