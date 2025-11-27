@@ -257,3 +257,30 @@ ge_nb <- filter(
 )
 group_by(ge_nb, BM2Name) %>%
 summarize(n = n(), pct = n() / nrow(ge_nb)) # 173 votes in favor of retaining RCV after blank pres elimination
+
+precincts <- ge %>%
+  mutate(
+    location = VotingLocationName,
+    precinct = PrecinctExternalId,
+    district = HDContestName,
+    district_number = as.integer(str_remove(HDContestName, "House District ")),
+    pres = Pres1Name,
+    remove_rcv = BM2Name
+  ) %>%
+  filter(
+    is.element(district_number, c(40, 39, 38, 37, 18))
+  ) %>%
+  group_by(precinct) %>%
+  summarize(
+    district = first(district),
+    total_votes = n(),
+    cross_no = sum(pres == "Trump/Vance" & remove_rcv == "NO"),
+    cross_yes = sum(pres != "Trump/Vance" & remove_rcv == "YES"),
+    pct_cross = sum(cross_no, cross_yes) / n(),
+    pres_trump = sum(pres == "Trump/Vance"),
+    pres_harris = sum(pres == "Harris/Walz"),
+    pres_other = sum(!is.element(pres, c("Trump/Vance", "Harris/Walz", "[Blank]"))),
+    rcv_remove = sum(remove_rcv == "YES"),
+    rcv_retain = sum(remove_rcv == "NO")
+  ) %>%
+  arrange(desc(pct_cross))

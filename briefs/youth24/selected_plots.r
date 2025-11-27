@@ -8,7 +8,7 @@ library(tidyverse)
 library(aod)
 setwd("briefs/youth24")
 
-fancy_cps <- read_csv("final_data/cps_expanded_ipums_1994-2024.csv")
+fancy_cps <- read_csv("final_data/revised_cps_expanded_ipums_1982-2024.csv")
 covi <- read_csv("raw_data/covi96-24.csv")
 
 ## Longitudinal analysis
