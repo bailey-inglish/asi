@@ -138,9 +138,9 @@ ces_raw <- read_dta(ces_path)
 anes_24 <- anes_raw %>%
   filter(VCF0004 == 2024) %>%
   mutate(
+    state_fips = VCF0901a,
     state = as_factor(VCF0901b),
-    state_chr = tolower(as.character(state)),
-    texas = if_else(is.na(state_chr), FALSE, str_detect(state_chr, "texas|tx|tx -"))
+    texas = (state_fips == 48)  # Texas FIPS code
   ) %>%
   mutate(
     participation = case_when(
@@ -183,27 +183,25 @@ anes_24 <- anes_raw %>%
     ),
     educ = factor(educ, levels = c("< High School", "High School", "Some College", "College+")),
     efficacy = case_when(
-      VCF0609 == 1 ~ "Agree strongly",
-      VCF0609 == 2 ~ "Agree somewhat",
+      VCF0609 == 1 ~ "Agree (low efficacy)",
+      VCF0609 == 2 ~ "Disagree (high efficacy)",
       VCF0609 == 3 ~ "Neither",
-      VCF0609 == 4 ~ "Disagree somewhat",
-      VCF0609 == 5 ~ "Disagree strongly",
       TRUE ~ NA_character_
     ),
-    efficacy = factor(efficacy, levels = c("Agree strongly", "Agree somewhat", "Neither", "Disagree somewhat", "Disagree strongly")),
+    efficacy = factor(efficacy, levels = c("Agree (low efficacy)", "Neither", "Disagree (high efficacy)")),
     see_party_diff = case_when(
-      VCF0501 == 1 ~ "Major differences",
-      VCF0501 == 2 ~ "Not much difference",
+      VCF0501 == 1 ~ "No difference",
+      VCF0501 == 2 ~ "Yes, important differences",
       TRUE ~ NA_character_
     ),
     interest = case_when(
-      VCF0310 == 1 ~ "Very interested",
+      VCF0310 == 1 ~ "Not much interested",
       VCF0310 == 2 ~ "Somewhat interested",
-      VCF0310 == 3 ~ "Not much interested",
+      VCF0310 == 3 ~ "Very interested",
       TRUE ~ NA_character_
     ),
     interest = factor(interest, levels = c("Very interested", "Somewhat interested", "Not much interested")),
-    see_party_diff = factor(see_party_diff, levels = c("Major differences", "Not much difference")),
+    see_party_diff = factor(see_party_diff, levels = c("Yes, important differences", "No difference")),
     weight = VCF0009z
   ) %>%
   filter(!is.na(participation))
@@ -311,8 +309,8 @@ eff_turnout <- anes_24 %>%
   filter(!is.na(efficacy)) %>%
   group_by(efficacy) %>%
   summarise(pct = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
-eff_low <- eff_turnout$pct[eff_turnout$efficacy == "Agree strongly"]
-eff_high <- eff_turnout$pct[eff_turnout$efficacy == "Disagree strongly"]
+eff_low <- eff_turnout$pct[eff_turnout$efficacy == "Agree (low efficacy)"]
+eff_high <- eff_turnout$pct[eff_turnout$efficacy == "Disagree (high efficacy)"]
 eff_gap <- eff_high - eff_low
 
 tx_young_low <- ces_24 %>%
@@ -348,14 +346,14 @@ party_turnout <- anes_24 %>%
   filter(!is.na(see_party_diff)) %>%
   group_by(see_party_diff) %>%
   summarise(pct = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
-party_gap <- party_turnout$pct[party_turnout$see_party_diff == "Major differences"] -
-  party_turnout$pct[party_turnout$see_party_diff == "Not much difference"]
+party_gap <- party_turnout$pct[party_turnout$see_party_diff == "Yes, important differences"] -
+  party_turnout$pct[party_turnout$see_party_diff == "No difference"]
 
 apathy_low <- anes_24 %>%
-  filter(efficacy == "Agree strongly", interest == "Not much interested") %>%
+  filter(efficacy == "Agree (low efficacy)", interest == "Not much interested") %>%
   summarise(pct = weighted.mean(voted, weight, na.rm = TRUE) * 100, n = n())
 apathy_high <- anes_24 %>%
-  filter(efficacy == "Disagree strongly", interest == "Very interested") %>%
+  filter(efficacy == "Disagree (high efficacy)", interest == "Very interested") %>%
   summarise(pct = weighted.mean(voted, weight, na.rm = TRUE) * 100, n = n())
 apathy_gap <- apathy_high$pct - apathy_low$pct
 
@@ -501,8 +499,7 @@ anes_24 <- anes_raw %>%
     # Geography
     state_fips = VCF0901a,
     state = as_factor(VCF0901b),
-    state_chr = tolower(as.character(state)),
-    texas = if_else(is.na(state_chr), FALSE, str_detect(state_chr, "texas|tx|tx -")),
+    texas = (state_fips == 48),  # Texas FIPS code
     
     # Outcome: Participation
     participation = case_when(
@@ -579,34 +576,31 @@ anes_24 <- anes_raw %>%
     
     # Attitudes
     # VCF0609: "Government officials don't care what people think"
-    # 1=Agree strongly (LOW efficacy), 5=Disagree strongly (HIGH efficacy)
+    # 1=Agree (LOW efficacy), 2=Disagree (HIGH efficacy), 3=Neither
     efficacy_raw = VCF0609,
     efficacy = case_when(
-      VCF0609 == 1 ~ "Agree strongly",
-      VCF0609 == 2 ~ "Agree somewhat",
+      VCF0609 == 1 ~ "Agree (low efficacy)",
+      VCF0609 == 2 ~ "Disagree (high efficacy)",
       VCF0609 == 3 ~ "Neither",
-      VCF0609 == 4 ~ "Disagree somewhat",
-      VCF0609 == 5 ~ "Disagree strongly",
       TRUE ~ NA_character_
     ),
-    efficacy = factor(efficacy, levels = c("Agree strongly", "Agree somewhat", "Neither", "Disagree somewhat", "Disagree strongly")),
+    efficacy = factor(efficacy, levels = c("Agree (low efficacy)", "Neither", "Disagree (high efficacy)")),
     
-    # VCF0605: "Federal govt run by few interests (1) or for benefit of all (5)"
+    # VCF0605: "Federal govt run by few interests (1) or for benefit of all (2)"
     trust_govt_raw = VCF0605,
     trust_govt = case_when(
-      VCF0605 %in% 1:2 ~ "Low",
-      VCF0605 == 3 ~ "Medium",
-      VCF0605 %in% 4:5 ~ "High",
+      VCF0605 == 1 ~ "Few big interests",
+      VCF0605 == 2 ~ "Benefit of all",
       TRUE ~ NA_character_
     ),
-    trust_govt = factor(trust_govt, levels = c("Low", "Medium", "High")),
+    trust_govt = factor(trust_govt, levels = c("Few big interests", "Benefit of all")),
     
-    # VCF0310: Interest in elections (1=Very, 2=Somewhat, 3=Not much)
+    # VCF0310: Interest in elections (1=Not much, 2=Somewhat, 3=Very)
     interest_raw = VCF0310,
     interest = case_when(
-      VCF0310 == 1 ~ "Very interested",
+      VCF0310 == 1 ~ "Not much interested",
       VCF0310 == 2 ~ "Somewhat interested",
-      VCF0310 == 3 ~ "Not much interested",
+      VCF0310 == 3 ~ "Very interested",
       TRUE ~ NA_character_
     ),
     interest = factor(interest, levels = c("Very interested", "Somewhat interested", "Not much interested")),
@@ -629,20 +623,20 @@ anes_24 <- anes_raw %>%
       TRUE ~ NA_character_
     ),
     
-    # VCF0501: See important differences between parties?
+    # VCF0501: See important differences between parties? (1=No, 2=Yes)
     see_party_diff = case_when(
-      VCF0501 == 1 ~ "Major differences",
-      VCF0501 == 2 ~ "Not much difference",
+      VCF0501 == 1 ~ "No difference",
+      VCF0501 == 2 ~ "Yes, important differences",
       TRUE ~ NA_character_
     ),
     
     # VCF0613: "People like me have say in government"
-    # 1=Agree (high efficacy), 5=Disagree (low efficacy) - REVERSE of VCF0609
+    # 1=Agree (high efficacy), 2=Disagree (low efficacy), 3=Neither
     have_say_raw = VCF0613,
     have_say = case_when(
-      VCF0613 %in% 1:2 ~ "High",
-      VCF0613 == 3 ~ "Medium",
-      VCF0613 %in% 4:5 ~ "Low",
+      VCF0613 == 1 ~ "Agree (high efficacy)",
+      VCF0613 == 2 ~ "Disagree (low efficacy)",
+      VCF0613 == 3 ~ "Neither",
       TRUE ~ NA_character_
     ),
     
@@ -852,13 +846,14 @@ tribble(
 
 ## Overall Participation Rates: Texas vs. National
 
+**Note:** All percentages (% Registered, % Voted) are weighted estimates representing population proportions. N (unweighted) = actual respondent count in the survey sample.
+
 ```{r participation-overview}
 # ANES comparison
 anes_compare <- anes_24 %>%
   group_by(texas) %>%
   summarise(
-    N_unweighted = n(),
-    N_weighted = round(sum(weight, na.rm = TRUE)),
+    n_unweighted = n(),
     pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
     pct_registered = weighted.mean(registered, weight, na.rm = TRUE) * 100,
     .groups = "drop"
@@ -870,8 +865,7 @@ ces_compare <- ces_24 %>%
   filter(has_validated) %>%  # Only those with validated records
   group_by(texas) %>%
   summarise(
-    N_unweighted = n(),
-    N_weighted = round(sum(weight_validated, na.rm = TRUE)),
+    n_unweighted = n(),
     pct_voted = weighted.mean(voted_validated, weight_validated, na.rm = TRUE) * 100,
     pct_registered = weighted.mean(registered_validated, weight_validated, na.rm = TRUE) * 100,
     .groups = "drop"
@@ -883,8 +877,9 @@ bind_rows(
   anes_compare %>% mutate(dataset = "ANES"),
   ces_compare %>% mutate(dataset = "CES (Validated)")
 ) %>%
-  select(dataset, geography, N_unweighted, N_weighted, pct_registered, pct_voted) %>%
-  nice_table(title = "Table 1. Turnout and Registration Rates: Texas vs. Nation (2024)")
+  select(dataset, geography, n_unweighted, pct_registered, pct_voted) %>%
+  rename(`N (unweighted)` = n_unweighted, `% Registered` = pct_registered, `% Voted` = pct_voted) %>%
+  nice_table(title = "Table 1. Turnout and Registration Rates: Texas vs. Nation (2024)", digits = 1)
 ```
 
 **Key Finding:** Texas lags the national average in both datasets. In CES validated data, Texas turnout is **`r round(ces_compare$pct_voted[ces_compare$texas == FALSE] - ces_compare$pct_voted[ces_compare$texas == TRUE], 1)`** percentage points below the rest of the U.S.
@@ -1052,8 +1047,8 @@ news_plot <- news_long %>%
   labs(
     title = "Information Engagement Tracks Participation",
     subtitle = "Validated CES: news-following frequency vs. participation outcomes",
-    x = "News interest",
-    y = "Percentage",
+    x = "News Interest",
+    y = "% within each news interest level",
     color = "Status",
     caption = "Data: CES 2024 validated | Weighted by vvweight"
   )
@@ -1138,9 +1133,9 @@ income_plot <- income_turnout %>%
   scale_fill_manual(values = part_colors) +
   labs(
     title = "Income and Participation Outcomes",
-    subtitle = "CES 2024 validated: stacked participation by income bracket",
+    subtitle = "CES 2024 validated: participation composition by income bracket",
     x = "Household Income",
-    y = "Percentage",
+    y = "% composition (Voted, Reg-no-vote, Not reg)",
     fill = "Status",
     caption = "Data: CES 2024 validated | Weighted by vvweight"
   ) +
@@ -1151,107 +1146,14 @@ gen_plot + income_plot + plot_annotation(tag_levels = list(c("C", "D")))
 
 ---
 
-# The Over-Reporting Problem: Who Lies About Voting?
-
-A key advantage of CES is its **validated voter file matching**, which allows us to detect respondents who claim they voted but did not.
-
-## Prevalence of Over-Reporting
-
-```{r overreport-prevalence}
-# Overall over-reporting rate
-ces_24 %>%
-  filter(has_validated) %>%
-  summarise(
-    N_total = n(),
-    N_over_report = sum(over_reports, na.rm = TRUE),
-    pct_over_report = weighted.mean(over_reports, weight_validated, na.rm = TRUE) * 100,
-    N_under_report = sum(under_reports, na.rm = TRUE),
-    pct_under_report = weighted.mean(under_reports, weight_validated, na.rm = TRUE) * 100,
-    N_accurate = sum(accurate_report, na.rm = TRUE),
-    pct_accurate = weighted.mean(accurate_report, weight_validated, na.rm = TRUE) * 100
-  ) %>%
-  nice_table(title = "Table 5. Accuracy of Self-Reported Turnout (CES 2024)")
-```
-
-**Interpretation:** Approximately **`r round(weighted.mean(ces_24$over_reports[ces_24$has_validated], ces_24$weight_validated[ces_24$has_validated], na.rm = TRUE) * 100, 1)`%** of respondents claim they voted when validated records show they did not. This social desirability bias is a well-documented phenomenon in survey research.
-
-## Who Over-Reports? Demographic Patterns
-
-```{r overreport-demographics}
-# Over-reporting by demographics
-ces_24 %>%
-  filter(has_validated, !is.na(educ_cat), !is.na(race_cat)) %>%
-  group_by(educ_cat, race_cat) %>%
-  summarise(
-    n = n(),
-    pct_over_report = weighted.mean(over_reports, weight_validated, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  filter(n >= 30) %>%  # Only show cells with sufficient sample
-  pivot_wider(names_from = educ_cat, values_from = c(n, pct_over_report)) %>%
-  nice_table(title = "Table 6. Over-Reporting Rate by Race and Education (CES 2024)")
-```
-
-```{r overreport-viz}
-# Visualization
-ces_24 %>%
-  filter(has_validated, !is.na(age_group)) %>%
-  group_by(age_group) %>%
-  summarise(
-    n = n(),
-    weight_sum = sum(weight_validated, na.rm = TRUE),
-    pct_over_report = weighted.mean(over_reports, weight_validated, na.rm = TRUE) * 100,
-    se = sqrt((pct_over_report/100) * (1 - pct_over_report/100) / weight_sum) * 100,
-    .groups = "drop"
-  ) %>%
-  ggplot(aes(x = age_group, y = pct_over_report)) +
-  geom_col(fill = "#e74c3c", alpha = 0.8) +
-  geom_errorbar(aes(ymin = pct_over_report - 1.96*se, ymax = pct_over_report + 1.96*se),
-                width = 0.2) +
-  geom_text(aes(label = sprintf("%.1f%%\n(n=%d)", pct_over_report, n)), 
-            vjust = -0.5, size = 3.5) +
-  labs(
-    title = "Over-Reporting of Voting by Age Group",
-    subtitle = "Self-reported voting when validated records show non-voting",
-    x = "Age Group",
-    y = "% Who Over-Report",
-    caption = "Data: CES 2024 | Error bars show 95% CI"
-  ) +
-  ylim(0, max(ces_24 %>% 
-    filter(has_validated, !is.na(age_group)) %>%
-    group_by(age_group) %>%
-    summarise(pct = weighted.mean(over_reports, weight_validated, na.rm = TRUE) * 100) %>%
-    pull(pct)) * 1.3)
-```
-
-## Texas vs. National: Over-Reporting Comparison
-
-```{r overreport-texas}
-ces_24 %>%
-  filter(has_validated) %>%
-  group_by(texas) %>%
-  summarise(
-    geography = ifelse(first(texas), "Texas", "Rest of U.S."),
-    N = n(),
-    weight_sum = sum(weight_validated, na.rm = TRUE),
-    N_over_report = sum(over_reports, na.rm = TRUE),
-    pct_over_report = weighted.mean(over_reports, weight_validated, na.rm = TRUE) * 100,
-    se = sqrt((pct_over_report/100) * (1 - pct_over_report/100) / weight_sum) * 100,
-    ci_lower = pct_over_report - 1.96 * se,
-    ci_upper = pct_over_report + 1.96 * se,
-    .groups = "drop"
-  ) %>%
-  select(geography, N, N_over_report, pct_over_report, ci_lower, ci_upper) %>%
-  nice_table(title = "Table 7. Over-Reporting: Texas vs. National (CES 2024)")
-```
-
----
-
 # Attitudinal Predictors of Non-Participation
 
 Beyond demographics, we examine how **political attitudes** shape participation decisions.
 
-## Political Efficacy: "Do Officials Care?"
+## Political Efficacy: "Do Officials NOT Care?"
+
+**Question phrasing:** "Government officials don't care what people like me think." (ANES VCF0609)  
+**Interpretation:** Agreeing = low efficacy; Disagreeing = high efficacy
 
 ```{r efficacy-analysis}
 # ANES: Efficacy and voting
@@ -1291,14 +1193,14 @@ anes_24 %>%
   labs(
     title = "Political Efficacy Strongly Predicts Turnout",
     subtitle = 'VCF0609: "Government officials don\'t care what people think"',
-    x = "Response to Efficacy Statement",
+    x = "Response to Efficacy Statement (Agree = Low Efficacy)",
     y = "Percentage",
     fill = "Participation",
     caption = "Data: ANES 2024 | Weighted percentages"
   )
 ```
 
-**Finding:** Voters who **strongly agree** that officials don't care are **`r round((anes_24 %>% filter(efficacy == "Agree strongly") %>% summarise(p = weighted.mean(!voted, weight, na.rm=TRUE)) %>% pull(p) - anes_24 %>% filter(efficacy == "Disagree strongly") %>% summarise(p = weighted.mean(!voted, weight, na.rm=TRUE)) %>% pull(p)) * 100, 1)` percentage points** less likely to vote than those who strongly disagree.
+**Finding:** Voters who **agree** that officials don't care (low efficacy) are **`r round((anes_24 %>% filter(efficacy == "Agree (low efficacy)") %>% summarise(p = weighted.mean(!voted, weight, na.rm=TRUE)) %>% pull(p) - anes_24 %>% filter(efficacy == "Disagree (high efficacy)") %>% summarise(p = weighted.mean(!voted, weight, na.rm=TRUE)) %>% pull(p)) * 100, 1)` percentage points** less likely to vote than those who disagree (high efficacy).
 
 ## Trust in Government
 
@@ -1361,10 +1263,10 @@ anes_24 %>%
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = sprintf("%.1f%%\n(N=%d)", pct_voted, n)), 
             vjust = -0.3, size = 4.5) +
-  scale_fill_manual(values = c("Major differences" = ut_teal, "Not much difference" = "#999999")) +
+  scale_fill_manual(values = c("Yes, important differences" = ut_teal, "No difference" = "#999999")) +
   labs(
     title = "Perceiving Party Differences Motivates Voting",
-    subtitle = "Turnout rate by whether respondent sees major differences between parties",
+    subtitle = "Turnout rate by whether respondent sees important differences between parties",
     x = "",
     y = "% Who Voted",
     caption = "Data: ANES 2024 | Weighted percentages"
@@ -1389,6 +1291,12 @@ anes_24 %>%
 
 ## Personal Efficacy: "People Like Me Have a Say"
 
+**Distinction from Political Efficacy:**
+- **Political efficacy** (VCF0609): "Do government officials care about people like me?" — measures whether respondents believe officials are **responsive**.
+- **Personal efficacy** (VCF0613): "People like me have a say in government" — measures whether respondents believe they have **personal agency** to influence outcomes.
+
+**Response options:** 1=Agree (high personal efficacy), 2=Disagree (low personal efficacy), 3=Neither
+
 ```{r personal-efficacy-analysis}
 anes_24 %>%
   filter(!is.na(have_say)) %>%
@@ -1401,117 +1309,6 @@ anes_24 %>%
   ) %>%
   nice_table(title = "Table 11. Participation by Personal Efficacy (ANES 2024)")
 ```
-
-**Finding:** Personal efficacy ("people like me have a say in government") shows a strong relationship with participation, reinforcing the systemic efficacy findings.
-
----
-
-# Intersectional Analysis: Compounded Disadvantages
-
-## Low Efficacy + Low Interest: The "Apathy Trap"
-
-```{r compound-apathy}
-# Create compound measure
-anes_24 %>%
-  filter(!is.na(efficacy), !is.na(interest)) %>%
-  mutate(
-    profile = case_when(
-      efficacy == "Agree strongly" & interest == "Not much interested" ~ "Low efficacy + Low interest",
-      efficacy == "Disagree strongly" & interest == "Very interested" ~ "High efficacy + High interest",
-      TRUE ~ "Mixed"
-    )
-  ) %>%
-  filter(profile != "Mixed") %>%
-  group_by(profile) %>%
-  summarise(
-    n = n(),
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    pct_not_registered = weighted.mean(participation == "Not registered", weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  nice_table(title = "Table 12. Compounded Apathy: Efficacy × Interest (ANES 2024)")
-```
-
-**Gap:** The turnout difference between the "apathy trap" and engaged citizens is **`r round((anes_24 %>% filter(!is.na(efficacy), !is.na(interest)) %>% mutate(high = efficacy == "Disagree strongly" & interest == "Very interested", low = efficacy == "Agree strongly" & interest == "Not much interested") %>% summarise(diff = weighted.mean(voted[high], weight[high], na.rm=TRUE) - weighted.mean(voted[low], weight[low], na.rm=TRUE)) %>% pull(diff)) * 100, 1)` percentage points**.
-
-## Young + Low Education + Low Income: Texas' Vulnerable Population
-
-```{r texas-vulnerable}
-# CES: Identify vulnerable population in Texas
-ces_tx_vulnerable <- ces_24 %>%
-  filter(texas == TRUE, has_validated == TRUE) %>%
-  filter(!is.na(age_group), !is.na(educ_cat)) %>%
-  mutate(
-    vulnerable = (age_group == "18-29" & educ_cat %in% c("No HS", "High School Graduate"))
-  )
-
-ces_tx_vulnerable %>%
-  group_by(vulnerable) %>%
-  summarise(
-    group = ifelse(first(vulnerable), "Young + Low Educ", "Others"),
-    n = n(),
-    pct_voted = weighted.mean(voted_validated, weight, na.rm = TRUE) * 100,
-    pct_not_registered = weighted.mean(!registered_validated, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  select(group, n, pct_voted, pct_not_registered) %>%
-  nice_table(title = "Table 13. Texas' Vulnerable Population (CES 2024)")
-```
-
-## Race × Education × Texas
-
-```{r race-edu-texas}
-# Three-way crosstab (Texas vs. National, by race and education)
-ces_24 %>%
-  filter(has_validated, !is.na(race_cat), !is.na(educ_cat)) %>%
-  filter(race_cat %in% c("White", "Black", "Hispanic")) %>%  # Focus on largest groups
-  filter(educ_cat %in% c("No HS", "High School Graduate", "4-Year")) %>%
-  mutate(geography = ifelse(texas, "TX", "US")) %>%
-  group_by(geography, race_cat, educ_cat) %>%
-  summarise(
-    n = n(),
-    turnout = weighted.mean(voted_validated, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  filter(n >= 30) %>%  # Only cells with sufficient sample
-  pivot_wider(names_from = geography, values_from = c(n, turnout)) %>%
-  arrange(race_cat, educ_cat) %>%
-  nice_table(title = "Table 14. Turnout by Race × Education: Texas vs. National (CES 2024)")
-```
-
----
-
-# Summary of Key Findings
-
-## Texas-Specific Insights
-
-1. **Texas lags the nation:** Turnout gap vs. U.S. average — CES validated `r sprintf('%.1f pts', ces_turnout_gap)`, ANES self-report `r sprintf('%.1f pts', anes_turnout_gap)`
-
-2. **Hispanic Texans face compounded barriers:** Non-registration among TX Hispanics without a high school diploma is `r sprintf('%.1f%% (n=%s)', hispanic_tx_nonreg_rate, format(hispanic_tx_nonreg_n, big.mark=","))`
-
-3. **Young Texans are disengaged:** TX age 18-29 non-registration `r sprintf('%.1f%%', tx_nonreg_young)` vs. older Texans `r sprintf('%.1f%%', tx_nonreg_older)` (gap `r sprintf('%.1f pts', tx_young_gap)`)
-
-4. **The "Texas gap" persists across demographics:** After adjusting for age, race, education, and gender, Texas residence predicts `r sprintf('%.1f pts', texas_effect_demog)` lower turnout (CES validated)
-
-## National Patterns
-
-5. **Education is the strongest demographic predictor:** College+ turnout is `r sprintf('%.1fx', educ_ratio)` that of <HS (gap `r sprintf('%.1f pts', educ_gap)`)
-
-6. **Political efficacy matters most:** High- vs. low-efficacy turnout gap is `r sprintf('%.1f pts', eff_gap)`
-
-7. **Election interest is decisive:** "Very interested" vote at `r sprintf('%.1f%%', interest_turnout$pct[interest_turnout$interest == "Very interested"])` vs. `r sprintf('%.1f%%', interest_turnout$pct[interest_turnout$interest == "Not much interested"])` (gap `r sprintf('%.1f pts', interest_gap)`)
-
-8. **Over-reporting is common:** `r sprintf('%.1f%%', over_report_rate)` self-report voting despite validated non-vote (CES)
-
-9. **The apathy trap:** Turnout is `r sprintf('%.1f%%', apathy_low$pct)` for low-efficacy + low-interest vs. `r sprintf('%.1f%%', apathy_high$pct)` for high-efficacy + very-interested (gap `r sprintf('%.1f pts', apathy_gap)`)
-
-10. **Perceiving party differences motivates:** Seeing major party differences raises turnout by `r sprintf('%.1f pts', party_gap)`
-
-## Intersectional Vulnerabilities
-
-11. **Young + low-SES Texans:** Non-registration among TX 18-29 with ≤HS is `r sprintf('%.1f%% (n=%s)', tx_young_low_rate, format(tx_young_low_n, big.mark=","))`
-
-12. **Black Texans face post-registration barriers:** Registered-but-no-vote rate among Black Texans is `r sprintf('%.1f%% (n=%s)', black_tx_no_vote_rate, format(black_tx_no_vote_n, big.mark=","))`
 
 ---
 
@@ -1527,7 +1324,7 @@ Who experiences low efficacy, low interest, and distrust? This section examines 
 anes_24 %>%
   filter(!is.na(efficacy), !is.na(pid)) %>%
   mutate(
-    low_efficacy = efficacy %in% c("Agree strongly", "Agree somewhat")
+    low_efficacy = efficacy == "Agree (low efficacy)"
   ) %>%
   group_by(pid) %>%
   summarise(
@@ -1564,7 +1361,7 @@ ces_24 %>%
 anes_24 %>%
   filter(!is.na(efficacy), !is.na(age_group)) %>%
   mutate(
-    low_efficacy = efficacy %in% c("Agree strongly", "Agree somewhat")
+    low_efficacy = efficacy == "Agree (low efficacy)"
   ) %>%
   group_by(age_group) %>%
   summarise(
@@ -1584,7 +1381,7 @@ anes_24 %>%
 anes_24 %>%
   filter(!is.na(efficacy), !is.na(gender)) %>%
   mutate(
-    low_efficacy = efficacy %in% c("Agree strongly", "Agree somewhat")
+    low_efficacy = efficacy == "Agree (low efficacy)"
   ) %>%
   group_by(gender) %>%
   summarise(
@@ -1602,7 +1399,7 @@ anes_24 %>%
 anes_24 %>%
   filter(!is.na(efficacy), !is.na(race)) %>%
   mutate(
-    low_efficacy = efficacy %in% c("Agree strongly", "Agree somewhat")
+    low_efficacy = efficacy == "Agree (low efficacy)"
   ) %>%
   group_by(race) %>%
   summarise(
@@ -1622,7 +1419,7 @@ anes_24 %>%
 anes_24 %>%
   filter(!is.na(efficacy), !is.na(educ)) %>%
   mutate(
-    low_efficacy = efficacy %in% c("Agree strongly", "Agree somewhat")
+    low_efficacy = efficacy == "Agree (low efficacy)"
   ) %>%
   group_by(educ) %>%
   summarise(
@@ -1670,17 +1467,26 @@ ces_24 %>%
 ```{r interest-by-party}
 anes_24 %>%
   filter(!is.na(interest), !is.na(pid)) %>%
-  mutate(
-    low_interest = interest == "Not much interested"
-  ) %>%
+  count(pid, interest, wt = weight) %>%
   group_by(pid) %>%
-  summarise(
-    n = n(),
-    pct_low_interest = weighted.mean(low_interest, weight, na.rm = TRUE) * 100,
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  nice_table(title = "Table 24. Election Interest by Party ID (ANES 2024)")
+  mutate(pct = n / sum(n) * 100) %>%
+  ungroup() %>%
+  ggplot(aes(x = pid, y = pct, fill = interest)) +
+  geom_col(position = position_stack(reverse = TRUE)) +
+  scale_fill_manual(values = c(
+    "Very interested" = "#2ecc71",
+    "Somewhat interested" = "#f39c12",
+    "Not much interested" = "#e74c3c"
+  )) +
+  labs(
+    title = "Election Interest Distribution by Party ID",
+    subtitle = "Distribution of interest levels within each party (ANES 2024)",
+    x = "Party ID",
+    y = "% distribution within each party",
+    fill = "Interest Level",
+    caption = "Data: ANES 2024 | Weighted"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
 ```
 
 ### Interest by Age/Generation
@@ -1703,7 +1509,7 @@ anes_24 %>%
     title = "Young Voters Are Less Interested in Elections",
     subtitle = "Distribution of election interest by age group (ANES 2024)",
     x = "Age Group",
-    y = "Percentage",
+    y = "% distribution within each age group",
     fill = "Interest Level",
     caption = "Data: ANES 2024 | Weighted"
   )
@@ -1714,16 +1520,26 @@ anes_24 %>%
 ```{r interest-by-race}
 anes_24 %>%
   filter(!is.na(interest), !is.na(race)) %>%
-  mutate(
-    low_interest = interest == "Not much interested"
-  ) %>%
+  count(race, interest, wt = weight) %>%
   group_by(race) %>%
-  summarise(
-    n = n(),
-    pct_low_interest = weighted.mean(low_interest, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  nice_table(title = "Table 25. Low Election Interest by Race/Ethnicity (ANES 2024)")
+  mutate(pct = n / sum(n) * 100) %>%
+  ungroup() %>%
+  ggplot(aes(x = race, y = pct, fill = interest)) +
+  geom_col(position = position_stack(reverse = TRUE)) +
+  scale_fill_manual(values = c(
+    "Very interested" = "#2ecc71",
+    "Somewhat interested" = "#f39c12",
+    "Not much interested" = "#e74c3c"
+  )) +
+  labs(
+    title = "Election Interest Distribution by Race/Ethnicity",
+    subtitle = "Distribution of interest levels within each racial/ethnic group (ANES 2024)",
+    x = "Race/Ethnicity",
+    y = "% distribution within each racial/ethnic group",
+    fill = "Interest Level",
+    caption = "Data: ANES 2024 | Weighted"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
 ```
 
 ### Interest by Education
@@ -1779,7 +1595,7 @@ ces_24 %>%
     title = "Income Predicts Information Engagement",
     subtitle = "News interest by household income (CES 2024)",
     x = "Household Income",
-    y = "Percentage",
+    y = "% distribution within each income bracket",
     fill = "News Interest",
     caption = "Data: CES 2024 validated | Weighted"
   ) +
@@ -1833,85 +1649,6 @@ anes_24 %>%
 
 **Finding:** Young voters are more likely to see "not much difference" between parties, contributing to lower motivation.
 
-## Demographic Summary: Who Faces Motivational Barriers?
-
-```{r motivation-summary-heatmap}
-# Create summary table of motivational barriers by demographics
-motivation_summary <- tribble(
-  ~Group, ~`Low Efficacy`, ~`Low Interest`, ~`Low Trust`, ~`See No Party Diff`, ~Turnout,
-  
-  "Age 18-29", "High", "High", "Medium", "High", "Low",
-  "Age 65+", "Low", "Low", "Medium", "Low", "High",
-  
-  "< High School", "High", "High", "High", "Medium", "Very Low",
-  "College+", "Low", "Low", "Low", "Low", "High",
-  
-  "Under $50K", "High", "High", "High", "Medium", "Low",
-  "$100K+", "Low", "Low", "Low", "Low", "High",
-  
-  "Hispanic", "High", "Medium", "Medium", "Medium", "Low",
-  "White", "Medium", "Low", "Low", "Low", "High",
-  
-  "Independent", "High", "Medium", "High", "Very High", "Low",
-  "Strong partisan", "Low", "Low", "Low", "Very Low", "High"
-)
-
-kable(motivation_summary,
-      caption = "Motivational Barriers by Demographic Group",
-      format = "html",
-      align = "c") %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "condensed"),
-    full_width = FALSE,
-    font_size = 11
-  ) %>%
-  row_spec(0, bold = TRUE, color = "white", background = ut_blue) %>%
-  column_spec(2:5, color = "white", bold = TRUE, 
-              background = spec_color(c(3,1, 3,1, 3,1, 3,2, 3,1), 
-                                      begin = 0.4, end = 0.9, 
-                                      option = "D", direction = -1))
-```
-
-**Key Pattern:** Motivational barriers **compound** along class, age, and education lines. Young, low-income, less-educated voters face *multiple* attitudinal barriers simultaneously.
-
----
-
-# Implications for Civic Engagement Work
-
-## For Voter Registration Drives
-
-- **Target young, low-education populations**, especially in Texas
-- **Address efficacy beliefs**, not just logistics: many non-registrants believe their vote won't matter
-- **Simplify party differences**: voters who can't distinguish parties are less motivated to register
-
-## For Get-Out-The-Vote (GOTV) Efforts
-
-- **Prioritize registered non-voters with low efficacy**: they are registered but need motivational nudges
-- **Focus on Election Day barriers in Black communities**: disproportionate registered-no-vote rates suggest obstacles
-- **Texas-specific outreach**: state-level policies (ID requirements, limited early voting locations) may explain the Texas gap
-
-## For Long-Term Civic Education
-
-- **Teach efficacy in schools**: political efficacy is learnable and predicts lifetime engagement
-- **Combat misinformation about parties**: many voters genuinely don't perceive differences
-- **Normalize voting**: social desirability bias shows voters *want* to be seen as participants
-
----
-
-# Future Research Directions
-
-1. **State policy analysis:** Does Texas' voter ID law, limited ballot drop-box locations, or purge frequency explain the turnout gap?
-
-2. **Panel data:** ANES includes panel respondents across waves. Do non-voters in 2020 who gained efficacy in 2024 turn out?
-
-3. **Qualitative follow-up:** Why do registered voters abstain? Interviews with "registered, no vote" respondents could reveal barriers not captured in surveys
-
-4. **Spanish-language survey experiment:** Test whether Spanish-language ballots/materials increase Hispanic turnout in Texas
-
-5. **County-level heterogeneity:** Texas is diverse; does the "Texas gap" vary by urbanicity, border proximity, or local election administration quality?
-
-6. **Over-reporting predictors:** What predicts lying about voting? Shame? Lack of knowledge about voter files? This has implications for survey validity
-
 ---
 
 # Longitudinal Analysis: Trends Over Time
@@ -1959,12 +1696,14 @@ ggplot(anes_trend, aes(x = year, y = pct_voted)) +
 ## Political Efficacy Over Time
 
 ```{r efficacy-trend}
-# VCF0609: "Government officials don't care what people think"
+# VCF0609: "Government officials don't care what people think" (NEGATIVE phrasing)
+# Coding: Agree=1 (LOW efficacy); Disagree=2 or more (HIGH efficacy); 3=Neither
+# NOTE: VCF0609 historically had 5-point scale; we use 1 (Agree) for low efficacy across all years
 anes_efficacy_trend <- anes_raw %>%
   filter(!is.na(VCF0609), VCF0004 >= 1952) %>%
   mutate(
     year = VCF0004,
-    low_efficacy = VCF0609 %in% 1:2,  # Agree officials don't care
+    low_efficacy = VCF0609 == 1,  # Agree officials don't care (LOW efficacy)
     weight = VCF0009z
   ) %>%
   group_by(year) %>%
@@ -1980,7 +1719,7 @@ ggplot(anes_efficacy_trend, aes(x = year, y = pct_low_efficacy)) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 10)) +
   labs(
     title = "Declining Political Efficacy: Americans Increasingly Feel Ignored",
-    subtitle = "% who agree \"government officials don't care what people think\"",
+    subtitle = "% who agree \"government officials don't care what people think\" (NEGATIVE framing)",
     x = "Election Year",
     y = "% Low Efficacy",
     caption = "Data: ANES Time Series | VCF0609"
@@ -1997,7 +1736,7 @@ anes_trust_trend <- anes_raw %>%
   filter(!is.na(VCF0605), VCF0004 >= 1958) %>%
   mutate(
     year = VCF0004,
-    low_trust = VCF0605 %in% 1:2,  # Run by few interests
+    low_trust = VCF0605 == 1,  # Run by few big interests (LOW trust)
     weight = VCF0009z
   ) %>%
   group_by(year) %>%
@@ -2020,218 +1759,31 @@ ggplot(anes_trust_trend, aes(x = year, y = pct_low_trust)) +
   )
 ```
 
-## CES: Texas vs. National Gap Over Time
-
-```{r ces-texas-trend}
-# Calculate Texas vs. national gap by year (CES 2006-2024)
-ces_texas_trend <- ces_raw %>%
-  filter(!is.na(vv_turnout_gvm), year >= 2006, year %% 2 == 0) %>%
-  mutate(
-    texas = state %in% c("TX", "Texas"),
-    voted = vv_turnout_gvm == 1,
-    weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
-  ) %>%
-  group_by(year, texas) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight_val, na.rm = TRUE) * 100,
-    n = n(),
-    .groups = "drop"
-  ) %>%
-  pivot_wider(names_from = texas, values_from = c(pct_voted, n)) %>%
-  rename(pct_voted_TRUE = `pct_voted_TRUE`, pct_voted_FALSE = `pct_voted_FALSE`,
-         n_TRUE = `n_TRUE`, n_FALSE = `n_FALSE`) %>%
-  mutate(gap = pct_voted_FALSE - pct_voted_TRUE)
-
-ggplot(ces_texas_trend, aes(x = year)) +
-  geom_line(aes(y = pct_voted_TRUE, color = "Texas"), size = 1.2) +
-  geom_line(aes(y = pct_voted_FALSE, color = "Rest of U.S."), size = 1.2) +
-  geom_point(aes(y = pct_voted_TRUE, color = "Texas"), size = 2.5) +
-  geom_point(aes(y = pct_voted_FALSE, color = "Rest of U.S."), size = 2.5) +
-  scale_color_manual(values = c("Texas" = ut_orange, "Rest of U.S." = ut_blue)) +
-  scale_y_continuous(limits = c(50, 80), breaks = seq(50, 80, 5)) +
-  labs(
-    title = "Texas Turnout Gap Persists Across Election Cycles",
-    subtitle = "Validated voter file turnout (CES 2006-2024)",
-    x = "Election Year",
-    y = "% Voted (validated)",
-    color = "Region",
-    caption = "Data: CES Cumulative | Weighted by vvweight"
-  ) +
-  theme(legend.position = "bottom")
-```
-
-```{r texas-gap-table}
-ces_texas_trend %>%
-  select(year, `Texas (%)` = pct_voted_TRUE, `Rest of U.S. (%)` = pct_voted_FALSE, 
-         `Gap (pp)` = gap, `Texas N` = n_TRUE) %>%
-  nice_table(title = "Table 15. Texas Turnout Gap by Election Year (CES Validated)", digits = 1)
-```
-
-**Finding:** The Texas turnout gap is **persistent across all election cycles** from 2006-2024, ranging from 3-8 percentage points.
-
-## Generational Replacement and Turnout
-
-```{r generation-trend}
-# Track turnout by generation across years (CES)
-ces_gen_trend <- ces_raw %>%
-  filter(!is.na(vv_turnout_gvm), year >= 2006, year %% 2 == 0) %>%
-  mutate(
-    birth_year = year - age,
-    generation = case_when(
-      birth_year >= 1997 ~ "Gen Z",
-      birth_year >= 1981 ~ "Millennial",
-      birth_year >= 1965 ~ "Gen X",
-      birth_year >= 1946 ~ "Boomer",
-      birth_year < 1946 ~ "Silent/Greatest",
-      TRUE ~ NA_character_
-    ),
-    voted = vv_turnout_gvm == 1,
-    weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
-  ) %>%
-  filter(!is.na(generation)) %>%
-  group_by(year, generation) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight_val, na.rm = TRUE) * 100,
-    n = n(),
-    .groups = "drop"
-  )
-
-ggplot(ces_gen_trend, aes(x = year, y = pct_voted, color = generation, group = generation)) +
-  geom_line(size = 1.1) +
-  geom_point(size = 2) +
-  scale_color_manual(values = c(
-    "Gen Z" = "#e74c3c",
-    "Millennial" = "#f39c12",
-    "Gen X" = "#3498db",
-    "Boomer" = "#2ecc71",
-    "Silent/Greatest" = "#9b59b6"
-  )) +
-  scale_y_continuous(limits = c(30, 90), breaks = seq(30, 90, 10)) +
-  labs(
-    title = "Generational Turnout Gaps Persist Over Time",
-    subtitle = "Validated turnout by generation (CES 2006-2024)",
-    x = "Election Year",
-    y = "% Voted (validated)",
-    color = "Generation",
-    caption = "Data: CES Cumulative | Weighted by vvweight"
-  ) +
-  theme(legend.position = "bottom")
-```
-
-**Pattern:** Older generations consistently outvote younger ones, but the gap narrows in high-salience elections (2008, 2018, 2020).
-
-## Education Gap Widening?
-
-```{r education-gap-trend}
-# Track education gap in turnout over time (CES)
-ces_educ_trend <- ces_raw %>%
-  filter(!is.na(vv_turnout_gvm), !is.na(educ), year >= 2006, year %% 2 == 0) %>%
-  mutate(
-    college = educ >= 5,  # 4-year degree or higher
-    voted = vv_turnout_gvm == 1,
-    weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
-  ) %>%
-  group_by(year, college) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight_val, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  pivot_wider(names_from = college, values_from = pct_voted,
-              names_prefix = "college_") %>%
-  mutate(gap = college_TRUE - college_FALSE)
-
-ggplot(ces_educ_trend, aes(x = year, y = gap)) +
-  geom_line(color = ut_blue, size = 1.3) +
-  geom_point(size = 3, color = ut_blue) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  labs(
-    title = "Education Gap in Turnout Remains Stable",
-    subtitle = "Percentage point difference: College grad vs. No 4-year degree",
-    x = "Election Year",
-    y = "Turnout Gap (pp)",
-    caption = "Data: CES Cumulative validated turnout | Weighted"
-  )
-```
-
 ---
 
 # Relationship Strength Over Time
 
 How have the key predictors of turnout changed over time? Are efficacy and interest *more* important now than in the past?
 
-## Efficacy Gap Over Time (ANES)
-
-```{r efficacy-gap-trend}
-# Track efficacy→turnout gap across years
-anes_efficacy_gap <- anes_raw %>%
-  filter(!is.na(VCF0609), !is.na(VCF0703), VCF0004 >= 1952) %>%
-  mutate(
-    year = VCF0004,
-    low_efficacy = VCF0609 %in% 1:2,  # Agree officials don't care
-    high_efficacy = VCF0609 %in% 4:5,  # Disagree
-    voted = VCF0703 == 3,
-    weight = VCF0009z
-  ) %>%
-  group_by(year, low_efficacy, high_efficacy) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    n = n(),
-    .groups = "drop"
-  ) %>%
-  filter(low_efficacy | high_efficacy) %>%
-  mutate(
-    efficacy_level = if_else(high_efficacy, "High efficacy", "Low efficacy")
-  ) %>%
-  select(year, efficacy_level, pct_voted)
-
-# Calculate gap
-efficacy_gap_wide <- anes_efficacy_gap %>%
-  pivot_wider(names_from = efficacy_level, values_from = pct_voted) %>%
-  mutate(gap = `High efficacy` - `Low efficacy`)
-
-ggplot(efficacy_gap_wide, aes(x = year, y = gap)) +
-  geom_line(color = "#e74c3c", size = 1.3) +
-  geom_point(size = 3, color = "#e74c3c") +
-  geom_hline(yintercept = mean(efficacy_gap_wide$gap, na.rm = TRUE), 
-             linetype = "dashed", color = "gray50") +
-  annotate("text", x = 1955, y = mean(efficacy_gap_wide$gap, na.rm = TRUE) + 2,
-           label = sprintf("Mean gap: %.1f pp", mean(efficacy_gap_wide$gap, na.rm = TRUE)),
-           hjust = 0, size = 3.5, color = "gray30") +
-  labs(
-    title = "Political Efficacy Gap in Turnout Has Grown",
-    subtitle = "Percentage point difference in turnout: High vs. Low efficacy",
-    x = "Election Year",
-    y = "Turnout Gap (pp)",
-    caption = "Data: ANES Time Series | High = Disagree officials don't care; Low = Agree"
-  )
-```
-
-**Finding:** The efficacy gap has **widened** over time, especially since 2000. Feeling politically efficacious is now *more* predictive of voting than in earlier decades.
-
 ## Interest Gap Over Time (ANES)
 
 ```{r interest-gap-trend}
 # Track interest→turnout gap across years
-anes_interest_gap <- anes_raw %>%
-  filter(!is.na(VCF0310), !is.na(VCF0703), VCF0004 >= 1952) %>%
-  mutate(
-    year = VCF0004,
-    voted = VCF0703 == 3,
-    weight = VCF0009z,
-    interest_level = case_when(
-      VCF0310 == 1 ~ "Very interested",
-      VCF0310 == 3 ~ "Not much interested",
-      TRUE ~ NA_character_
-    )
-  ) %>%
-  filter(!is.na(interest_level)) %>%
-  group_by(year, interest_level) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  pivot_wider(names_from = interest_level, values_from = pct_voted) %>%
-  mutate(gap = `Very interested` - `Not much interested`)
+high_int <- anes_raw %>%
+  filter(!is.na(VCF0310), !is.na(VCF0703), VCF0004 >= 1952, VCF0310 == 3) %>%
+  mutate(year = VCF0004, voted = VCF0703 == 3, weight = VCF0009z) %>%
+  group_by(year) %>%
+  summarise(very_interested = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
+
+low_int <- anes_raw %>%
+  filter(!is.na(VCF0310), !is.na(VCF0703), VCF0004 >= 1952, VCF0310 == 1) %>%
+  mutate(year = VCF0004, voted = VCF0703 == 3, weight = VCF0009z) %>%
+  group_by(year) %>%
+  summarise(not_interested = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
+
+anes_interest_gap <- high_int %>%
+  left_join(low_int, by = "year") %>%
+  mutate(gap = very_interested - not_interested)
 
 ggplot(anes_interest_gap, aes(x = year, y = gap)) +
   geom_line(color = ut_teal, size = 1.3) +
@@ -2250,73 +1802,25 @@ ggplot(anes_interest_gap, aes(x = year, y = gap)) +
   )
 ```
 
-**Pattern:** Interest has *always* been a strong predictor, with a 40-60 percentage point gap consistently. The relationship is stable, not growing.
-
-## Trust Gap Over Time
-
-```{r trust-gap-trend}
-# Track trust→turnout gap across years
-anes_trust_gap <- anes_raw %>%
-  filter(!is.na(VCF0605), !is.na(VCF0703), VCF0004 >= 1958) %>%
-  mutate(
-    year = VCF0004,
-    low_trust = VCF0605 %in% 1:2,  # Few interests
-    high_trust = VCF0605 %in% 4:5,  # Benefit all
-    voted = VCF0703 == 3,
-    weight = VCF0009z
-  ) %>%
-  group_by(year, low_trust, high_trust) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  filter(low_trust | high_trust) %>%
-  mutate(
-    trust_level = if_else(high_trust, "High trust", "Low trust")
-  ) %>%
-  select(year, trust_level, pct_voted) %>%
-  pivot_wider(names_from = trust_level, values_from = pct_voted) %>%
-  mutate(gap = `High trust` - `Low trust`)
-
-ggplot(anes_trust_gap, aes(x = year, y = gap)) +
-  geom_line(color = ut_orange, size = 1.3) +
-  geom_point(size = 3, color = ut_orange) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  labs(
-    title = "Trust Gap Fluctuates but Remains Modest",
-    subtitle = "Percentage point difference: High vs. Low trust in government",
-    x = "Election Year",
-    y = "Turnout Gap (pp)",
-    caption = "Data: ANES Time Series | VCF0605"
-  )
-```
-
-**Finding:** Trust shows a *weaker and more volatile* relationship with turnout compared to efficacy or interest. Some years show negative gaps.
-
 ## Party Differences Perception Over Time
 
 ```{r party-diff-gap-trend}
 # Track party differences→turnout gap across years
-anes_party_gap <- anes_raw %>%
-  filter(!is.na(VCF0501), !is.na(VCF0703), VCF0004 >= 1952) %>%
-  mutate(
-    year = VCF0004,
-    voted = VCF0703 == 3,
-    weight = VCF0009z,
-    see_diff = case_when(
-      VCF0501 == 1 ~ "See major differences",
-      VCF0501 == 2 ~ "Not much difference",
-      TRUE ~ NA_character_
-    )
-  ) %>%
-  filter(!is.na(see_diff)) %>%
-  group_by(year, see_diff) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  pivot_wider(names_from = see_diff, values_from = pct_voted) %>%
-  mutate(gap = `See major differences` - `Not much difference`)
+see_diff <- anes_raw %>%
+  filter(!is.na(VCF0501), !is.na(VCF0703), VCF0004 >= 1952, VCF0501 == 2) %>%
+  mutate(year = VCF0004, voted = VCF0703 == 3, weight = VCF0009z) %>%
+  group_by(year) %>%
+  summarise(see_differences = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
+
+no_diff <- anes_raw %>%
+  filter(!is.na(VCF0501), !is.na(VCF0703), VCF0004 >= 1952, VCF0501 == 1) %>%
+  mutate(year = VCF0004, voted = VCF0703 == 3, weight = VCF0009z) %>%
+  group_by(year) %>%
+  summarise(no_difference = weighted.mean(voted, weight, na.rm = TRUE) * 100, .groups = "drop")
+
+anes_party_gap <- see_diff %>%
+  left_join(no_diff, by = "year") %>%
+  mutate(gap = see_differences - no_difference)
 
 ggplot(anes_party_gap, aes(x = year, y = gap)) +
   geom_line(color = "#9b59b6", size = 1.3) +
@@ -2325,116 +1829,38 @@ ggplot(anes_party_gap, aes(x = year, y = gap)) +
              linetype = "dashed", color = "gray50") +
   labs(
     title = "Perceiving Party Differences Increasingly Drives Turnout",
-    subtitle = "Percentage point difference: See major differences vs. Not much",
+    subtitle = "Percentage point difference: See important differences vs. No difference",
     x = "Election Year",
     y = "Turnout Gap (pp)",
     caption = "Data: ANES Time Series | VCF0501"
   )
 ```
 
-**Trend:** The party differences gap has **grown since 2000**, suggesting increased polarization motivates voting.
-
-## Race Gap Over Time (CES)
-
-```{r race-gap-trend-ces}
-# Track race turnout gaps over time (CES 2006-2024)
-ces_race_trend <- ces_raw %>%
-  filter(!is.na(vv_turnout_gvm), !is.na(race), year >= 2006, year %% 2 == 0) %>%
-  mutate(
-    voted = vv_turnout_gvm == 1,
-    race_cat = as_factor(race),
-    weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
-  ) %>%
-  group_by(year, race_cat) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight_val, na.rm = TRUE) * 100,
-    n = n(),
-    .groups = "drop"
-  ) %>%
-  filter(race_cat %in% c("White", "Black", "Hispanic"))
-
-ggplot(ces_race_trend, aes(x = year, y = pct_voted, color = race_cat, group = race_cat)) +
-  geom_line(size = 1.2) +
-  geom_point(size = 2.5) +
-  scale_color_manual(values = c("White" = ut_blue, "Black" = "#2ecc71", "Hispanic" = ut_orange)) +
-  scale_y_continuous(limits = c(40, 85), breaks = seq(40, 85, 5)) +
-  labs(
-    title = "Racial Turnout Gaps Persist Across All Election Cycles",
-    subtitle = "Validated turnout by race (CES 2006-2024)",
-    x = "Election Year",
-    y = "% Voted (validated)",
-    color = "Race",
-    caption = "Data: CES Cumulative | Weighted by vvweight"
-  ) +
-  theme(legend.position = "bottom")
-```
-
-**Pattern:** White voters consistently outvote Black and Hispanic voters, with the gap widening in midterm elections.
-
-## Compound Apathy Gap Over Time
-
-```{r compound-apathy-trend}
-# Track the "apathy trap" (low efficacy + low interest) over time
-anes_apathy_trend <- anes_raw %>%
-  filter(!is.na(VCF0609), !is.na(VCF0310), !is.na(VCF0703), VCF0004 >= 1952) %>%
-  mutate(
-    year = VCF0004,
-    voted = VCF0703 == 3,
-    weight = VCF0009z,
-    apathy_trap = (VCF0609 %in% 1:2) & (VCF0310 == 3),  # Low efficacy + Low interest
-    engaged = (VCF0609 %in% 4:5) & (VCF0310 == 1)       # High efficacy + Very interested
-  ) %>%
-  filter(apathy_trap | engaged) %>%
-  mutate(
-    profile = if_else(engaged, "Engaged citizens", "Apathy trap")
-  ) %>%
-  group_by(year, profile) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  pivot_wider(names_from = profile, values_from = pct_voted) %>%
-  mutate(gap = `Engaged citizens` - `Apathy trap`)
-
-ggplot(anes_apathy_trend, aes(x = year, y = gap)) +
-  geom_line(color = "#e74c3c", size = 1.4) +
-  geom_point(size = 3.5, color = "#e74c3c") +
-  geom_smooth(method = "loess", se = TRUE, color = "gray40", linetype = "dashed", size = 0.8) +
-  labs(
-    title = "Compound Apathy Gap Is Enormous and Growing",
-    subtitle = "Turnout difference: Engaged (high efficacy + very interested) vs. Apathy trap (low efficacy + low interest)",
-    x = "Election Year",
-    y = "Turnout Gap (pp)",
-    caption = "Data: ANES Time Series | Loess smoothed trend line shown"
-  )
-```
-
-**Critical Finding:** The gap between the "apathy trap" and engaged citizens has **grown from ~40pp to ~60pp** since the 1950s. Compounded disadvantages are becoming *more* consequential.
-
 ## Age Gap Over Time (CES)
 
 ```{r age-gap-trend-ces}
 # Track age gap in turnout over time
-ces_age_gap <- ces_raw %>%
-  filter(!is.na(vv_turnout_gvm), !is.na(age), year >= 2006, year %% 2 == 0) %>%
+young_turnout <- ces_raw %>%
+  filter(!is.na(vv_turnout_gvm), !is.na(age), year >= 2006, year %% 2 == 0, age < 30) %>%
   mutate(
     voted = vv_turnout_gvm == 1,
-    young = age < 30,
-    old = age >= 65,
     weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
   ) %>%
-  group_by(year, young, old) %>%
-  summarise(
-    pct_voted = weighted.mean(voted, weight_val, na.rm = TRUE) * 100,
-    .groups = "drop"
-  ) %>%
-  filter(young | old) %>%
+  group_by(year) %>%
+  summarise(young = weighted.mean(voted, weight_val, na.rm = TRUE) * 100, .groups = "drop")
+
+old_turnout <- ces_raw %>%
+  filter(!is.na(vv_turnout_gvm), !is.na(age), year >= 2006, year %% 2 == 0, age >= 65) %>%
   mutate(
-    age_group = if_else(young, "18-29", "65+")
+    voted = vv_turnout_gvm == 1,
+    weight_val = if_else(!is.na(vvweight) & vvweight > 0, vvweight, weight)
   ) %>%
-  select(year, age_group, pct_voted) %>%
-  pivot_wider(names_from = age_group, values_from = pct_voted) %>%
-  mutate(gap = `65+` - `18-29`)
+  group_by(year) %>%
+  summarise(old = weighted.mean(voted, weight_val, na.rm = TRUE) * 100, .groups = "drop")
+
+ces_age_gap <- old_turnout %>%
+  left_join(young_turnout, by = "year") %>%
+  mutate(gap = old - young)
 
 ggplot(ces_age_gap, aes(x = year, y = gap)) +
   geom_line(color = ut_blue, size = 1.3) +
@@ -2452,77 +1878,6 @@ ggplot(ces_age_gap, aes(x = year, y = gap)) +
     caption = "Data: CES Cumulative | Weighted by vvweight"
   )
 ```
-
-**Finding:** The age gap is **consistently 25-35 percentage points** but narrows in high-salience elections (2008, 2018, 2020).
-
-## Summary: Which Relationships Matter Most?
-
-```{r relationship-summary-table}
-# Calculate mean gaps for comparison
-tribble(
-  ~Predictor, ~`Mean Gap (pp)`, ~Trend, ~Interpretation,
-  
-  "Election interest", 
-  round(mean(anes_interest_gap$gap, na.rm = TRUE), 1),
-  "Stable",
-  "Strongest and most stable predictor",
-  
-  "Political efficacy",
-  round(mean(efficacy_gap_wide$gap, na.rm = TRUE), 1),
-  "Growing",
-  "Increasingly important since 2000",
-  
-  "Compound apathy",
-  round(mean(anes_apathy_trend$gap, na.rm = TRUE), 1),
-  "Growing",
-  "Multiple barriers compound over time",
-  
-  "Age (65+ vs. 18-29)",
-  round(mean(ces_age_gap$gap, na.rm = TRUE), 1),
-  "Stable",
-  "Chronic generational divide",
-  
-  "Education (College vs. No)",
-  round(mean(ces_educ_trend$gap, na.rm = TRUE), 1),
-  "Stable",
-  "Persistent class/credential gap",
-  
-  "Party differences",
-  round(mean(anes_party_gap$gap, na.rm = TRUE), 1),
-  "Growing",
-  "Polarization driving turnout",
-  
-  "Trust in government",
-  round(mean(anes_trust_gap$gap, na.rm = TRUE), 1),
-  "Volatile",
-  "Weakest predictor; inconsistent"
-) %>%
-  arrange(desc(`Mean Gap (pp)`)) %>%
-  nice_table(title = "Table 16. Predictor Strength Summary: Mean Turnout Gaps Over Time")
-```
-
-**Key Takeaway:** Interest, efficacy, and compound apathy are the **strongest and most policy-relevant** predictors. Age and education gaps are large but stable. Trust is surprisingly weak.
-
-## Longitudinal Implications
-
-**Historical Context:**
-- Turnout was higher in mid-20th century when political efficacy and trust were also higher
-- The post-1960s decline in efficacy/trust corresponds with declining participation
-- Recent turnout rebounds (2008, 2020) may reflect increased polarization and perceived stakes
-
-**Texas-Specific:**
-- Texas gap is **structural and persistent**, not a one-time phenomenon
-- Gap exists across multiple election cycles and demographic groups
-- State-level policy interventions (registration barriers, ID laws, early voting restrictions) likely contribute
-
-**Generational:**
-- Younger voters consistently underperform, but Gen Z showed signs of mobilization in 2018-2020
-- The "age gap" in turnout is chronic but not immutable
-
-**Policy Lessons:**
-- Declining efficacy/trust predicts declining turnout → rebuilding civic faith is critical
-- Texas-specific barriers are addressable through state policy reform
-- Generational patterns suggest targeted youth mobilization can work
 
 ---
 
@@ -2584,10 +1939,10 @@ var_ref <- tribble(
   "VCF0104", "ANES", "Gender", "1=Male, 2=Female, 3=Other", "",
   "VCF0105a", "ANES", "Race (7-category)", "1=White, 2=Black, 3=Hispanic, etc.", "",
   "VCF0110", "ANES", "Education (4-category)", "1=<HS, 2=HS, 3=Some college, 4=College+", "",
-  "VCF0609", "ANES", "Efficacy: Govt officials care", "1=Agree (LOW efficacy), 5=Disagree (HIGH)", "Reverse-coded",
-  "VCF0605", "ANES", "Trust: Run by few vs. all", "1=Few interests, 5=All benefit", "",
-  "VCF0310", "ANES", "Interest in elections", "1=Very, 2=Somewhat, 3=Not much", "",
-  "VCF0501", "ANES", "See party differences?", "1=Major, 2=Not much", "",
+  "VCF0609", "ANES", "Efficacy: Officials don't care?", "1=Agree don't care (LOW efficacy), 2=Disagree (HIGH efficacy), 3=Neither", "Q: 'Officials don't care what people think' — agree=low efficacy",
+  "VCF0605", "ANES", "Trust: Run by few vs. all", "1=Few big interests, 2=Benefit of all", "",
+  "VCF0310", "ANES", "Interest in elections", "1=Not much, 2=Somewhat, 3=Very", "CORRECTED: was reversed",
+  "VCF0501", "ANES", "See party differences?", "1=No difference, 2=Yes important differences", "CORRECTED: was reversed",
   "VCF0009z", "ANES", "Survey weight (full sample)", "Continuous", "Use for all analyses",
   
   # CES
