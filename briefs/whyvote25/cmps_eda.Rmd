@@ -1,0 +1,143 @@
+---
+title: "Voter Apathy and Non-Participation in the 2024 U.S. General Election"
+subtitle: "An Exploratory Analysis with Focus on Texas"
+author: "Annette Strauss Institute for Civic Life, University of Texas at Austin"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    code_folding: hide
+    fig_width: 11
+    fig_height: 7
+    df_print: paged
+---
+
+<style>
+.main-container {
+  max-width: 1400px;
+}
+body {
+  font-size: 11pt;
+}
+h1 {
+  color: #BF5700;
+  border-bottom: 2px solid #BF5700;
+  padding-bottom: 10px;
+}
+h2 {
+  color: #005F86;
+}
+.caption {
+  font-style: italic;
+  color: #666;
+  font-size: 0.9em;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE,
+  fig.align = "center",
+  cache = FALSE
+)
+
+# Load packages
+library(tidyverse)
+library(haven)
+library(labelled)
+library(survey)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(forcats)
+
+
+# Set UT Austin branding colors
+ut_orange <- "#BF5700"
+ut_blue <- "#005F86"
+ut_teal <- "#00A9B7"
+ut_gray <- "#666666"
+
+# Custom ggplot theme
+theme_asi <- function() {
+  theme_minimal(base_size = 11) +
+    theme(
+      plot.title = element_text(face = "bold", size = 13, color = ut_blue),
+      plot.subtitle = element_text(size = 10, color = ut_gray, margin = margin(b = 10)),
+      plot.caption = element_text(size = 8, color = ut_gray, hjust = 0),
+      axis.title = element_text(size = 10, face = "bold"),
+      legend.position = "bottom",
+      legend.title = element_text(face = "bold", size = 9),
+      strip.text = element_text(face = "bold", size = 10, color = ut_blue),
+      strip.background = element_rect(fill = "gray95", color = NA),
+      panel.grid.minor = element_blank(),
+      panel.border = element_rect(color = "gray80", fill = NA)
+    )
+}
+
+theme_set(theme_asi())
+
+# Color palette for participation
+part_colors <- c(
+  "Voted" = "#2ecc71",
+  "Registered, no vote" = "#f39c12", 
+  "Not registered" = "#e74c3c"
+)
+
+# Helper: Create publication-ready tables with sample sizes
+nice_table <- function(df, title = NULL, digits = 2, include_n = TRUE) {
+  raw_names <- names(df)
+  pretty_names <- raw_names %>%
+    str_replace_all("_", " ") %>%
+    str_replace("^pct ", "") %>%
+    str_replace("^pct", "") %>%
+    str_replace("^n ", "N ")
+  pct_cols <- str_detect(raw_names, "^pct[_ ]")
+  pretty_names[pct_cols] <- paste0(pretty_names[pct_cols], " (%)")
+  pretty_names[str_detect(raw_names, "^n[_ ]")] <- str_replace(pretty_names[str_detect(raw_names, "^n[_ ]")], "^n ", "N ")
+
+  df %>%
+    mutate(across(where(is.numeric), ~ round(., digits = digits))) %>%
+    kable(
+      caption = title, 
+      col.names = pretty_names,
+      format = "html",
+      booktabs = TRUE,
+      align = "c"
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      position = "left",
+      font_size = 11
+    ) %>%
+    row_spec(0, bold = TRUE, color = "white", background = ut_blue)
+}
+
+# Helper: Format percentages
+fmt_pct <- function(x, digits = 1) {
+  paste0(round(x * 100, digits), "%")
+}
+
+````
+
+```{r data-precompute, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+cmps_path <- "cmps_data/cmps2024_fulladult_112425.csv"
+cmps_raw <- read.csv(cmps_path)
+
+# CMPS Prep
+cmps_24 <- cmps_raw %>%
+  mutate(
+    state = s21, 
+    texas = (state == 44)
+    )
+
+
+````
