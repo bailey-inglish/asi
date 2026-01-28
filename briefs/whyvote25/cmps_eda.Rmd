@@ -38,7 +38,7 @@ h2 {
 }
 </style>
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(
   echo = TRUE, 
   warning = FALSE, 
@@ -126,18 +126,122 @@ fmt_pct <- function(x, digits = 1) {
   paste0(round(x * 100, digits), "%")
 }
 
-````
+```
 
 ```{r data-precompute, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
 cmps_path <- "cmps_data/cmps2024_fulladult_112425.csv"
 cmps_raw <- read.csv(cmps_path)
 
-# CMPS Prep
+# CMPS Prep Relabelling variables used in eda
 cmps_24 <- cmps_raw %>%
   mutate(
     state = s21, 
-    texas = (state == 44)
-    )
+    texas = (state == 44), 
+    vote24 = case_when(
+      q12 == 1 ~ "I did not vote",
+      q12 == 2 ~ "I don't think I voted",
+      q12 == 3 ~ "I think I voted",
+      q12 == 4 ~ "I definitely voted",
+      TRUE ~ NA_character_
+    ),
+    registered = case_when(
+      s27 == 1 ~ "Registered",
+      s27 == 2 ~ "Not registered",
+      s27 == 3 ~  "Not eligible to register",
+      TRUE ~ NA_character_
+    ),
+    age_group = case_when(
+    agecat == 1 ~ "16-17"
+    agecat == 2 ~ "18-29",
+    agecat == 3 ~ "30-44",
+    agecat == 4 ~ "45-64", 
+    agecat == 5 ~ "65+",
+    TRUE ~ NA_character_
+    ),
+    race_id = case_when( 
+    qraceid == 1 ~ "White",
+    qraceid == 2 ~ "Latino",
+    qraceid == 3 ~ "Black",
+    qraceid == 4 ~ "Asian",
+    qraceid == 5 ~ "Native",
+    qraceid == 6 ~ "MENA",
+    qraceid == 7 ~ "NHPI"),
+    hhi = case_when(
+      hhinc == 1 ~ "Under $39k",
+      hhinc == 2 ~ "$40k - $590k",
+      hhinc == 3 ~ "$60k - $99k",
+      hhinc == 4 ~ "Over $100k",
+      hhinc == 5 ~ "DK",
+      TRUE ~ NA_character_
+    ),
+    educ = case_when(
+      s17 == 1 ~ "Grade 1-8",
+      s17 == 2 ~ "Some HS",
+      s17 == 3 ~ "GED",
+      s17 == 4 ~ "Some college",
+      s17 == 5 ~ "AA/Tech",
+      s17 == 6 ~ "BA/BS",
+      s17 == 7 ~ "Postgrad Degree",
+      TRUE ~ NA_character_
+    ),
+    educat = case_when(
+      educat == 1 ~ "HS or less"
+      educat == 2 ~ "Some college",
+      educat == 4 ~ "4yr degree"
+      ),
+      ideology = case_when(
+        q8 == 1 ~ "Very liberal", 
+        q8 == 2 ~ "Liberal",
+        q8 == 3 ~ "Moderate but lean Liberal",
+        q8 == 4 ~ "Moderate",
+        q8 == 5 ~ "Moderate but lean Conservative",
+        q8 == 6 ~ "Conservative",
+        q8 == 7 ~ "Very conservative",
+        q8 == 8 ~ "I don't think of myself in these terms",
+        TRUE ~ NA_character_
+      ),
+    election_interest = case_when(
+      q25b == 1 ~ "Daily",
+      q25b == 2 ~ "Many days but not daily",
+      q25b == 3 ~ "Some days",
+      q25b == 4 ~ "Occasionally, not a lot",
+      q25b == 5 ~ "Never, or avoided it",
+      TRUE ~ NA_character_
+    ),
+    gender = case_when(
+      s14 == 1 ~ "Male",
+      s14 == 2 ~ "Woman",
+      s14 == 3 ~ "Non-binary",
+      TRUE ~ NA_character_
+    ),
+    party4cat = s28,
+    dem_satisfied = q1, 
+    ft_democrats = q3r1,
+    ft_republicans = q3r2,
+    ft_independents = q3r3,
+    ft_nonvoters = q3r4,
+    ft_black = q3r5,
+    ft_white = q3r6,
+    ft_hisp = q3r7,
+    ft_asian = q3r8,
+    ft_mena = q3r9,
+    ft_native = q3r10,
+    ft_muslim = q3r11,
+    ft_christian = q3r13,
+    ft_gaylesbian = q3r14,
+    ft_trans = q3r15,
+    ft_undoc = q3r16,
+    ft_jan6 = q3r17,
+    ft_blmprotest = q3r18,
+    ft_palestineprotest = q3r19,
+    ft_trump = q4r1,
+    ft_biden = q4r2,
+    ft_harris = q4r3,
+    ft_pence = q4r4,
+    ft_obama = q4r5,
+    ft_newsome = q4r6,
+    ft_musk = q4r7,
+    ft_netanyahu = q4r8,
 
 
-````
+```
