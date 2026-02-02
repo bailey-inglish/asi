@@ -241,7 +241,7 @@ cmps_24 <- cmps_raw %>%
     ft_obama = q4r5,
     ft_newsome = q4r6,
     ft_musk = q4r7,
-    ft_netanyahu = q4r8,
-
+    ft_netanyahu = q4r8),
+    
 
 ```
