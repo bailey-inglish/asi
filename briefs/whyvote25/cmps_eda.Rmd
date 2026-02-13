@@ -128,9 +128,17 @@ fmt_pct <- function(x, digits = 1) {
 
 ```
 
-```{r data-precompute, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+```{r data-precompute, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 cmps_path <- "cmps_data/cmps2024_fulladult_112425.csv"
 cmps_raw <- read.csv(cmps_path)
+
+# Diagnostic: Check if agecat exists and its values
+cat("Age variable check:\n")
+cat("agecat exists:", "agecat" %in% names(cmps_raw), "\n")
+if("agecat" %in% names(cmps_raw)) {
+  cat("agecat values:\n")
+  print(table(cmps_raw$agecat, useNA = "ifany"))
+}
 
 # CMPS Prep Relabelling variables used in eda
 cmps_24 <- cmps_raw %>%
@@ -144,6 +152,12 @@ cmps_24 <- cmps_raw %>%
       q12 == 4 ~ "I definitely voted",
       TRUE ~ NA_character_
     ),
+    vote24_binary = case_when(
+    vote24 == "I did not vote" ~ 0,
+    vote24 == "I don't think I voted" ~ 0,
+    vote24 == "I think I voted" ~ 1,
+    vote24 == "I definitely voted" ~ 1,
+    TRUE ~ NA_real_),
     registered = case_when(
       s27 == 1 ~ "Registered",
       s27 == 2 ~ "Not registered",
@@ -151,7 +165,7 @@ cmps_24 <- cmps_raw %>%
       TRUE ~ NA_character_
     ),
     age_group = case_when(
-    agecat == 1 ~ "16-17"
+    agecat == 1 ~ "16-17",
     agecat == 2 ~ "18-29",
     agecat == 3 ~ "30-44",
     agecat == 4 ~ "45-64", 
@@ -185,21 +199,22 @@ cmps_24 <- cmps_raw %>%
       TRUE ~ NA_character_
     ),
     educat = case_when(
-      educat == 1 ~ "HS or less"
-      educat == 2 ~ "Some college",
-      educat == 4 ~ "4yr degree"
-      ),
-      ideology = case_when(
-        q8 == 1 ~ "Very liberal", 
-        q8 == 2 ~ "Liberal",
-        q8 == 3 ~ "Moderate but lean Liberal",
-        q8 == 4 ~ "Moderate",
-        q8 == 5 ~ "Moderate but lean Conservative",
-        q8 == 6 ~ "Conservative",
-        q8 == 7 ~ "Very conservative",
-        q8 == 8 ~ "I don't think of myself in these terms",
-        TRUE ~ NA_character_
-      ),
+      s17 %in% c(1, 2, 3) ~ "HS or less",
+      s17 %in% c(4, 5) ~ "Some college",
+      s17 %in% c(6, 7) ~ "4yr degree",
+      TRUE ~ NA_character_
+    ),
+    ideology = case_when(
+      q8 == 1 ~ "Very liberal", 
+      q8 == 2 ~ "Liberal",
+      q8 == 3 ~ "Moderate but lean Liberal",
+      q8 == 4 ~ "Moderate",
+      q8 == 5 ~ "Moderate but lean Conservative",
+      q8 == 6 ~ "Conservative",
+      q8 == 7 ~ "Very conservative",
+      q8 == 8 ~ "I don't think of myself in these terms",
+      TRUE ~ NA_character_
+    ),
     election_interest = case_when(
       q25b == 1 ~ "Daily",
       q25b == 2 ~ "Many days but not daily",
@@ -241,7 +256,68 @@ cmps_24 <- cmps_raw %>%
     ft_obama = q4r5,
     ft_newsome = q4r6,
     ft_musk = q4r7,
-    ft_netanyahu = q4r8),
-    
+    ft_netanyahu = q4r8)
 
+# Diagnostic: Check age_group after creation
+cat("\nage_group after creation:\n")
+print(table(cmps_24$age_group, useNA = "ifany"))
+
+# Diagnostic: Check vote24_binary and weights
+cat("\nvote24_binary distribution:\n")
+print(table(cmps_24$vote24_binary, useNA = "ifany"))
+cat("\nWeight variable (wt_adult_ps) summary:\n")
+print(summary(cmps_24$wt_adult_ps))
+
+# Turnout by Age
+pct_turnout_by_age <- cmps_24 %>%
+  filter(!is.na(age_group), !is.na(vote24_binary), !is.na(wt_adult_ps)) %>%
+  group_by(age_group) %>%
+  summarise(
+    n = n(),
+    pct = weighted.mean(vote24_binary, wt_adult_ps) * 100, 
+    .groups = "drop"
+  )
+
+# Show the result
+cat("\nTurnout by age result:\n")
+print(pct_turnout_by_age)
+
+# Turnout by Race / Ethnic ID
+pct_turnout_by_race <- cmps_24 %>%
+  filter(!is.na(race_id), !is.na(vote24_binary), !is.na(wt_adult_ps)) %>%
+  group_by(race_id) %>%
+  summarise(
+    n = n(),
+    pct = weighted.mean(vote24_binary, wt_adult_ps) * 100, 
+    .groups = "drop"
+  )
+cat("\nTurnout by race result:\n")
+print(pct_turnout_by_race)
+table(cmps_24$race_id, cmps_24$vote24_binary)
+
+# Texas subsample
+cmps_24_tx <- cmps_24 %>%
+  filter(state == 48)
+
+# Diagnostic: Check Texas subsample size
+cat("\nTexas subsample:\n")
+cat("Total TX respondents:", nrow(cmps_24_tx), "\n")
+cat("TX as % of total sample:", round(nrow(cmps_24_tx) / nrow(cmps_24) * 100, 1), "%\n")
+````
+
+# Variable Reference Table
+
+```{r var-table, echo=FALSE}
+var_ref <- tribble(
+  ~Variable, ~Source, ~Definition, ~Coding, ~Note,
+  
+# CMPS 2024
+  "vote24_binary", "CMPS", "Self-reported turnout (binary)", "0=No, 1=Yes", "Primary outcome",
+  )
+  
+)
+
+var_ref %>%
+  nice_table(title = "Complete Variable Reference")
 ```
+

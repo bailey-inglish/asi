@@ -1965,6 +1965,7 @@ var_ref %>%
   nice_table(title = "Complete Variable Reference")
 ```
 
+
 ---
 
 # Reproducibility Statement
