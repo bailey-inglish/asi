@@ -1,12 +1,3 @@
-cps_*****.dat
 .shiny-token.csv
-ces/*.rds
-*/final_data
-*/raw_data
-*.json
-midnight_sun/*/*.csv
-midnight_sun/*.csv
-****/products/*
-briefs/*/*/*.csv
-briefs/gerry25/raw_data
-*/*/raw_data/*
+briefs/thirdplace26/raw_data/ces.dta
+briefs/whyvote25/raw_data/ces.dta
