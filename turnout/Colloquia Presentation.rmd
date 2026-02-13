@@ -1,0 +1,123 @@
+---
+title: "CPS Data and Voting Representation"
+author: "Bailey Inglish"
+date: "October 11, 2024"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+## Question 2: 2008 vs. 2010 & The Youth Vote
+
+```{r echo = FALSE, message = FALSE, dpi = 300}
+library(tidyverse)
+library(kableExtra)
+library(forcats)
+
+cps <- read_csv("C:/Users/baile/Desktop/asi/cps_cleaning/final_data/cps_clean_ipums_2008-2022.csv")
+
+age_power_groups <- cps %>%
+  group_by(age_cluster, YEAR) %>%
+  reframe(
+    vep_in_group = round(sum(adj_vosuppwt), 2),
+    voters_in_group = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+  ) %>%
+  left_join(
+    group_by(cps, YEAR) %>%
+      summarize(
+        total_vep = round(sum(adj_vosuppwt), 2),
+        total_voters = round(sum(adj_vosuppwt * (VOTED == 2)), 2)
+      ),
+    by = "YEAR"
+  ) %>%
+  mutate(
+    pct_of_ve_population = 100 * round(vep_in_group / total_vep, 3),
+    pct_of_electorate = 100 * round(voters_in_group / total_voters, 3),
+    vri = 100 * round((pct_of_electorate - pct_of_ve_population) / pct_of_ve_population, 3) # (True - Obs) / True
+  )
+
+ggplot(filter(age_power_groups, is.element(YEAR, c(2008, 2010)))) +
+  geom_col(
+    aes(
+      x = age_cluster,
+      y = pct_of_electorate,
+      fill = age_cluster
+    ),
+    alpha = 0.75
+  ) +
+  geom_point(
+    aes(
+      x = age_cluster,
+      y = pct_of_ve_population
+    ),
+    shape = 4
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Electoral vs. Population Representation",
+    subtitle = "In the 2008 and 2010 general elections",
+    x = "Age group",
+    y = "Share of Electorate (%)",
+    fill = "Age group (years)",
+    caption = "Note: X = Share of population (%)"
+  ) +
+  theme(legend.position = "none") +
+  scale_y_continuous(
+    breaks = 0:7 * 5,
+    limits = c(0, 35)
+  )
+
+ggplot(filter(age_power_groups, is.element(YEAR, c(2008, 2010)))) +
+  geom_col(
+    aes(
+      x = age_cluster,
+      y = vri,
+      fill = age_cluster
+    ),
+    alpha = 0.75
+  ) +
+  facet_grid(
+    ~YEAR
+  ) +
+  labs(
+    title = "Electoral vs. Population Representation",
+    subtitle = "In the 2008 and 2010 general elections",
+    x = "Age group",
+    y = "Voting Representation Index (%)",
+    fill = "Age group (years)"
+  ) +
+  theme(legend.position = "none") +
+  scale_y_continuous(
+    breaks = -10:10 * 10
+  )
+
+kable_styling(kbl(
+  filter(age_power_groups, is.element(YEAR, c(2008, 2010))),
+  col.names = c("Age Cluster", "Year", "VEP In Age Group", "Voters in Age Group", "Total VEP", "Total Voters", "% of Voting Eligible Population", "% of Electorate", "VRI = 100 * (% elec - % pop) / % pop")
+))
+
+ggplot(age_power_groups) +
+  geom_line(
+    aes(
+      x = YEAR,
+      y = 100 * (voters_in_group / vep_in_group),
+      col = age_cluster
+    )
+  ) +
+  labs(
+    title = "Turnout by Age Group",
+    subtitle = "2008-2022 general elections, out of VEP",
+    x = "Year",
+    y = "Voter Turnout (%)",
+    col = "Age group (years)"
+  ) +
+  scale_y_continuous(
+    breaks = 0:10 * 10
+  ) +
+  scale_x_continuous(
+    breaks = 2008 + (0:7 * 2)
+  )
+```
