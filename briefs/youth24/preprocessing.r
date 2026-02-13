@@ -1,6 +1,5 @@
 # File name: cps_processing.r
-# Purpose:   Takes 2024 CPS data and creates clean PUMS-level results, then
-#            computes summary tables.
+# Purpose:   Takes 1980-2024 CPS data and creates clean PUMS-level results.
 # Author:    Bailey Inglish
 
 # Setup
@@ -8,15 +7,15 @@ library(tidyverse)
 library(ipumsr)
 setwd("briefs/youth24")
 
-### CPS REDUCED
 # Import data
 cps <- read_ipums_ddi("raw_data/cps_00025.xml") %>% read_ipums_micro() %>%
-  filter(YEAR >= 1984) # some missing turnout data for 1980
+  filter(YEAR >= 1980) # some missing turnout data for 1980-fixed
 act_turn <- read_csv("raw_data/actual_turnout.csv")
 fips_conv <- read_csv("raw_data/fips_name_abbr.csv")
 act_turn <- left_join(act_turn, fips_conv, by = c("STATE_ABV" = "abbr")) %>%
-  select(YEAR, fips, locality = name, vep_turnout = VEP_TURNOUT_RATE) %>%
-  filter(YEAR >= 1984)
+  select(YEAR, fips, locality = name, vep_turnout) %>%
+  filter(YEAR >= 1980)
+poverty_line <- read_csv("raw_data/poverty_line.csv")
 
 # VOREG recode to account for voter universe specification
 cps <- mutate(cps, registered = VOTED == 2 | VOREG == 2)
@@ -55,85 +54,6 @@ cps$adj_vosuppwt[cps$VOTED == 1] <- cps$VOSUPPWT[cps$VOTED == 1] * cps$adj_non_v
 # We only need the voters now!
 cps <- filter(cps, VOTED == 1 | VOTED == 2)
 
-var_bin_recodes <- tribble(
-  ~name, ~var, ~min, ~max,
-  # var, 0, 999, <- inclusive bounds
-  "any_college_educ", "EDUC", 80, 125,
-  "5_plus_years_at_address", "VOTERES", 33, 899,
-  "50k_plus", "FAMINC", 820, 899,
-  "30_under", "AGE", 18, 30,
-  "65_plus", "AGE", 65, 90,
-  "female", "SEX", 2, 2,
-  "in_metro", "METRO", 2, 4,
-  "white", "RACE", 100, 100,
-  "black", "RACE", 200, 200,
-  "aapi", "RACE", 650, 652,
-  "latino", "HISPAN", 1, 899
-)
-
-cps$METRO[cps$METRO == 0] <- 999
-
-prop_totals <- tibble(
-  expand.grid(year = unique(cps$YEAR), locality = c(unique(cps$locality), "United States"))
-)
-
-cps_reduced <- cps
-
-for (name in var_bin_recodes$name) {
-  vmin <- var_bin_recodes$min[var_bin_recodes$name == name]
-  vmax <- var_bin_recodes$max[var_bin_recodes$name == name]
-  v <- var_bin_recodes$var[var_bin_recodes$name == name]
-
-  cps_reduced[, str_c("is_", name)] <- c(NA, TRUE)[(cps[, v] <= vmax) + 1]
-  cps_reduced[, str_c("is_", name)] <- cps[, v] <= vmax & cps[, v] >= vmin
-
-  # State level
-  in_group_count <- cps_reduced %>%
-    filter(!!sym(str_c("is_", name)) == TRUE) %>%
-    group_by(YEAR, locality, !!sym(str_c("is_", name))) %>%
-    summarize(ig_count = sum(adj_vosuppwt))
-  overall_count <- cps_reduced %>%
-    group_by(YEAR, locality) %>%
-    summarize(ovr_count = sum(adj_vosuppwt))
-  ratio_tab <- left_join(overall_count, in_group_count)
-  ratio_tab[, str_c("prop_", name)] <- ratio_tab[, "ig_count"] / ratio_tab[, "ovr_count"]
-  ratio_tab <- select(ratio_tab, YEAR, locality, str_c("prop_", name))
-  state_r <- ratio_tab
-
-  # Federal level
-  in_group_count <- cps_reduced %>%
-    filter(!!sym(str_c("is_", name)) == TRUE) %>%
-    group_by(YEAR, !!sym(str_c("is_", name))) %>%
-    summarize(ig_count = sum(adj_vosuppwt))
-  overall_count <- cps_reduced %>%
-    group_by(YEAR) %>%
-    summarize(ovr_count = sum(adj_vosuppwt))
-  ratio_tab <- left_join(overall_count, in_group_count)
-  ratio_tab[, str_c("prop_", name)] <- ratio_tab[, "ig_count"] / ratio_tab[, "ovr_count"]
-  ratio_tab <- select(ratio_tab, YEAR, str_c("prop_", name)) %>%
-    mutate(locality = "United States")
-  fed_r <- ratio_tab
-
-  ovr_r <- rows_append(state_r, fed_r)
-  prop_totals <- left_join(prop_totals, ovr_r, by = c("year" = "YEAR", "locality"))
-}
-
-# Pick out only the variables we analyze (comment out this part for debugging)
-cps_reduced <- select(
-  cps_reduced,
-  year = YEAR,
-  locality,
-  voted = VOTED,
-  registered,
-  adj_vosuppwt,
-  starts_with("is_")
-)
-
-# Write final outputs
-write_csv(cps_reduced, "final_data/revised_cps_reduced_ipums_1984-2024.csv")
-write_csv(prop_totals, "final_data/revised_cps_state_proportions_1984-2024.csv")
-
-### CPS EXPANDED
 # Uses upper bound year to approx immigrant years in the US (note that higher)
 # Hispanic simple recoding
 cps$is_hispanic <- rep("Hispanic/Latino", nrow(cps))
@@ -148,44 +68,48 @@ cps$race_cluster[cps$RACE == 300] <- "American Indian"
 cps$race_cluster[is.element(cps$RACE, 650:652)] <- "Asian/Pacific Islander"
 cps$race_cluster[cps$RACE >= 700] <- "Multiracial"
 
-# VOREG recode to account for voter universe specification
-cps <- mutate(cps, is_registered = VOTED == 2 | VOREG == 2)
-
 # EDUC clustering recode
 cps$edu_cluster <- rep(NA, nrow(cps))
 cps$edu_cluster[cps$EDUC <= 72 & cps$EDUC > 1] <- "Less than HS Diploma" # 1 is coded as NIU! Boo :(
 cps$edu_cluster[cps$EDUC == 73] <- "HS Diploma or Equivalent"
-cps$edu_cluster[cps$EDUC == 81] <- "Some College But No Degree"
-cps$edu_cluster[is.element(cps$EDUC, c(91, 92))] <- "Associate's Degree"
-cps$edu_cluster[cps$EDUC >= 111] <- "Bachelor's Degree Or Higher"
+cps$edu_cluster[is.element(cps$EDUC, c(80, 81))] <- "Some College But No Degree"
+cps$edu_cluster[is.element(cps$EDUC, c(90, 91, 92, 100))] <- "Associate's Degree"
+cps$edu_cluster[cps$EDUC >= 110] <- "Bachelor's Degree Or Higher"
 
-# VOTERES harmonization
-cps$vote_res_harmonized <- rep(NA, nrow(cps))
-cps$vote_res_harmonized[cps$VOTERES >= 10 & cps$VOTERES <= 13] <- "0-1 years"
-cps$vote_res_harmonized[cps$VOTERES == 20] <- "1-2 years"
-cps$vote_res_harmonized[cps$VOTERES == 31] <- "2-4 years"
-cps$vote_res_harmonized[cps$VOTERES == 33] <- "5+ years"
-
-# One final round of clustering on selected variables
+# One final round of cohorting on selected variables
 income_conv <- tribble(
   ~FAMINC, ~income_range,
-  100, "<$30k",
-  210, "<$30k",
-  300, "<$30k",
-  430, "<$30k",
-  470, "<$30k",
-  500, "<$30k",
-  600, "<$30k",
-  710, "<$30k",
-  720, "$30-50k",
-  730, "$30-50k",
-  740, "$30-50k",
-  820, "$50-100k",
-  830, "$50-100k",
-  840, ">$70k",
-  841, "$50-100k",
+  100, "<$25k",
+  110, "<$25k",
+  120, "<$25k",
+  130, "<$25k",
+  140, "<$25k",
+  150, "<$25k",
+  210, "<$25k",
+  220, "<$25k",
+  231, "<$25k",
+  300, "<$25k",
+  430, "<$25k",
+  440, "<$25k",
+  460, "<$25k",
+  470, "<$25k",
+  500, "<$25k",
+  540, "<$25k",
+  550, "<$25k",
+  600, "<$25k",
+  700, "$25-50k",
+  710, "$25-50k",
+  720, "$25-50k",
+  730, "$25-50k",
+  740, "$25-50k",
+  800, ">50k",
+  820, "$50-75k",
+  830, "$50-75k",
+  840, ">$75k",
+  841, "$75-100k",
   842, "$100-150k",
   843, ">$150k",
+  995, NA,
   996, NA,
   997, NA,
   999, NA
@@ -219,53 +143,48 @@ cps <- cps %>%
 cps$eth_race_comb_cluster <- cps$race_cluster
 cps$eth_race_comb_cluster[cps$is_hispanic == "Hispanic/Latino"] <- "Hispanic/Latino"
 
-# Remove original variables
-cps_expanded <- select(
-  cps,
-  YEAR,
-  VOTED,
-  AGE,
-  FAMINC,
-  FAMSIZE,
-  16:17, # make sure this still works
-  22:32
-)
-
-# Export `cps` with original variables for reproducability and bugtesting
-write_csv(cps, "final_data/revised_cps_expanded_ipums_repro_1984-2024.csv")
-
-### CPS EXTRAS
-# New dataset(s)
-poverty_line <- read_csv("raw_data/poverty_line.csv")
-
 # Poverty line variable addition
 max_income_conv <- tribble(
   ~FAMINC, ~max_inc,
-  100, 5000,
+  100, 4999,
+  110, 999,
+  120, 1999,
+  130, 2999,
+  140, 3999,
+  150, 4999,
   210, 7499,
+  220, 5999,
+  231, 7499,
   300, 9999,
   430, 12499,
+  440, 11999,
+  460, 14999,
   470, 14999,
   500, 19999,
+  540, 17499,
+  550, 19999,
   600, 24999,
+  700, 49999,
   710, 29999,
   720, 34999,
   730, 39999,
   740, 49999,
+  800, 999999999, # upper bound dummy value
   820, 59999,
   830, 74999,
-  840, 100000, # dummy value
+  840, 999999999, # upper bound dummy value
   841, 99999,
-  842, 149999,
-  843, 1000000, # dummy value, no ceiling
+  842, 1499999,
+  843, 999999999, # upper bound dummy value
+  995, NA,
   996, NA,
   997, NA,
   999, NA
 )
 
 # scale down FAMSIZE
-cps_expanded[cps_expanded$FAMSIZE > 8, ]$FAMSIZE <- 8
-cps_expanded <- cps_expanded %>%
+cps[cps$FAMSIZE > 8, ]$FAMSIZE <- 8
+cps <- cps %>%
   left_join(
     max_income_conv,
     by = "FAMINC"
@@ -309,7 +228,7 @@ generation_conv <- tibble(
   )
 )
 
-cps_expanded <- cps_expanded %>%
+cps <- cps %>%
   mutate(
     birth_year = YEAR - AGE
   ) %>%
@@ -320,5 +239,34 @@ cps_expanded <- cps_expanded %>%
   select(!birth_year)
 
 # Write final outputs
-cps_expanded <- cps_expanded %>% select(!FAMINC, !FAMSIZE)
-write_csv(cps_expanded, "final_data/revised_cps_expanded_ipums_1982-2024.csv")
+cps_final <- cps %>% select(
+  !c(STATEFIP,
+    METRO,
+    FAMINC,
+    SEX,
+    RACE,
+    FAMSIZE,
+    CITIZEN,
+    HISPAN,
+    EDUC,
+    VOREG,
+    VOTERES,
+    VOSUPPWT,
+    ends_with("_turnout"),
+    ends_with("_wt")
+  )
+) %>%
+  mutate(
+    year = YEAR,
+    age = AGE,
+    voted = VOTED == 2,
+    .keep = "unused"
+  )
+write_csv(cps_final, "final_data/revised_ipums_final80-24.csv")
+
+# diagnostics
+for (n in names(cps_final)) {
+  print(n)
+  print(sum(is.na(cps_final[, n])))
+  print("- - - - - - - - - - - - - - - - - - - -")
+}
