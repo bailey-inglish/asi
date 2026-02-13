@@ -1,5 +1,5 @@
 # name: plots.r
-# purpose: generate plots for the disengement brief
+# purpose: generate plots for the disengagement brief
 # authors: bailey inglish, eugenia quintanilla
 
 # libraries
