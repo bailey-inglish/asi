@@ -1,0 +1,377 @@
+---
+title: "Third Places and Civic Life in Texas"
+author: "Annette Strauss Institute for Civic Life, University of Texas at Austin"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    code_folding: hide
+    fig_width: 11
+    fig_height: 7
+    df_print: paged
+---
+
+<style>
+.main-container {
+  max-width: 1400px;
+}
+body {
+  font-size: 11pt;
+}
+h1 {
+  color: #BF5700;
+  border-bottom: 2px solid #BF5700;
+  padding-bottom: 10px;
+}
+h2 {
+  color: #005F86;
+}
+.caption {
+  font-style: italic;
+  color: #666;
+  font-size: 0.9em;
+}
+</style>
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE,
+  fig.align = "center",
+  cache = FALSE
+)
+
+# Load packages
+library(tidyverse)
+library(haven)
+library(labelled)
+library(survey)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(forcats)
+library(sf)
+library(tigris)
+
+
+# Set UT Austin branding colors
+ut_orange <- "#BF5700"
+ut_blue <- "#005F86"
+ut_teal <- "#00A9B7"
+ut_gray <- "#666666"
+
+# Custom ggplot theme
+theme_asi <- function() {
+  theme_minimal(base_size = 11) +
+    theme(
+      plot.title = element_text(face = "bold", size = 13, color = ut_blue),
+      plot.subtitle = element_text(size = 10, color = ut_gray, margin = margin(b = 10)),
+      plot.caption = element_text(size = 8, color = ut_gray, hjust = 0),
+      axis.title = element_text(size = 10, face = "bold"),
+      legend.position = "bottom",
+      legend.title = element_text(face = "bold", size = 9),
+      strip.text = element_text(face = "bold", size = 10, color = ut_blue),
+      strip.background = element_rect(fill = "gray95", color = NA),
+      panel.grid.minor = element_blank(),
+      panel.border = element_rect(color = "gray80", fill = NA)
+    )
+}
+
+theme_set(theme_asi())
+
+# Color palette for participation
+part_colors <- c(
+  "Voted" = "#2ecc71",
+  "Registered, no vote" = "#f39c12", 
+  "Not registered" = "#e74c3c"
+)
+
+# Helper: Create publication-ready tables with sample sizes
+nice_table <- function(df, title = NULL, digits = 2, include_n = TRUE) {
+  raw_names <- names(df)
+  pretty_names <- raw_names %>%
+    str_replace_all("_", " ") %>%
+    str_replace("^pct ", "") %>%
+    str_replace("^pct", "") %>%
+    str_replace("^n ", "N ")
+  pct_cols <- str_detect(raw_names, "^pct[_ ]")
+  pretty_names[pct_cols] <- paste0(pretty_names[pct_cols], " (%)")
+  pretty_names[str_detect(raw_names, "^n[_ ]")] <- str_replace(pretty_names[str_detect(raw_names, "^n[_ ]")], "^n ", "N ")
+
+  df %>%
+    mutate(across(where(is.numeric), ~ round(., digits = digits))) %>%
+    kable(
+      caption = title, 
+      col.names = pretty_names,
+      format = "html",
+      booktabs = TRUE,
+      align = "c"
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      position = "left",
+      font_size = 11
+    ) %>%
+    row_spec(0, bold = TRUE, color = "white", background = ut_blue)
+}
+
+# Helper: Format percentages
+fmt_pct <- function(x, digits = 1) {
+  paste0(round(x * 100, digits), "%")
+}
+
+```
+
+```{r mapping-tx, echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+
+# Data 
+tpi_path <- "data/tpi_ces_by_county1.csv"
+tpi_total_path <- "data/third_place_index_1.0.csv"
+tpi_cesdata <- read.csv(tpi_path)
+tpi_total <- read.csv(tpi_total_path) 
+
+# Create a Texas subset
+tpi_tx <- tpi_cesdata %>%
+  filter(state_fips == 48)
+
+```
+
+# Maps
+
+## United States: Third Place Density by County
+
+```{r us-map, echo=TRUE, message=FALSE, warning=FALSE, fig.width=12, fig.height=7}
+
+# Get US county geometries
+us_counties <- tigris::counties(cb = TRUE, year = 2021, progress_bar = FALSE) %>%
+  st_transform(crs = 5070)  # Albers Equal Area projection for US
+
+# Prepare TPI data with proper FIPS formatting
+tpi_map_data <- tpi_cesdata %>%
+  mutate(GEOID = str_pad(as.character(county_fips), 5, pad = "0")) %>%
+  select(GEOID, total_places_per_sqmi, total_places, state_fips)
+
+# Join spatial data with TPI data
+us_counties_tpi <- us_counties %>%
+  left_join(tpi_map_data, by = "GEOID")
+
+# Create US map
+ggplot(us_counties_tpi) +
+  geom_sf(aes(fill = total_places_per_sqmi), color = NA, size = 0) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Third Places\nper Square Mile",
+    trans = "log10",
+    breaks = c(1, 10, 100, 1000),
+    labels = c("1", "10", "100", "1,000"),
+    na.value = "gray90"
+  ) +
+  labs(
+    title = "Third Place Index: Density of Community Spaces Across US Counties",
+    subtitle = "Total third places per square mile (log scale)",
+    caption = "Source: OpenStreetMap data\nGray areas indicate missing data"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, color = ut_blue),
+    plot.subtitle = element_text(size = 11, color = ut_gray),
+    plot.caption = element_text(size = 9, color = ut_gray, hjust = 0),
+    legend.position = "right",
+    legend.title = element_text(face = "bold", size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+```
+
+## Texas: Third Place Density by County
+
+```{r texas-map, echo=TRUE, message=FALSE, warning=FALSE, fig.width=10, fig.height=8}
+
+# Get Texas county geometries
+tx_counties <- tigris::counties(state = "TX", cb = TRUE, year = 2021, progress_bar = FALSE) %>%
+  st_transform(crs = 3083)  # Texas Centric Albers Equal Area projection
+
+# Prepare Texas TPI data with proper FIPS formatting
+tpi_tx_map <- tpi_tx %>%
+  mutate(GEOID = str_pad(as.character(county_fips), 5, pad = "0")) %>%
+  select(GEOID, total_places_per_sqmi, total_places, state_fips)
+
+# Join spatial data with TPI data for Texas
+tx_counties_tpi <- tx_counties %>%
+  left_join(tpi_tx_map, by = "GEOID")
+
+# Create Texas map
+ggplot(tx_counties_tpi) +
+  geom_sf(aes(fill = total_places_per_sqmi), color = "white", size = 0.1) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Third Places\nper Square Mile",
+    trans = "log10",
+    breaks = c(1, 10, 100, 1000),
+    labels = c("1", "10", "100", "1,000"),
+    na.value = "gray90"
+  ) +
+  labs(
+    title = "Third Place Index: Density of Community Spaces in Texas Counties",
+    subtitle = "Total third places per square mile (log scale)",
+    caption = "Source: OpenStreetMap data\nGray areas indicate missing data"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, color = ut_blue),
+    plot.subtitle = element_text(size = 11, color = ut_gray),
+    plot.caption = element_text(size = 9, color = ut_gray, hjust = 0),
+    legend.position = "right",
+    legend.title = element_text(face = "bold", size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+```
+
+# Census Tract-Level Analysis
+
+The following maps show third place density at the census tract level, providing much more granular detail than county-level aggregation. This reveals neighborhood-level patterns in community space availability.
+
+## United States: Third Place Density by Census Tract
+
+```{r us-tract-map, echo=TRUE, message=FALSE, warning=FALSE, fig.width=12, fig.height=7}
+
+# Get US census tract geometries (this may take a moment)
+us_tracts <- tigris::tracts(cb = TRUE, year = 2021, progress_bar = FALSE) %>%
+  st_transform(crs = 5070)  # Albers Equal Area projection
+
+# Prepare tract-level TPI data
+tpi_tract_data <- tpi_total %>%
+  mutate(GEOID = as.character(geoid)) %>%
+  select(GEOID, total_places_per_sqmi, total_places, state_fips, third_place_percentile)
+
+# Join spatial data with TPI data
+us_tracts_tpi <- us_tracts %>%
+  left_join(tpi_tract_data, by = "GEOID")
+
+# Create US census tract map
+ggplot(us_tracts_tpi) +
+  geom_sf(aes(fill = third_place_percentile), color = NA, size = 0) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Third Place\nPercentile",
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.1),
+    labels = c("0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"),
+    na.value = "gray90",
+    guide = guide_colorbar(
+      barwidth = 1.5,
+      barheight = 15,
+      ticks.colour = "black",
+      ticks.linewidth = 0.5,
+      frame.colour = "black"
+    )
+  ) +
+  labs(
+    title = "Third Place Index: Census Tract Percentile Rankings Across the United States",
+    subtitle = "Third place percentile by census tract (0 = lowest density, 100 = highest density)",
+    caption = "Source: OpenStreetMap data, ACS 2021\nGray areas indicate missing data. Each polygon represents a census tract."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, color = ut_blue),
+    plot.subtitle = element_text(size = 11, color = ut_gray),
+    plot.caption = element_text(size = 9, color = ut_gray, hjust = 0),
+    legend.position = "right",
+    legend.title = element_text(face = "bold", size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  ) 
+
+```
+
+## Texas: Third Place Density by Census Tract
+
+```{r texas-tract-map, echo=TRUE, message=FALSE, warning=FALSE, fig.width=10, fig.height=8}
+
+# Get Texas census tract geometries
+tx_tracts <- tigris::tracts(state = "TX", cb = TRUE, year = 2021, progress_bar = FALSE) %>%
+  st_transform(crs = 3083)  # Texas-specific projection
+
+# Prepare Texas tract-level TPI data
+tpi_tx_tract <- tpi_total %>%
+  filter(state_fips == 48) %>%
+  mutate(GEOID = as.character(geoid)) %>%
+  select(GEOID, total_places_per_sqmi, total_places, third_place_percentile, 
+         urban_rural_class, total_population)
+
+# Join spatial data with TPI data for Texas
+tx_tracts_tpi <- tx_tracts %>%
+  left_join(tpi_tx_tract, by = "GEOID")
+
+# Create Texas census tract map
+ggplot(tx_tracts_tpi) +
+  geom_sf(aes(fill = third_place_percentile), color = NA, size = 0) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Third Place\nPercentile",
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.1),
+    labels = c("0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"),
+    na.value = "gray90",
+    guide = guide_colorbar(
+      barwidth = 1.5,
+      barheight = 15,
+      ticks.colour = "black",
+      ticks.linewidth = 0.5,
+      frame.colour = "black"
+    )
+  ) +
+  labs(
+    title = "Third Place Index: Census Tract Percentile Rankings in Texas",
+    subtitle = "Third place percentile by census tract (0 = lowest density, 100 = highest density)",
+    caption = "Source: OpenStreetMap data, ACS 2021\nGray areas indicate missing data. 6,896 census tracts shown."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, color = ut_blue),
+    plot.subtitle = element_text(size = 11, color = ut_gray),
+    plot.caption = element_text(size = 9, color = ut_gray, hjust = 0),
+    legend.position = "right",
+    legend.title = element_text(face = "bold", size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+```
+
+### Key Differences: Census Tract vs County Maps
+
+**Granularity**: Census tracts reveal neighborhood-level variation that county maps obscure. For example, you can now see:
+
+- Dense urban cores vs. suburban sprawl within the same county
+- Variation between different neighborhoods in major cities
+- Rural tract-by-tract differences in community space access
+
+**Data Volume**: The US has ~83,500 census tracts vs. ~3,200 counties, providing 26× more spatial detail.
+
+**Use Cases**: 
+
+- Tract-level data is ideal for understanding intra-city inequality
+- County-level data is better for regional comparisons and statewide policy analysis

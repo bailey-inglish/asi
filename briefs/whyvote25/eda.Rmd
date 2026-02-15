@@ -1828,7 +1828,7 @@ ggplot(anes_party_gap, aes(x = year, y = gap)) +
   geom_hline(yintercept = mean(anes_party_gap$gap, na.rm = TRUE), 
              linetype = "dashed", color = "gray50") +
   labs(
-    title = "Perceiving Party Differences Increasingly Drives Turnout",
+    title = "Perceiving Party Differences Corresponds with Turnout",
     subtitle = "Percentage point difference: See important differences vs. No difference",
     x = "Election Year",
     y = "Turnout Gap (pp)",
@@ -1964,6 +1964,7 @@ var_ref <- tribble(
 var_ref %>%
   nice_table(title = "Complete Variable Reference")
 ```
+
 
 ---
 

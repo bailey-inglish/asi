@@ -1,0 +1,11 @@
+---
+title: "Supplementary Materials"
+author: "Eugenia Quintanilla, Annette Strauss Institute for Civic Life, University of Texas at Austin"
+date: "`r format(Sys.Date(), '%B %e, %Y')`"
+output:
+    pdf_document:
+        latex_engine: xelatex
+        toc: true
+        number_sections: true
+---
+

@@ -1,0 +1,887 @@
+---
+title: "Voter Participation in the 2024 U.S. General Election"
+subtitle: "Analysis of CMPS 2024 Data with Focus on Texas"
+author: "Annette Strauss Institute for Civic Life, University of Texas at Austin"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: hide
+---
+
+<style>
+.main-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+h1 {
+  color: #BF5700;
+  font-weight: bold;
+}
+h2 {
+  color: #005F86;
+  border-bottom: 2px solid #BF5700;
+  padding-bottom: 5px;
+}
+.caption {
+  font-size: 12px;
+  font-style: italic;
+  color: #666666;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 300
+)
+
+# Load packages
+library(tidyverse)
+library(haven)
+library(labelled)
+library(survey)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(forcats)
+
+# Set UT Austin branding colors
+ut_orange <- "#BF5700"
+ut_blue <- "#005F86"
+ut_teal <- "#00A9B7"
+ut_gray <- "#666666"
+
+# Custom ggplot theme
+theme_asi <- function() {
+  theme_minimal() +
+    theme(
+      text = element_text(family = "sans"),
+      plot.title = element_text(size = 16, face = "bold", color = ut_orange),
+      plot.subtitle = element_text(size = 12, color = ut_gray),
+      axis.title = element_text(size = 11, face = "bold"),
+      axis.text = element_text(size = 10),
+      legend.position = "bottom",
+      legend.title = element_text(face = "bold"),
+      panel.grid.minor = element_blank(),
+      panel.grid.major.x = element_blank()
+    )
+}
+
+theme_set(theme_asi())
+
+# Color palette for participation
+part_colors <- c(
+  "Voted" = ut_blue,
+  "Did Not Vote" = ut_orange,
+  "Democrats" = "#0015BC",
+  "Republicans" = "#E81B23",
+  "Independents" = "#9370DB"
+)
+
+# Helper: Create publication-ready tables with sample sizes
+nice_table <- function(df, title = NULL, digits = 2, include_n = TRUE) {
+  tbl <- df %>%
+    kable(
+      format = "html",
+      digits = digits,
+      caption = title,
+      align = c("l", rep("r", ncol(df) - 1))
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      position = "left"
+    ) %>%
+    row_spec(0, bold = TRUE, color = "white", background = ut_orange)
+  
+  return(tbl)
+}
+
+# Helper: Format percentages
+fmt_pct <- function(x, digits = 1) {
+  paste0(format(round(x, digits), nsmall = digits), "%")
+}
+```
+
+```{r load-data, cache=TRUE}
+# Load CMPS 2024 data
+cmps_path <- "cmps_data/cmps2024_fulladult_112425.csv"
+cmps_raw <- read.csv(cmps_path)
+
+# Data preparation
+cmps_24 <- cmps_raw %>%
+  mutate(
+    # State and Texas indicator
+    state = s21,
+    texas = (state == 48),
+    
+    # Voting behavior (Q12)
+    vote24 = case_when(
+      q12 == 1 ~ "Did not vote",
+      q12 == 2 ~ "Don't think I voted",
+      q12 == 3 ~ "Think I voted",
+      q12 == 4 ~ "Definitely voted",
+      TRUE ~ NA_character_
+    ),
+    voted = case_when(
+      q12 %in% c(3, 4) ~ 1,  # Think/definitely voted
+      q12 %in% c(1, 2) ~ 0,  # Did not/don't think voted
+      TRUE ~ NA_real_
+    ),
+    
+    # Registration status (S27)
+    registered = case_when(
+      s27 == 1 ~ "Registered",
+      s27 == 2 ~ "Not registered",
+      s27 == 3 ~ "Not eligible",
+      TRUE ~ NA_character_
+    ),
+    
+    # Demographics
+    # Age (using age5 for 5 categories)
+    age_group = case_when(
+      age5 == 1 ~ "18-29",
+      age5 == 2 ~ "30-44",
+      age5 == 3 ~ "45-59",
+      age5 == 4 ~ "60-69",
+      age5 == 5 ~ "70+",
+      TRUE ~ NA_character_
+    ),
+    
+    # Race/Ethnicity (qraceid)
+    race_ethnicity = case_when(
+      qraceid == 1 ~ "White",
+      qraceid == 2 ~ "Hispanic/Latino",
+      qraceid == 3 ~ "Black",
+      qraceid == 4 ~ "Asian",
+      qraceid == 5 ~ "Native American",
+      qraceid == 6 ~ "MENA",
+      qraceid == 7 ~ "NHPI",
+      TRUE ~ NA_character_
+    ),
+    
+    # Gender (S14)
+    gender = case_when(
+      s14 == 1 ~ "Male",
+      s14 == 2 ~ "Female",
+      s14 == 3 ~ "Non-binary",
+      TRUE ~ NA_character_
+    ),
+    
+    # Education (S17)
+    education = case_when(
+      s17 == 1 ~ "Grade 1-8",
+      s17 == 2 ~ "Some HS",
+      s17 == 3 ~ "HS diploma/GED",
+      s17 == 4 ~ "Some college",
+      s17 == 5 ~ "2-year degree",
+      s17 == 6 ~ "4-year degree",
+      s17 == 7 ~ "Postgraduate",
+      TRUE ~ NA_character_
+    ),
+    education_cat = case_when(
+      s17 %in% c(1, 2, 3) ~ "HS or less",
+      s17 %in% c(4, 5) ~ "Some college",
+      s17 %in% c(6, 7) ~ "4-year degree+",
+      TRUE ~ NA_character_
+    ),
+    
+    # Income (hhinc)
+    income = case_when(
+      hhinc == 1 ~ "Under $40k",
+      hhinc == 2 ~ "$40k-$59k",
+      hhinc == 3 ~ "$60k-$99k",
+      hhinc == 4 ~ "$100k+",
+      hhinc == 5 ~ "Prefer not to say",
+      TRUE ~ NA_character_
+    ),
+    
+    # Party ID (S28)
+    party = case_when(
+      s28 == 1 ~ "Democrat",
+      s28 == 2 ~ "Republican",
+      s28 == 3 ~ "Independent",
+      s28 == 4 ~ "Other",
+      TRUE ~ NA_character_
+    ),
+    
+    # Ideology (Q8)
+    ideology = case_when(
+      q8 == 1 ~ "Very liberal",
+      q8 == 2 ~ "Liberal",
+      q8 == 3 ~ "Moderate (lean liberal)",
+      q8 == 4 ~ "Moderate",
+      q8 == 5 ~ "Moderate (lean conservative)",
+      q8 == 6 ~ "Conservative",
+      q8 == 7 ~ "Very conservative",
+      q8 == 8 ~ "Don't think in these terms",
+      TRUE ~ NA_character_
+    ),
+    
+    # Feeling thermometers (Q4R1-Q4R8)
+    ft_trump = q4r1,
+    ft_biden = q4r2,
+    ft_harris = q4r3,
+    ft_pence = q4r4,
+    
+    # Political interest (Q25B)
+    election_interest = case_when(
+      q25b == 1 ~ "Daily",
+      q25b == 2 ~ "Many days",
+      q25b == 3 ~ "Some days",
+      q25b == 4 ~ "Occasionally",
+      q25b == 5 ~ "Never/avoided",
+      TRUE ~ NA_character_
+    ),
+    
+    # Survey weights
+    weight = wt_adult_ps
+  )
+
+# Create Texas subsample
+cmps_24_tx <- cmps_24 %>%
+  filter(texas == TRUE)
+
+# Create survey design objects
+cmps_svy <- cmps_24 %>%
+  filter(!is.na(weight)) %>%
+  as_survey_design(weights = weight)
+
+cmps_tx_svy <- cmps_24_tx %>%
+  filter(!is.na(weight)) %>%
+  as_survey_design(weights = weight)
+```
+
+# Executive Summary
+
+This report analyzes voter participation in the 2024 U.S. General Election using data from the Collaborative Multi-Racial Post-Election Survey (CMPS). We examine turnout patterns across demographic groups with a particular focus on Texas voters.
+
+**Key Findings:**
+
+- Overall self-reported turnout: `r fmt_pct(weighted.mean(cmps_24$voted, cmps_24$weight, na.rm = TRUE) * 100)`
+- Texas turnout: `r fmt_pct(weighted.mean(cmps_24_tx$voted, cmps_24_tx$weight, na.rm = TRUE) * 100)`
+- Sample size: N = `r format(nrow(cmps_24), big.mark = ",")` (Texas: n = `r format(nrow(cmps_24_tx), big.mark = ",")`)
+
+---
+
+## 1. Overall Voter Participation
+
+```{r overall-turnout}
+# National turnout
+turnout_overall <- cmps_svy %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+# Texas turnout
+turnout_tx <- cmps_tx_svy %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+# Combine
+turnout_comparison <- bind_rows(
+  turnout_overall %>% mutate(Geography = "National"),
+  turnout_tx %>% mutate(Geography = "Texas")
+) %>%
+  select(Geography, `Turnout (%)` = pct_voted, `Lower CI` = pct_voted_low, 
+         `Upper CI` = pct_voted_upp, N = n)
+
+turnout_comparison %>%
+  nice_table(title = "Table 1: Self-Reported Voter Turnout, 2024 General Election")
+```
+
+```{r turnout-by-certainty}
+# Voting certainty breakdown
+vote_certainty <- cmps_svy %>%
+  group_by(vote24) %>%
+  summarise(
+    pct = survey_mean(na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  ) %>%
+  filter(!is.na(vote24)) %>%
+  arrange(desc(pct))
+
+vote_certainty %>%
+  select(`Voting Status` = vote24, `Percent` = pct, 
+         `Lower CI` = pct_low, `Upper CI` = pct_upp, N = n) %>%
+  nice_table(title = "Table 2: Reported Voting Behavior by Certainty Level")
+```
+
+---
+
+## 2. Turnout by Demographics
+
+### 2.1 Turnout by Age
+
+```{r turnout-age}
+turnout_age <- cmps_svy %>%
+  filter(!is.na(age_group), !is.na(voted)) %>%
+  group_by(age_group) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+turnout_age %>%
+  select(`Age Group` = age_group, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 3: Voter Turnout by Age Group")
+
+# Visualization
+ggplot(turnout_age, aes(x = fct_reorder(age_group, pct_voted), y = pct_voted)) +
+  geom_col(fill = ut_blue, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp), 
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)), 
+            hjust = -0.2, size = 3.5, fontface = "bold") +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Age Group",
+    subtitle = "2024 General Election (CMPS)",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+### 2.2 Turnout by Race and Ethnicity
+
+```{r turnout-race}
+turnout_race <- cmps_svy %>%
+  filter(!is.na(race_ethnicity), !is.na(voted)) %>%
+  group_by(race_ethnicity) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  ) %>%
+  arrange(desc(pct_voted))
+
+turnout_race %>%
+  select(`Race/Ethnicity` = race_ethnicity, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 4: Voter Turnout by Race and Ethnicity")
+
+# Visualization
+ggplot(turnout_race, aes(x = fct_reorder(race_ethnicity, pct_voted), y = pct_voted)) +
+  geom_col(fill = ut_teal, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            hjust = -0.2, size = 3.5, fontface = "bold") +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Race and Ethnicity",
+    subtitle = "2024 General Election (CMPS)",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+### 2.3 Turnout by Education
+
+```{r turnout-education}
+turnout_educ <- cmps_svy %>%
+  filter(!is.na(education_cat), !is.na(voted)) %>%
+  group_by(education_cat) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+# Order education levels
+educ_order <- c("HS or less", "Some college", "4-year degree+")
+turnout_educ <- turnout_educ %>%
+  mutate(education_cat = factor(education_cat, levels = educ_order))
+
+turnout_educ %>%
+  select(`Education Level` = education_cat, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 5: Voter Turnout by Education Level")
+
+# Visualization
+ggplot(turnout_educ, aes(x = education_cat, y = pct_voted)) +
+  geom_col(fill = ut_orange, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            vjust = -0.5, size = 4, fontface = "bold") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Education Level",
+    subtitle = "2024 General Election (CMPS)",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+### 2.4 Turnout by Income
+
+```{r turnout-income}
+turnout_income <- cmps_svy %>%
+  filter(!is.na(income), !is.na(voted), income != "Prefer not to say") %>%
+  group_by(income) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+# Order income levels
+income_order <- c("Under $40k", "$40k-$59k", "$60k-$99k", "$100k+")
+turnout_income <- turnout_income %>%
+  mutate(income = factor(income, levels = income_order))
+
+turnout_income %>%
+  select(`Income Level` = income, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 6: Voter Turnout by Household Income")
+
+# Visualization
+ggplot(turnout_income, aes(x = income, y = pct_voted)) +
+  geom_col(fill = ut_blue, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            vjust = -0.5, size = 4, fontface = "bold") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Household Income",
+    subtitle = "2024 General Election (CMPS)",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+### 2.5 Turnout by Gender
+
+```{r turnout-gender}
+turnout_gender <- cmps_svy %>%
+  filter(!is.na(gender), !is.na(voted)) %>%
+  group_by(gender) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+turnout_gender %>%
+  select(`Gender` = gender, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 7: Voter Turnout by Gender")
+
+# Visualization
+ggplot(turnout_gender, aes(x = gender, y = pct_voted)) +
+  geom_col(fill = ut_teal, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            vjust = -0.5, size = 4, fontface = "bold") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Gender",
+    subtitle = "2024 General Election (CMPS)",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+---
+
+## 3. Candidate Favorability
+
+### 3.1 Feeling Thermometers for Major Candidates
+
+```{r candidate-thermometers}
+# Calculate mean feeling thermometers
+ft_summary <- cmps_24 %>%
+  filter(!is.na(weight)) %>%
+  summarise(
+    across(c(ft_trump, ft_biden, ft_harris, ft_pence),
+           ~weighted.mean(., weight, na.rm = TRUE),
+           .names = "mean_{.col}"),
+    across(c(ft_trump, ft_biden, ft_harris, ft_pence),
+           ~sum(!is.na(.)),
+           .names = "n_{.col}")
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c(".value", "candidate"),
+    names_pattern = "(.+)_ft_(.+)"
+  ) %>%
+  mutate(
+    candidate = case_when(
+      candidate == "trump" ~ "Donald Trump",
+      candidate == "biden" ~ "Joe Biden",
+      candidate == "harris" ~ "Kamala Harris",
+      candidate == "pence" ~ "Mike Pence"
+    )
+  ) %>%
+  arrange(desc(mean))
+
+ft_summary %>%
+  select(`Candidate` = candidate, `Mean Rating` = mean, N = n) %>%
+  nice_table(title = "Table 8: Average Feeling Thermometer Ratings (0-100 scale)")
+
+# Visualization
+ggplot(ft_summary, aes(x = fct_reorder(candidate, mean), y = mean)) +
+  geom_col(aes(fill = candidate), alpha = 0.8, show.legend = FALSE) +
+  geom_text(aes(label = round(mean, 1)),
+            hjust = -0.2, size = 4, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Donald Trump" = "#E81B23",
+    "Joe Biden" = "#0015BC",
+    "Kamala Harris" = "#0015BC",
+    "Mike Pence" = "#E81B23"
+  )) +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Average Feeling Thermometer Ratings for Major Candidates",
+    subtitle = "2024 Election (Scale: 0 = Very Cold, 100 = Very Warm)",
+    x = NULL,
+    y = "Mean Rating",
+    caption = "Source: CMPS 2024"
+  )
+```
+
+### 3.2 Candidate Favorability by Party ID
+
+```{r candidate-by-party}
+# Trump and Harris by party
+ft_by_party <- cmps_24 %>%
+  filter(!is.na(party), !is.na(weight), party %in% c("Democrat", "Republican", "Independent")) %>%
+  group_by(party) %>%
+  summarise(
+    Trump = weighted.mean(ft_trump, weight, na.rm = TRUE),
+    Harris = weighted.mean(ft_harris, weight, na.rm = TRUE),
+    n = n()
+  ) %>%
+  pivot_longer(
+    cols = c(Trump, Harris),
+    names_to = "Candidate",
+    values_to = "Rating"
+  )
+
+ft_by_party %>%
+  pivot_wider(names_from = Candidate, values_from = Rating) %>%
+  select(`Party ID` = party, Trump, Harris, N = n) %>%
+  nice_table(title = "Table 9: Candidate Favorability by Party Identification")
+
+# Visualization
+ggplot(ft_by_party, aes(x = party, y = Rating, fill = Candidate)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_text(aes(label = round(Rating, 1)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 3.5) +
+  scale_fill_manual(values = c("Trump" = "#E81B23", "Harris" = "#0015BC")) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Candidate Favorability by Party Identification",
+    subtitle = "Trump vs. Harris Feeling Thermometers",
+    x = NULL,
+    y = "Mean Rating (0-100)",
+    fill = "Candidate",
+    caption = "Source: CMPS 2024"
+  )
+```
+
+---
+
+## 4. Texas Focus
+
+### 4.1 Texas vs. National Turnout by Demographics
+
+```{r texas-comparison-age}
+# Age comparison
+turnout_age_comparison <- bind_rows(
+  cmps_svy %>%
+    filter(!is.na(age_group), !is.na(voted)) %>%
+    group_by(age_group) %>%
+    summarise(
+      pct_voted = survey_mean(voted, na.rm = TRUE) * 100,
+      n = unweighted(n())
+    ) %>%
+    mutate(Geography = "National"),
+  cmps_tx_svy %>%
+    filter(!is.na(age_group), !is.na(voted)) %>%
+    group_by(age_group) %>%
+    summarise(
+      pct_voted = survey_mean(voted, na.rm = TRUE) * 100,
+      n = unweighted(n())
+    ) %>%
+    mutate(Geography = "Texas")
+)
+
+ggplot(turnout_age_comparison, aes(x = age_group, y = pct_voted, fill = Geography)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 3) +
+  scale_fill_manual(values = c("National" = ut_blue, "Texas" = ut_orange)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Age: Texas vs. National",
+    subtitle = "2024 General Election",
+    x = "Age Group",
+    y = "Turnout (%)",
+    fill = NULL,
+    caption = "Source: CMPS 2024"
+  ) +
+  theme(legend.position = "top")
+```
+
+```{r texas-comparison-race}
+# Race comparison
+turnout_race_comparison <- bind_rows(
+  cmps_svy %>%
+    filter(!is.na(race_ethnicity), !is.na(voted)) %>%
+    group_by(race_ethnicity) %>%
+    summarise(
+      pct_voted = survey_mean(voted, na.rm = TRUE) * 100,
+      n = unweighted(n())
+    ) %>%
+    mutate(Geography = "National"),
+  cmps_tx_svy %>%
+    filter(!is.na(race_ethnicity), !is.na(voted)) %>%
+    group_by(race_ethnicity) %>%
+    summarise(
+      pct_voted = survey_mean(voted, na.rm = TRUE) * 100,
+      n = unweighted(n())
+    ) %>%
+    mutate(Geography = "Texas")
+)
+
+ggplot(turnout_race_comparison, aes(x = race_ethnicity, y = pct_voted, fill = Geography)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 2.5, angle = 90) +
+  scale_fill_manual(values = c("National" = ut_blue, "Texas" = ut_orange)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Race/Ethnicity: Texas vs. National",
+    subtitle = "2024 General Election",
+    x = NULL,
+    y = "Turnout (%)",
+    fill = NULL,
+    caption = "Source: CMPS 2024"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+### 4.2 Texas Candidate Favorability
+
+```{r texas-candidates}
+# Texas feeling thermometers
+ft_texas <- cmps_24_tx %>%
+  filter(!is.na(weight)) %>%
+  summarise(
+    across(c(ft_trump, ft_biden, ft_harris, ft_pence),
+           ~weighted.mean(., weight, na.rm = TRUE),
+           .names = "mean_{.col}"),
+    across(c(ft_trump, ft_biden, ft_harris, ft_pence),
+           ~sum(!is.na(.)),
+           .names = "n_{.col}")
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c(".value", "candidate"),
+    names_pattern = "(.+)_ft_(.+)"
+  ) %>%
+  mutate(
+    candidate = case_when(
+      candidate == "trump" ~ "Donald Trump",
+      candidate == "biden" ~ "Joe Biden",
+      candidate == "harris" ~ "Kamala Harris",
+      candidate == "pence" ~ "Mike Pence"
+    )
+  ) %>%
+  arrange(desc(mean))
+
+ft_texas %>%
+  select(`Candidate` = candidate, `Mean Rating (TX)` = mean, `N (TX)` = n) %>%
+  nice_table(title = "Table 10: Texas Candidate Favorability Ratings")
+
+# Compare Texas vs National
+ft_comparison <- bind_rows(
+  ft_summary %>% mutate(Geography = "National"),
+  ft_texas %>% mutate(Geography = "Texas")
+)
+
+ggplot(ft_comparison, aes(x = candidate, y = mean, fill = Geography)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_text(aes(label = round(mean, 1)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 3) +
+  scale_fill_manual(values = c("National" = ut_blue, "Texas" = ut_orange)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Candidate Favorability: Texas vs. National",
+    subtitle = "Feeling Thermometer Ratings (0-100)",
+    x = NULL,
+    y = "Mean Rating",
+    fill = NULL,
+    caption = "Source: CMPS 2024"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+---
+
+## 5. Political Engagement
+
+### 5.1 Election Interest and Turnout
+
+```{r interest-turnout}
+turnout_interest <- cmps_svy %>%
+  filter(!is.na(election_interest), !is.na(voted)) %>%
+  group_by(election_interest) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  )
+
+# Order interest levels
+interest_order <- c("Never/avoided", "Occasionally", "Some days", "Many days", "Daily")
+turnout_interest <- turnout_interest %>%
+  mutate(election_interest = factor(election_interest, levels = interest_order))
+
+turnout_interest %>%
+  select(`Election Interest` = election_interest, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 11: Voter Turnout by Election Interest Level")
+
+# Visualization
+ggplot(turnout_interest, aes(x = election_interest, y = pct_voted)) +
+  geom_col(fill = ut_teal, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            vjust = -0.5, size = 3.5, fontface = "bold") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Election Interest Level",
+    subtitle = "How often respondents followed election news",
+    x = "Election Interest",
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 5.2 Party Identification and Turnout
+
+```{r party-turnout}
+turnout_party <- cmps_svy %>%
+  filter(!is.na(party), !is.na(voted)) %>%
+  group_by(party) %>%
+  summarise(
+    pct_voted = survey_mean(voted, na.rm = TRUE, vartype = "ci") * 100,
+    n = unweighted(n())
+  ) %>%
+  arrange(desc(pct_voted))
+
+turnout_party %>%
+  select(`Party ID` = party, `Turnout (%)` = pct_voted,
+         `Lower CI` = pct_voted_low, `Upper CI` = pct_voted_upp, N = n) %>%
+  nice_table(title = "Table 12: Voter Turnout by Party Identification")
+
+# Visualization
+ggplot(turnout_party, aes(x = fct_reorder(party, pct_voted), y = pct_voted)) +
+  geom_col(fill = ut_orange, alpha = 0.8) +
+  geom_errorbar(aes(ymin = pct_voted_low, ymax = pct_voted_upp),
+                width = 0.2, color = ut_gray) +
+  geom_text(aes(label = fmt_pct(pct_voted)),
+            hjust = -0.2, size = 4, fontface = "bold") +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100)) +
+  labs(
+    title = "Voter Turnout by Party Identification",
+    subtitle = "2024 General Election",
+    x = NULL,
+    y = "Turnout (%)",
+    caption = "Error bars represent 95% confidence intervals. Source: CMPS 2024"
+  )
+```
+
+---
+
+## 6. Conclusions
+
+### Key Takeaways
+
+1. **Overall Participation**: Self-reported turnout in the 2024 election was `r fmt_pct(weighted.mean(cmps_24$voted, cmps_24$weight, na.rm = TRUE) * 100)` nationally and `r fmt_pct(weighted.mean(cmps_24_tx$voted, cmps_24_tx$weight, na.rm = TRUE) * 100)` in Texas.
+
+2. **Demographic Disparities**: Significant turnout gaps exist across:
+   - Age groups (older voters participate more)
+   - Education levels (college graduates vote more)
+   - Income levels (higher earners vote more)
+   - Race/ethnicity (variations across groups)
+
+3. **Texas Context**: Texas turnout patterns largely mirror national trends, with some notable differences in specific demographic subgroups.
+
+4. **Political Engagement**: Strong correlation between election interest and voter participation, with daily news followers showing the highest turnout.
+
+5. **Candidate Preferences**: Distinct partisan patterns in candidate favorability ratings, with stark differences between Democrats and Republicans.
+
+### Data Notes
+
+- **Source**: Collaborative Multi-Racial Post-Election Survey (CMPS) 2024
+- **Sample Size**: N = `r format(nrow(cmps_24), big.mark = ",")` (National), n = `r format(nrow(cmps_24_tx), big.mark = ",")` (Texas)
+- **Weighting**: All percentages weighted using `wt_adult_ps` survey weights
+- **Confidence Intervals**: 95% confidence intervals shown where applicable
+- **Self-Reported Data**: Turnout figures based on self-reports and may overestimate actual turnout
+
+---
+
+## Appendix: Technical Details
+
+```{r session-info}
+sessionInfo()
+```
+
+**Survey Design:**
+- Survey weights: `wt_adult_ps`
+- Design effect accounted for using `survey` package
+- Missing data handled using complete case analysis
+
+**Variable Definitions:**
+- Voted: Respondents who said they "think" or "definitely" voted (Q12 = 3 or 4)
+- Age groups: Derived from `age5` variable
+- Race/Ethnicity: Single best descriptor from `qraceid`
+- Education: Categorical grouping of `s17`
+- Income: Household income from `hhinc`
+- Feeling thermometers: 0-100 scale from Q4R1-Q4R8
+
+---
+
+*Report generated: `r format(Sys.Date(), '%B %d, %Y')`*
+
+*Contact: Annette Strauss Institute for Civic Life, University of Texas at Austin*

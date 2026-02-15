@@ -1,0 +1,323 @@
+---
+title: "Voter Apathy and Non-Participation in the 2024 U.S. General Election"
+subtitle: "An Exploratory Analysis with Focus on Texas"
+author: "Annette Strauss Institute for Civic Life, University of Texas at Austin"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    code_folding: hide
+    fig_width: 11
+    fig_height: 7
+    df_print: paged
+---
+
+<style>
+.main-container {
+  max-width: 1400px;
+}
+body {
+  font-size: 11pt;
+}
+h1 {
+  color: #BF5700;
+  border-bottom: 2px solid #BF5700;
+  padding-bottom: 10px;
+}
+h2 {
+  color: #005F86;
+}
+.caption {
+  font-style: italic;
+  color: #666;
+  font-size: 0.9em;
+}
+</style>
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE,
+  fig.align = "center",
+  cache = FALSE
+)
+
+# Load packages
+library(tidyverse)
+library(haven)
+library(labelled)
+library(survey)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(forcats)
+
+
+# Set UT Austin branding colors
+ut_orange <- "#BF5700"
+ut_blue <- "#005F86"
+ut_teal <- "#00A9B7"
+ut_gray <- "#666666"
+
+# Custom ggplot theme
+theme_asi <- function() {
+  theme_minimal(base_size = 11) +
+    theme(
+      plot.title = element_text(face = "bold", size = 13, color = ut_blue),
+      plot.subtitle = element_text(size = 10, color = ut_gray, margin = margin(b = 10)),
+      plot.caption = element_text(size = 8, color = ut_gray, hjust = 0),
+      axis.title = element_text(size = 10, face = "bold"),
+      legend.position = "bottom",
+      legend.title = element_text(face = "bold", size = 9),
+      strip.text = element_text(face = "bold", size = 10, color = ut_blue),
+      strip.background = element_rect(fill = "gray95", color = NA),
+      panel.grid.minor = element_blank(),
+      panel.border = element_rect(color = "gray80", fill = NA)
+    )
+}
+
+theme_set(theme_asi())
+
+# Color palette for participation
+part_colors <- c(
+  "Voted" = "#2ecc71",
+  "Registered, no vote" = "#f39c12", 
+  "Not registered" = "#e74c3c"
+)
+
+# Helper: Create publication-ready tables with sample sizes
+nice_table <- function(df, title = NULL, digits = 2, include_n = TRUE) {
+  raw_names <- names(df)
+  pretty_names <- raw_names %>%
+    str_replace_all("_", " ") %>%
+    str_replace("^pct ", "") %>%
+    str_replace("^pct", "") %>%
+    str_replace("^n ", "N ")
+  pct_cols <- str_detect(raw_names, "^pct[_ ]")
+  pretty_names[pct_cols] <- paste0(pretty_names[pct_cols], " (%)")
+  pretty_names[str_detect(raw_names, "^n[_ ]")] <- str_replace(pretty_names[str_detect(raw_names, "^n[_ ]")], "^n ", "N ")
+
+  df %>%
+    mutate(across(where(is.numeric), ~ round(., digits = digits))) %>%
+    kable(
+      caption = title, 
+      col.names = pretty_names,
+      format = "html",
+      booktabs = TRUE,
+      align = "c"
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      position = "left",
+      font_size = 11
+    ) %>%
+    row_spec(0, bold = TRUE, color = "white", background = ut_blue)
+}
+
+# Helper: Format percentages
+fmt_pct <- function(x, digits = 1) {
+  paste0(round(x * 100, digits), "%")
+}
+
+```
+
+```{r data-precompute, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
+cmps_path <- "cmps_data/cmps2024_fulladult_112425.csv"
+cmps_raw <- read.csv(cmps_path)
+
+# Diagnostic: Check if agecat exists and its values
+cat("Age variable check:\n")
+cat("agecat exists:", "agecat" %in% names(cmps_raw), "\n")
+if("agecat" %in% names(cmps_raw)) {
+  cat("agecat values:\n")
+  print(table(cmps_raw$agecat, useNA = "ifany"))
+}
+
+# CMPS Prep Relabelling variables used in eda
+cmps_24 <- cmps_raw %>%
+  mutate(
+    state = s21, 
+    texas = (state == 44), 
+    vote24 = case_when(
+      q12 == 1 ~ "I did not vote",
+      q12 == 2 ~ "I don't think I voted",
+      q12 == 3 ~ "I think I voted",
+      q12 == 4 ~ "I definitely voted",
+      TRUE ~ NA_character_
+    ),
+    vote24_binary = case_when(
+    vote24 == "I did not vote" ~ 0,
+    vote24 == "I don't think I voted" ~ 0,
+    vote24 == "I think I voted" ~ 1,
+    vote24 == "I definitely voted" ~ 1,
+    TRUE ~ NA_real_),
+    registered = case_when(
+      s27 == 1 ~ "Registered",
+      s27 == 2 ~ "Not registered",
+      s27 == 3 ~  "Not eligible to register",
+      TRUE ~ NA_character_
+    ),
+    age_group = case_when(
+    agecat == 1 ~ "16-17",
+    agecat == 2 ~ "18-29",
+    agecat == 3 ~ "30-44",
+    agecat == 4 ~ "45-64", 
+    agecat == 5 ~ "65+",
+    TRUE ~ NA_character_
+    ),
+    race_id = case_when( 
+    qraceid == 1 ~ "White",
+    qraceid == 2 ~ "Latino",
+    qraceid == 3 ~ "Black",
+    qraceid == 4 ~ "Asian",
+    qraceid == 5 ~ "Native",
+    qraceid == 6 ~ "MENA",
+    qraceid == 7 ~ "NHPI"),
+    hhi = case_when(
+      hhinc == 1 ~ "Under $39k",
+      hhinc == 2 ~ "$40k - $590k",
+      hhinc == 3 ~ "$60k - $99k",
+      hhinc == 4 ~ "Over $100k",
+      hhinc == 5 ~ "DK",
+      TRUE ~ NA_character_
+    ),
+    educ = case_when(
+      s17 == 1 ~ "Grade 1-8",
+      s17 == 2 ~ "Some HS",
+      s17 == 3 ~ "GED",
+      s17 == 4 ~ "Some college",
+      s17 == 5 ~ "AA/Tech",
+      s17 == 6 ~ "BA/BS",
+      s17 == 7 ~ "Postgrad Degree",
+      TRUE ~ NA_character_
+    ),
+    educat = case_when(
+      s17 %in% c(1, 2, 3) ~ "HS or less",
+      s17 %in% c(4, 5) ~ "Some college",
+      s17 %in% c(6, 7) ~ "4yr degree",
+      TRUE ~ NA_character_
+    ),
+    ideology = case_when(
+      q8 == 1 ~ "Very liberal", 
+      q8 == 2 ~ "Liberal",
+      q8 == 3 ~ "Moderate but lean Liberal",
+      q8 == 4 ~ "Moderate",
+      q8 == 5 ~ "Moderate but lean Conservative",
+      q8 == 6 ~ "Conservative",
+      q8 == 7 ~ "Very conservative",
+      q8 == 8 ~ "I don't think of myself in these terms",
+      TRUE ~ NA_character_
+    ),
+    election_interest = case_when(
+      q25b == 1 ~ "Daily",
+      q25b == 2 ~ "Many days but not daily",
+      q25b == 3 ~ "Some days",
+      q25b == 4 ~ "Occasionally, not a lot",
+      q25b == 5 ~ "Never, or avoided it",
+      TRUE ~ NA_character_
+    ),
+    gender = case_when(
+      s14 == 1 ~ "Male",
+      s14 == 2 ~ "Woman",
+      s14 == 3 ~ "Non-binary",
+      TRUE ~ NA_character_
+    ),
+    party4cat = s28,
+    dem_satisfied = q1, 
+    ft_democrats = q3r1,
+    ft_republicans = q3r2,
+    ft_independents = q3r3,
+    ft_nonvoters = q3r4,
+    ft_black = q3r5,
+    ft_white = q3r6,
+    ft_hisp = q3r7,
+    ft_asian = q3r8,
+    ft_mena = q3r9,
+    ft_native = q3r10,
+    ft_muslim = q3r11,
+    ft_christian = q3r13,
+    ft_gaylesbian = q3r14,
+    ft_trans = q3r15,
+    ft_undoc = q3r16,
+    ft_jan6 = q3r17,
+    ft_blmprotest = q3r18,
+    ft_palestineprotest = q3r19,
+    ft_trump = q4r1,
+    ft_biden = q4r2,
+    ft_harris = q4r3,
+    ft_pence = q4r4,
+    ft_obama = q4r5,
+    ft_newsome = q4r6,
+    ft_musk = q4r7,
+    ft_netanyahu = q4r8)
+
+# Diagnostic: Check age_group after creation
+cat("\nage_group after creation:\n")
+print(table(cmps_24$age_group, useNA = "ifany"))
+
+# Diagnostic: Check vote24_binary and weights
+cat("\nvote24_binary distribution:\n")
+print(table(cmps_24$vote24_binary, useNA = "ifany"))
+cat("\nWeight variable (wt_adult_ps) summary:\n")
+print(summary(cmps_24$wt_adult_ps))
+
+# Turnout by Age
+pct_turnout_by_age <- cmps_24 %>%
+  filter(!is.na(age_group), !is.na(vote24_binary), !is.na(wt_adult_ps)) %>%
+  group_by(age_group) %>%
+  summarise(
+    n = n(),
+    pct = weighted.mean(vote24_binary, wt_adult_ps) * 100, 
+    .groups = "drop"
+  )
+
+# Show the result
+cat("\nTurnout by age result:\n")
+print(pct_turnout_by_age)
+
+# Turnout by Race / Ethnic ID
+pct_turnout_by_race <- cmps_24 %>%
+  filter(!is.na(race_id), !is.na(vote24_binary), !is.na(wt_adult_ps)) %>%
+  group_by(race_id) %>%
+  summarise(
+    n = n(),
+    pct = weighted.mean(vote24_binary, wt_adult_ps) * 100, 
+    .groups = "drop"
+  )
+cat("\nTurnout by race result:\n")
+print(pct_turnout_by_race)
+table(cmps_24$race_id, cmps_24$vote24_binary)
+
+# Texas subsample
+cmps_24_tx <- cmps_24 %>%
+  filter(state == 48)
+
+# Diagnostic: Check Texas subsample size
+cat("\nTexas subsample:\n")
+cat("Total TX respondents:", nrow(cmps_24_tx), "\n")
+cat("TX as % of total sample:", round(nrow(cmps_24_tx) / nrow(cmps_24) * 100, 1), "%\n")
+````
+
+# Variable Reference Table
+
+```{r var-table, echo=FALSE}
+var_ref <- tribble(
+  ~Variable, ~Source, ~Definition, ~Coding, ~Note,
+  
+# CMPS 2024
+  "vote24_binary", "CMPS", "Self-reported turnout (binary)", "0=No, 1=Yes", "Primary outcome",
+  )
+  
+)
+
+var_ref %>%
+  nice_table(title = "Complete Variable Reference")
+```
+
