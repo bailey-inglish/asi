@@ -322,7 +322,7 @@ print(dupe_ids_2024)
 #   collect()
 
 me <- voters_source %>%
-  filter(name_first == "EUGENIA", name_last == "QUINTANILLA") %>%
+  filter(email_1 == "kc46982@my.utexas.edu") %>%
   collect()
 
 old <- voters_source %>%
