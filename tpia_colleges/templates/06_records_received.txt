@@ -1,0 +1,39 @@
+{{TODAY}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Confirmation of Records Receipt – TPIA Request Submitted {{DATE_SENT}}
+    Student Directory Information
+
+To the Public Information Officer:
+
+I am writing to confirm that I have received the records provided by {{INSTITUTION}}
+in response to my Texas Public Information Act request submitted on {{DATE_SENT}}.
+
+[CUSTOMIZE AS NEEDED:]
+
+The records received include:
+  •  [Description of what was received, e.g., "a CSV file containing X student
+     records with fields for name and institutional email address"]
+  •  [Note any records withheld or fields redacted, e.g., "Records for approximately
+     Y students who filed FERPA opt-out requests were appropriately withheld."]
+
+[IF RECORDS ARE INCOMPLETE — use this paragraph:]
+Please note that I believe the production may be incomplete because [explain]. I
+request that you provide the outstanding records or clarify what additional information
+is available within [X] business days.
+
+[IF RECORDS ARE COMPLETE — use this paragraph:]
+I am satisfied that this request has been fulfilled. Thank you for your cooperation and
+for processing this request in accordance with the Texas Public Information Act.
+
+Please do not hesitate to contact me if you have any questions or need additional
+information.
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

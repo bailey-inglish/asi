@@ -1,0 +1,42 @@
+{{TODAY}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Follow-Up – Texas Public Information Act Request Submitted {{DATE_SENT}}
+    Student Directory Information
+
+To the Public Information Officer:
+
+On {{DATE_SENT}}, I submitted a Texas Public Information Act request to {{INSTITUTION}}
+seeking student directory information (names and institutional email addresses) for
+currently enrolled students who have not filed a FERPA opt-out.
+
+As of today, {{TODAY}}, I have not received a response, a cost estimate, or a notice
+that your office is seeking an Attorney General's ruling. The statutory 10-business-day
+deadline established by Texas Government Code § 552.228 passed on {{DEADLINE_DATE}}
+({{BUSINESS_DAYS_ELAPSED}} business days have elapsed since the request was submitted).
+
+I respectfully request an update on the status of my request at your earliest
+convenience. Specifically:
+
+  •  Has the request been received and logged?
+  •  Is the agency processing it, or has it determined that an exception applies?
+  •  If an Attorney General opinion has been or will be sought, please provide the
+     date the request was submitted to the AG and the relevant open records letter
+     number.
+  •  If there are fees associated with the request, please provide a written cost
+     estimate before proceeding.
+
+Failure to respond in a timely manner may be reported to the Office of the Texas
+Attorney General as a potential violation of the Texas Public Information Act.
+We strongly prefer to resolve this cooperatively and appreciate your assistance.
+
+Please respond to this message or contact me directly:
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

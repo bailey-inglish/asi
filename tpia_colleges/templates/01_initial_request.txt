@@ -1,0 +1,54 @@
+{{TODAY}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Texas Public Information Act Request – Student Directory Information
+
+To the Public Information Officer:
+
+Pursuant to the Texas Public Information Act (Texas Government Code, Chapter 552), I hereby submit this written request for access to the following public records:
+
+  1. Current student roster (enrolled students for the most recent completed semester
+     and/or the current semester, whichever is most readily available), including for
+     each student:
+       a. Full name
+       b. Institutional email address
+       c. Any additional directory information maintained by the institution and
+          subject to public disclosure under TPIA (e.g., college/school of enrollment,
+          enrollment status [full-time/part-time], classification [freshman, sophomore,
+          junior, senior, graduate])
+
+Please note that we are requesting only directory information for students who have
+NOT filed a FERPA privacy restriction (Family Educational Rights and Privacy Act, 20
+U.S.C. § 1232g) opting out of directory information disclosure. We understand that
+information for students who have submitted such an opt-out is properly withheld.
+
+We request that the records be provided in electronic format (CSV, Excel, or plain
+text), delivered to the email address below. If electronic delivery is not possible,
+please contact us to arrange an alternative.
+
+If any portion of this request is unclear, please contact me so that I may clarify
+the request before the response deadline rather than deny the request outright.
+
+Under Section 552.228 of the Government Code, I request a waiver of any fees on the
+basis that providing this information primarily benefits the general public through
+academic research on civic engagement and voter participation. If fees cannot be
+waived, please notify me of the estimated cost before incurring any charges exceeding
+$40, so that I may choose whether to proceed.
+
+As you know, Section 552.228 requires a response within ten (10) business days of
+receipt of this request. We respectfully ask that you endeavor to respond by
+{{DEADLINE_DATE}}.
+
+Thank you for your prompt attention to this matter.
+
+Sincerely,
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}
+{{SENDER_ADDRESS}}

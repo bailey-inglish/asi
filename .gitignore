@@ -2,3 +2,5 @@
 briefs/thirdplace26/raw_data/ces.dta
 briefs/whyvote25/raw_data/ces.dta
 voterfile/*
+tpia_colleges/config.py
+tpia_colleges/requests.csv
