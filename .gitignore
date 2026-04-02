@@ -4,3 +4,4 @@ briefs/whyvote25/raw_data/ces.dta
 voterfile/*
 tpia_colleges/config.py
 tpia_colleges/requests.csv
+tpia_colleges/sender.json

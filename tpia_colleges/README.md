@@ -21,6 +21,41 @@ legally required to disclose under TPIA.
 
 ---
 
+## Quick Start
+
+**Requirements:** Python 3.10+, pip
+
+```bash
+# 1. Install dependencies (one-time)
+pip install -r requirements.txt
+
+# 2. Launch the tracker GUI
+streamlit run app.py
+```
+
+Your browser will open automatically to the tracker. The first launch creates
+`requests.csv` with all 91 institutions in "Draft" status.
+
+---
+
+## ⚠️ Verify Email Addresses Before Sending
+
+The email addresses in `colleges.csv` are sourced from background knowledge and are
+marked `verified: partial` — meaning they are plausible based on institutional naming
+conventions, but **must be confirmed against each institution's current website** before
+sending. A wrong email means your request goes to the wrong person (or bounces) and the
+10-day clock may not start.
+
+**Where to look on each institution's website:**
+- Search the site for "Public Information Officer", "Open Records", or "TPIA"
+- Check pages under: General Counsel → Public Information, or Legal Affairs → Records
+- Many institutions now use online portals (GovQA, Granicus); look for "Submit a Public
+  Records Request" or similar buttons
+- If the institution is part of a system (e.g., UT System, A&M System), the system-level
+  page may list PIO contacts for all member institutions
+
+---
+
 ## Texas Public Information Act — Key Requirements
 
 | Topic | Rule |
@@ -33,7 +68,7 @@ legally required to disclose under TPIA.
 | Clarification before denial | Agency must ask for clarification rather than deny an unclear request (§ 552.222) |
 
 **Business days** = Monday–Friday, excluding Texas state and federal holidays
-(see `tpia_tracker.py` → `tx_holidays()`).
+(the tracker calculates this automatically).
 
 ---
 
@@ -80,11 +115,12 @@ legally required to disclose under TPIA.
 
 | File | Description |
 |---|---|
+| `app.py` | **Main GUI** — run with `streamlit run app.py` |
 | `colleges.csv` | Master list of 91 Texas public institutions with TPIA contact info |
-| `requests.csv` | Auto-generated tracker (one row per institution); created by `init` |
-| `tpia_tracker.py` | Python CLI tool for sending requests, tracking, and follow-up |
-| `config.example.py` | SMTP/sender configuration template |
-| `config.py` | **Your actual config** (gitignored — never commit credentials) |
+| `requests.csv` | Auto-generated tracker (one row per institution); gitignored |
+| `sender.json` | Your name/contact info for templates (gitignored) |
+| `requirements.txt` | Python dependencies (`streamlit`, `pandas`) |
+| `tpia_tracker.py` | Advanced CLI tool (for power users / scripting) |
 | `templates/01_initial_request.txt` | Initial TPIA request |
 | `templates/02_follow_up.txt` | Follow-up when 10-day deadline is approaching/past |
 | `templates/03_fee_inquiry.txt` | Response to fee estimate notice |
@@ -94,77 +130,48 @@ legally required to disclose under TPIA.
 
 ---
 
-## Setup
+## Using the GUI
 
-**Requirements:** Python 3.10+, standard library only (no external packages needed).
+### First-time setup
 
-1. Copy the config template and fill in your SMTP credentials:
-   ```bash
-   cp config.example.py config.py
-   # Edit config.py with your name, email, and SMTP settings
-   ```
+1. Run `streamlit run app.py` — your browser opens automatically
+2. Fill in **Your Info** in the left sidebar (name, title, email, etc.) and click
+   **Save Info** — this auto-fills your signature in all templates
+3. The table shows all 91 institutions, all in "Draft" status
 
-2. Initialize the request tracker:
-   ```bash
-   python tpia_tracker.py init
-   ```
-   This creates `requests.csv` with one row per institution, all in `draft` status.
+### Sending requests (no SMTP required)
 
----
+The tracker does not send email on your behalf. It prepares the email so you send it
+from your normal email app. The workflow for each institution:
 
-## Usage
+1. **Select** the institution in the dropdown below the table
+2. Go to the **📧 Email Template** tab — the right template is pre-selected based on
+   the institution's current status
+3. **Copy the subject line** (click the 📋 icon in the top-right of the code block)
+4. **Copy the email body** (click the 📋 icon in the code block below)
+5. Click **"Open Email Client"** — opens your default mail app with To: and Subject:
+   already filled in
+6. **Paste the body**, review it, and hit Send
+7. Return to the tracker and click **"📤 Mark Sent (today)"** — starts the
+   10-business-day deadline clock automatically
 
-### Preview emails before sending (recommended first step)
+### Tracking responses
 
-```bash
-# Preview a single institution's email
-python tpia_tracker.py send UT001 --dry-run
+When a response arrives:
 
-# Preview all emails
-python tpia_tracker.py send-all --dry-run
-```
+1. Select the institution in the dropdown
+2. Click the appropriate **Quick Action** button, or use the "Set Any Status" dropdown:
+   - **✅ Mark Complete** — records received in full
+   - **⚖️ AG Opinion Requested** — auto-sets the 45-day AG deadline
+   - **🚫 Mark Denied** — opens the denial response template
+   - **💵 Fee Pending** — opens the fee inquiry template
+3. Add a note in the **📝 Notes** tab (e.g., "Called PIO 4/5 — said they'll respond by end of week")
 
-### Send requests
+### Overdue alerts
 
-```bash
-# Send to a single institution
-python tpia_tracker.py send UT001
-
-# Send to all draft institutions (prompts for confirmation)
-python tpia_tracker.py send-all
-```
-
-### Check status
-
-```bash
-python tpia_tracker.py status       # Summary dashboard
-python tpia_tracker.py deadlines    # Upcoming and overdue deadlines
-python tpia_tracker.py log CC018    # Full detail for one request
-```
-
-### Update a request's status
-
-```bash
-python tpia_tracker.py update UT001 acknowledged "Called front desk; confirmed receipt"
-python tpia_tracker.py update UT001 fee_pending "Quoted $25 for compilation"
-python tpia_tracker.py update UT001 ag_opinion_requested "Received notice; AG letter ORD-12345"
-python tpia_tracker.py update UT001 complete "Records received; 1,847 students"
-python tpia_tracker.py update UT001 denied "Cited § 552.101 (attorney–client privilege — incorrect basis)"
-```
-
-### Send follow-up emails to overdue requests
-
-```bash
-python tpia_tracker.py followup --dry-run   # Preview
-python tpia_tracker.py followup             # Send
-```
-
-### View a template
-
-```bash
-python tpia_tracker.py show-template 01_initial_request
-python tpia_tracker.py show-template 05_denial_response
-```
+If any request is past its 10-day (or 45-day AG) deadline, a red banner appears at the
+top of the page. Overdue institutions are sorted to the top of the dropdown. Select one
+and send a follow-up from the Email Template tab.
 
 ---
 
@@ -180,12 +187,8 @@ python tpia_tracker.py show-template 05_denial_response
 | `public_records_email` | Best-known TPIA contact email (verify before sending!) |
 | `public_records_portal` | Online portal URL, if known |
 | `contact_type` | `email`, `portal`, or `both` |
-| `verified` | `yes` = confirmed; `partial` = needs verification; `no` = unknown |
+| `verified` | `yes` = confirmed; `partial` = needs verification |
 | `notes` | Special circumstances, merged institutions, etc. |
-
-> **Important:** All emails marked `verified: partial` should be confirmed against the
-> institution's current website before sending. A good place to look is the institution's
-> General Counsel, Public Information Officer, or Legal Affairs page.
 
 ---
 
@@ -201,7 +204,7 @@ python tpia_tracker.py show-template 05_denial_response
 
 | System | Institutions |
 |---|---|
-| University of Texas System | UT Austin, UTA, UTD, UTEP, UTPB, UTRGV, UTSA, UT Tyler, UT Galveston (branch) |
+| University of Texas System | UT Austin, UTA, UTD, UTEP, UTPB, UTRGV, UTSA, UT Tyler, UT Galveston |
 | Texas A&M System | TAMU, TAMU-Commerce, TAMIU, TAMU-CC, TAMU-K, TAMU-SA, TAMU-T, TAMU-CT, PVAMU, Tarleton, WTAMU, TAMU-Galveston |
 | Texas State University System | Texas State, SHSU, Lamar, Sul Ross |
 | University of Houston System | UH, UHCL, UHD, UHV, SFA (joined 2023) |
@@ -225,5 +228,5 @@ python tpia_tracker.py show-template 05_denial_response
 - Student directory information for non-opt-out students is a well-established category
   of public records under Texas AG opinions (see ORD-679, 2001).
 - All data collected will be used solely for academic research and voter outreach.
-- IRB approval should be obtained for the voter outreach experiment component of the
+- **IRB approval** should be obtained for the voter outreach experiment component of the
   research before contacting students.

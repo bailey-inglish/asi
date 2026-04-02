@@ -114,8 +114,8 @@ def tx_holidays(year: int) -> set:
         last_weekday(year, 5, 0),    # Memorial Day – last Monday in May
         nth_weekday(year, 9, 1, 0),  # Labor Day – 1st Monday in Sep
         nth_weekday(year, 10, 2, 0), # Columbus Day – 2nd Monday in Oct
-        nth_weekday(year, 11, 4, 4), # Thanksgiving – 4th Thursday in Nov
-        nth_weekday(year, 11, 4, 4) + timedelta(days=1),  # Day after Thanksgiving
+        nth_weekday(year, 11, 4, 3), # Thanksgiving – 4th Thursday in Nov
+        nth_weekday(year, 11, 4, 3) + timedelta(days=1),  # Day after Thanksgiving
     ]
 
     # Shift Saturday holidays to Friday, Sunday to Monday
