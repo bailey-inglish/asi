@@ -178,6 +178,57 @@ def save_requests(df: pd.DataFrame):
     df.to_csv(REQUESTS_CSV, index=False)
 
 
+def save_colleges(df: pd.DataFrame):
+    df.to_csv(COLLEGES_CSV, index=False)
+
+
+def college_to_request_row(college_row: pd.Series) -> dict:
+    return {
+        "request_id":        str(college_row.get("id", "")),
+        "institution_id":    str(college_row.get("id", "")),
+        "institution":       str(college_row.get("institution", "")),
+        "type":              str(college_row.get("type", "")),
+        "system_district":   str(college_row.get("system_district", "")),
+        "city":              str(college_row.get("city", "")),
+        "recipient_email":   str(college_row.get("public_records_email", "")),
+        "date_sent":         "",
+        "status":            "draft",
+        "deadline_10day":    "",
+        "deadline_ag_45day": "",
+        "ag_notified_date":  "",
+        "last_updated":      str(date.today()),
+        "notes":             "",
+    }
+
+
+def sync_request_from_college(requests_df: pd.DataFrame, college_row: pd.Series) -> pd.DataFrame:
+    request_id = str(college_row.get("id", ""))
+    if not request_id:
+        return requests_df
+
+    mapped = {
+        "institution":     str(college_row.get("institution", "")),
+        "type":            str(college_row.get("type", "")),
+        "system_district": str(college_row.get("system_district", "")),
+        "city":            str(college_row.get("city", "")),
+        "recipient_email": str(college_row.get("public_records_email", "")),
+        "last_updated":    str(date.today()),
+    }
+
+    mask = requests_df["request_id"] == request_id
+    if mask.any():
+        for key, value in mapped.items():
+            requests_df.loc[mask, key] = value
+        requests_df.loc[mask, "institution_id"] = request_id
+    else:
+        requests_df = pd.concat(
+            [requests_df, pd.DataFrame([college_to_request_row(college_row)])],
+            ignore_index=True,
+        )
+
+    return requests_df
+
+
 def ensure_requests_initialized() -> pd.DataFrame:
     """Create requests.csv from colleges.csv if it doesn't exist or is missing rows."""
     colleges = load_colleges()
@@ -624,8 +675,8 @@ def main():
 
     # ── Right column: tabs ────────────────────────────────────────────────────
     with right_col:
-        tab_status, tab_notes, tab_template = st.tabs(
-            ["📊 Update Status", "📝 Notes", "📧 Email Template"]
+        tab_status, tab_notes, tab_template, tab_college = st.tabs(
+            ["📊 Update Status", "📝 Notes", "📧 Email Template", "🏫 College Record"]
         )
 
         # ── Update Status tab ──────────────────────────────────────────────────
@@ -818,6 +869,116 @@ def main():
             # Warn about any missing sender info
             if not all([current_sender.get("name"), current_sender.get("email")]):
                 st.info("💡 Fill in **Your Info** in the sidebar to auto-populate template placeholders.")
+
+        # ── College Record tab ───────────────────────────────────────────────
+        with tab_college:
+            st.markdown("#### Edit College Record")
+            colleges_df = load_colleges().copy()
+            college_mask = colleges_df["id"] == selected_id
+
+            if college_mask.any():
+                c_row = colleges_df[college_mask].iloc[0]
+
+                with st.form("edit_college_form"):
+                    st.text_input("ID", value=str(c_row.get("id", "")), disabled=True)
+                    edit_institution = st.text_input("Institution", value=str(c_row.get("institution", "")))
+                    edit_type = st.selectbox(
+                        "Type",
+                        options=["4yr", "2yr"],
+                        index=0 if str(c_row.get("type", "")) == "4yr" else 1,
+                    )
+                    edit_system = st.text_input("System / District", value=str(c_row.get("system_district", "")))
+                    edit_city = st.text_input("City", value=str(c_row.get("city", "")))
+                    edit_email = st.text_input("Public records email", value=str(c_row.get("public_records_email", "")))
+                    edit_portal = st.text_input("Public records website / portal", value=str(c_row.get("public_records_portal", "")))
+
+                    contact_options = ["email", "portal", "both"]
+                    current_contact_type = str(c_row.get("contact_type", "") or "email")
+                    contact_index = contact_options.index(current_contact_type) if current_contact_type in contact_options else 0
+                    edit_contact_type = st.selectbox("Contact type", options=contact_options, index=contact_index)
+
+                    verify_options = ["yes", "partial", "no"]
+                    current_verified = str(c_row.get("verified", "") or "partial")
+                    verify_index = verify_options.index(current_verified) if current_verified in verify_options else 1
+                    edit_verified = st.selectbox("Verified", options=verify_options, index=verify_index)
+
+                    edit_notes = st.text_area("College notes", value=str(c_row.get("notes", "")), height=110)
+                    save_college_edit = st.form_submit_button("💾 Save College Changes", use_container_width=True)
+
+                if save_college_edit:
+                    if not edit_institution.strip():
+                        st.error("Institution name is required.")
+                    else:
+                        colleges_df.loc[college_mask, "institution"] = edit_institution.strip()
+                        colleges_df.loc[college_mask, "type"] = edit_type
+                        colleges_df.loc[college_mask, "system_district"] = edit_system.strip()
+                        colleges_df.loc[college_mask, "city"] = edit_city.strip()
+                        colleges_df.loc[college_mask, "public_records_email"] = edit_email.strip()
+                        colleges_df.loc[college_mask, "public_records_portal"] = edit_portal.strip()
+                        colleges_df.loc[college_mask, "contact_type"] = edit_contact_type
+                        colleges_df.loc[college_mask, "verified"] = edit_verified
+                        colleges_df.loc[college_mask, "notes"] = edit_notes.strip()
+
+                        save_colleges(colleges_df)
+
+                        updated_college = colleges_df[college_mask].iloc[0]
+                        df = sync_request_from_college(df, updated_college)
+                        save_requests(df)
+
+                        load_colleges.clear()
+                        st.success("College record updated and synced to requests.")
+                        st.rerun()
+            else:
+                st.warning(
+                    "This request ID is not currently in colleges.csv. "
+                    "Use the form below to add it as a new college record."
+                )
+
+            st.markdown("#### Add New College")
+            with st.form("add_college_form"):
+                new_id = st.text_input("New ID", placeholder="e.g. CC056 or UT037")
+                new_institution = st.text_input("Institution name")
+                new_type = st.selectbox("Type", options=["4yr", "2yr"], key="new_type")
+                new_system = st.text_input("System / District")
+                new_city = st.text_input("City")
+                new_email = st.text_input("Public records email")
+                new_portal = st.text_input("Public records website / portal")
+                new_contact_type = st.selectbox("Contact type", options=["email", "portal", "both"], key="new_contact_type")
+                new_verified = st.selectbox("Verified", options=["yes", "partial", "no"], index=1, key="new_verified")
+                new_notes = st.text_area("Notes", height=90, key="new_college_notes")
+                add_college = st.form_submit_button("➕ Add College Record", type="primary", use_container_width=True)
+
+            if add_college:
+                clean_id = new_id.strip()
+                if not clean_id:
+                    st.error("ID is required.")
+                elif not new_institution.strip():
+                    st.error("Institution name is required.")
+                elif (colleges_df["id"] == clean_id).any() or (df["request_id"] == clean_id).any():
+                    st.error(f"A college/request with ID '{clean_id}' already exists.")
+                else:
+                    new_college_row = {
+                        "id": clean_id,
+                        "institution": new_institution.strip(),
+                        "type": new_type,
+                        "system_district": new_system.strip(),
+                        "city": new_city.strip(),
+                        "public_records_email": new_email.strip(),
+                        "public_records_portal": new_portal.strip(),
+                        "contact_type": new_contact_type,
+                        "verified": new_verified,
+                        "notes": new_notes.strip(),
+                    }
+
+                    colleges_df = pd.concat([colleges_df, pd.DataFrame([new_college_row])], ignore_index=True)
+                    save_colleges(colleges_df)
+
+                    df = sync_request_from_college(df, pd.Series(new_college_row))
+                    save_requests(df)
+
+                    load_colleges.clear()
+                    st.success(f"Added {new_institution.strip()} ({clean_id}) and initialized its draft request.")
+                    st.rerun()
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.divider()

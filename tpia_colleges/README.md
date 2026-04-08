@@ -23,18 +23,18 @@ legally required to disclose under TPIA.
 
 ## Quick Start
 
-**Requirements:** Python 3.10+, pip
+**Requirements:** Node.js 18+, npm
 
 ```bash
 # 1. Install dependencies (one-time)
-pip install -r requirements.txt
+npm install
 
-# 2. Launch the tracker GUI
-streamlit run app.py
+# 2. Launch the tracker UI
+npm run dev
 ```
 
-Your browser will open automatically to the tracker. The first launch creates
-`requests.csv` with all 91 institutions in "Draft" status.
+Open the local URL shown in the terminal. The app reads and writes directly to the
+existing CSV files in this folder.
 
 ---
 
@@ -115,12 +115,16 @@ sending. A wrong email means your request goes to the wrong person (or bounces) 
 
 | File | Description |
 |---|---|
-| `app.py` | **Main GUI** — run with `streamlit run app.py` |
+| `app/` | **Next.js app** — redesigned UI, dashboard, and edit workflows |
+| `components/` | Client-side UI components and shared display constants |
+| `lib/data.js` | CSV/file helpers for colleges, requests, sender profile, and templates |
+| `package.json` | Node dependencies and app scripts |
 | `colleges.csv` | Master list of 91 Texas public institutions with TPIA contact info |
 | `requests.csv` | Auto-generated tracker (one row per institution); gitignored |
 | `sender.json` | Your name/contact info for templates (gitignored) |
-| `requirements.txt` | Python dependencies (`streamlit`, `pandas`) |
-| `tpia_tracker.py` | Advanced CLI tool (for power users / scripting) |
+| `app.py` | Legacy Streamlit prototype kept for reference |
+| `requirements.txt` | Legacy Python dependencies |
+| `tpia_tracker.py` | Legacy CLI tool (for power users / scripting) |
 | `templates/01_initial_request.txt` | Initial TPIA request |
 | `templates/02_follow_up.txt` | Follow-up when 10-day deadline is approaching/past |
 | `templates/03_fee_inquiry.txt` | Response to fee estimate notice |
@@ -130,48 +134,37 @@ sending. A wrong email means your request goes to the wrong person (or bounces) 
 
 ---
 
-## Using the GUI
+## Using the UI
 
 ### First-time setup
 
-1. Run `streamlit run app.py` — your browser opens automatically
-2. Fill in **Your Info** in the left sidebar (name, title, email, etc.) and click
-   **Save Info** — this auto-fills your signature in all templates
-3. The table shows all 91 institutions, all in "Draft" status
+1. Run `npm run dev`
+2. Fill in **Sender profile** in the left sidebar under **Admin**
+3. Use the navigation rail to switch between **Overview**, **Institutions**, **Templates**, and **Admin**
 
 ### Sending requests (no SMTP required)
 
-The tracker does not send email on your behalf. It prepares the email so you send it
-from your normal email app. The workflow for each institution:
+The tracker still does not send email on your behalf. It prepares the subject/body so
+you can send from your normal email app. The workflow for each institution:
 
-1. **Select** the institution in the dropdown below the table
-2. Go to the **📧 Email Template** tab — the right template is pre-selected based on
-   the institution's current status
-3. **Copy the subject line** (click the 📋 icon in the top-right of the code block)
-4. **Copy the email body** (click the 📋 icon in the code block below)
-5. Click **"Open Email Client"** — opens your default mail app with To: and Subject:
-   already filled in
-6. **Paste the body**, review it, and hit Send
-7. Return to the tracker and click **"📤 Mark Sent (today)"** — starts the
-   10-business-day deadline clock automatically
+1. Select an institution from the **Institutions** view
+2. Open the **Templates** view
+3. Copy the subject and body or open the mail client link
+4. Return to **Institutions** and use the quick action buttons to mark the request sent
 
 ### Tracking responses
 
 When a response arrives:
 
-1. Select the institution in the dropdown
-2. Click the appropriate **Quick Action** button, or use the "Set Any Status" dropdown:
-   - **✅ Mark Complete** — records received in full
-   - **⚖️ AG Opinion Requested** — auto-sets the 45-day AG deadline
-   - **🚫 Mark Denied** — opens the denial response template
-   - **💵 Fee Pending** — opens the fee inquiry template
-3. Add a note in the **📝 Notes** tab (e.g., "Called PIO 4/5 — said they'll respond by end of week")
+1. Select the institution in **Institutions**
+2. Use the quick actions to set status, deadlines, and notes
+3. Add or review notes in the timeline panel
+4. Use **Admin** if the institution's contact record changed and needs updating
 
 ### Overdue alerts
 
-If any request is past its 10-day (or 45-day AG) deadline, a red banner appears at the
-top of the page. Overdue institutions are sorted to the top of the dropdown. Select one
-and send a follow-up from the Email Template tab.
+If any request is past its deadline, the top summary cards and selected-record detail
+make that status obvious at a glance.
 
 ---
 
