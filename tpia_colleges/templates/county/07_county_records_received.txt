@@ -1,0 +1,17 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: Confirmation of Records Received
+
+Thank you. This message confirms receipt of records related to the voter registration and voting history request.
+
+If additional files become available, please send them as a supplemental production.
+
+Best regards,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

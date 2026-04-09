@@ -1,45 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
-import EditRecordForm from './EditRecordForm';
-import MobileBrowseSheet from './MobileBrowseSheet';
+import CountyMobileBrowseSheet from './CountyMobileBrowseSheet';
 import NotesTimeline from './NotesTimeline';
-import RecordHeader from './RecordHeader';
 import TemplateStudio from './TemplateStudio';
 
-export default function MobilePortraitShell({
+export default function CountyMobilePortraitShell({
   selected,
   selectedId,
   records,
+  onSelectRecord,
   selectedEmail,
   selectedPortal,
   currentStatus,
   statusKeys,
   statusMetaMap,
   selectedStatusMeta,
-  lastUpdated,
-  recentRecords,
-  noteAuthor,
-  noteEntries,
-  timelineEntries,
-  recordDraft,
-  recordDirty,
-  selectedCounty,
-  texasCounties,
-  onFieldChange,
-  onSaveRecord,
   noteDraft,
   onChangeNote,
+  noteEntries,
+  timelineEntries,
   onAddNote,
-  onSelectRecord,
-  onCopyTemplate,
+  countyDraft,
+  onCountyDraftChange,
+  onSaveCounty,
   onStatusChange,
   templateName,
   templateLabels,
   templateKey,
   templateText,
-  onTemplateKeyChange,
   subject,
-  onOpenSenderModal,
-  onOpenAddModal,
+  onTemplateKeyChange,
+  onCopyTemplate,
+  onCopySubject,
+  onCopyBody,
+  onSendEmail,
   onOpenScreenMenu,
 }) {
   const [mobileTab, setMobileTab] = useState('details');
@@ -54,40 +47,36 @@ export default function MobilePortraitShell({
     if (!selected) return [];
 
     return [
-      { label: 'City', value: selected.city || 'N/A' },
-      { label: 'Type', value: selected.type || 'N/A' },
-      { label: 'County', value: selected.county || 'Unassigned' },
-      { label: 'System', value: selected.system_district || 'N/A' },
-      { label: 'Verification', value: selected.verified || 'N/A' },
-      { label: 'Updated', value: lastUpdated },
+      { label: 'Status', value: statusMetaMap[selected.status]?.label || selected.status || 'draft' },
+      { label: 'Verification', value: countyDraft?.verified || selected.verified || 'no' },
+      { label: 'Institutions', value: String(selected.associated_institutions_count || 0) },
+      { label: 'Enrollment', value: Number(selected.primary_county_enrollment_total || 0).toLocaleString() },
     ];
-  }, [lastUpdated, selected]);
+  }, [countyDraft?.verified, selected, statusMetaMap]);
 
-  const onBrowseSelect = (record) => {
-    onSelectRecord(record);
-    setBrowseOpen(false);
-    setMobileTab('details');
-  };
-
-  if (!selected) return null;
+  if (!selected || !countyDraft) return null;
 
   return (
     <>
-      <MobileBrowseSheet
+      <CountyMobileBrowseSheet
         open={browseOpen}
         records={records}
-        recentRecords={recentRecords}
+        recentRecords={records.slice(0, 6)}
         selectedId={selectedId}
         statusKeys={statusKeys}
         statusMetaMap={statusMetaMap}
         onClose={() => setBrowseOpen(false)}
-        onSelectRecord={onBrowseSelect}
+        onSelectRecord={(record) => {
+          onSelectRecord(record);
+          setBrowseOpen(false);
+          setMobileTab('details');
+        }}
       />
 
-      <div className="mobile-shell">
-        <div className="mobile-top-toolbar" role="region" aria-label="Browse actions">
+      <div className="mobile-shell county-mobile-shell">
+        <div className="mobile-top-toolbar" role="region" aria-label="County actions">
           <button className="button-secondary mobile-browser-button" type="button" onClick={() => setBrowseOpen(true)}>
-            Select Institution
+            Select County
           </button>
           {onOpenScreenMenu ? (
             <button
@@ -100,13 +89,13 @@ export default function MobilePortraitShell({
               ⇄
             </button>
           ) : null}
-          <button className="button mobile-add-button" type="button" onClick={onOpenAddModal} aria-label="Add institution" title="Add institution">
-            +
-          </button>
         </div>
 
         <section className="main-card mobile-focus-card">
-          <RecordHeader selected={selected} statusMeta={selectedStatusMeta} lastUpdated={lastUpdated} />
+          <div className="record-header-tight">
+            <h2 className="record-title">{selected.county_name} County</h2>
+            <div className="meta">County elections/open records workflow</div>
+          </div>
 
           <div className="mobile-meta-row">
             <div className="kv mobile-status-card">
@@ -127,14 +116,14 @@ export default function MobilePortraitShell({
           </div>
 
           <div className="mobile-summary-grid">
-            <div className="kv"><strong>Public records email</strong>{selectedEmail ? <a className="kv-value kv-link" href={`mailto:${selectedEmail}`}>{selectedEmail}</a> : <span className="kv-value">None</span>}</div>
+            <div className="kv"><strong>County email</strong>{selectedEmail ? <a className="kv-value kv-link" href={`mailto:${selectedEmail}`}>{selectedEmail}</a> : <span className="kv-value">None</span>}</div>
             <div className="kv"><strong>Portal</strong>{selectedPortal ? <a className="kv-value kv-url kv-link" href={selectedPortal} target="_blank" rel="noreferrer">{selectedPortal}</a> : <span className="kv-value">None</span>}</div>
           </div>
 
           <div className="tabs mobile-tabs">
             <button type="button" className={`tab ${mobileTab === 'details' ? 'active' : ''}`} onClick={() => setMobileTab('details')}>Details</button>
             <button type="button" className={`tab ${mobileTab === 'timeline' ? 'active' : ''}`} onClick={() => setMobileTab('timeline')}>Timeline</button>
-            <button type="button" className={`tab ${mobileTab === 'edit' ? 'active' : ''}`} onClick={() => setMobileTab('edit')}>Edit Institution</button>
+            <button type="button" className={`tab ${mobileTab === 'edit' ? 'active' : ''}`} onClick={() => setMobileTab('edit')}>Edit County</button>
             <button type="button" className={`tab ${mobileTab === 'templates' ? 'active' : ''}`} onClick={() => setMobileTab('templates')}>Template Studio</button>
           </div>
 
@@ -156,7 +145,7 @@ export default function MobilePortraitShell({
               <section className="mobile-tab-panel">
                 <NotesTimeline
                   noteDraft={noteDraft}
-                  noteAuthor={noteAuthor}
+                  noteAuthor=""
                   noteEntries={noteEntries}
                   timelineEntries={timelineEntries}
                   onChangeNote={onChangeNote}
@@ -167,14 +156,15 @@ export default function MobilePortraitShell({
 
             {mobileTab === 'edit' ? (
               <section className="mobile-tab-panel">
-                <EditRecordForm
-                  recordDraft={recordDraft}
-                  selectedCounty={selectedCounty}
-                  texasCounties={texasCounties}
-                  onFieldChange={onFieldChange}
-                  onSave={onSaveRecord}
-                  recordDirty={recordDirty}
-                />
+                <div className="form-grid">
+                  <div><label className="label">Contact name</label><input className="field" value={countyDraft.contact_name} onChange={(event) => onCountyDraftChange('contact_name', event.target.value)} /></div>
+                  <div><label className="label">Phone</label><input className="field" value={countyDraft.phone} onChange={(event) => onCountyDraftChange('phone', event.target.value)} /></div>
+                  <div><label className="label">Email</label><input className="field" value={countyDraft.email} onChange={(event) => onCountyDraftChange('email', event.target.value)} /></div>
+                  <div><label className="label">Portal</label><input className="field" value={countyDraft.portal} onChange={(event) => onCountyDraftChange('portal', event.target.value)} /></div>
+                </div>
+                <div className="form-actions" style={{ marginTop: 10 }}>
+                  <button className="button-secondary" type="button" onClick={onSaveCounty}>Save county contact details</button>
+                </div>
               </section>
             ) : null}
 
@@ -188,15 +178,9 @@ export default function MobilePortraitShell({
                   templateText={templateText}
                   onTemplateKeyChange={onTemplateKeyChange}
                   onCopyTemplate={onCopyTemplate}
-                  onCopySubject={() => navigator.clipboard.writeText(subject)}
-                  onCopyBody={() => navigator.clipboard.writeText(templateText)}
+                  onCopySubject={onCopySubject}
+                  onCopyBody={onCopyBody}
                 />
-
-                <div className="mobile-template-tools">
-                  <button className="button-secondary" type="button" onClick={onOpenSenderModal}>
-                    Edit sender
-                  </button>
-                </div>
               </section>
             ) : null}
           </div>

@@ -1,0 +1,17 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: Fee Estimate Response and Waiver Request
+
+Thank you for the fee estimate related to my TPIA request for voter registration and voting history records.
+
+I respectfully request a fee waiver or reduction because this request supports non-commercial public-interest research. If waiver is unavailable, please advise the minimum production scope available under a reduced cost option.
+
+Sincerely,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

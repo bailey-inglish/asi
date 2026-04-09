@@ -319,7 +319,7 @@ function isRecordOverdue(record) {
   return deadlineUtc < todayUtc;
 }
 
-export default function TrackerApp() {
+export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = null } = {}) {
   const [state, setState] = useState(null);
   const [selectedId, setSelectedId] = useState('');
   const [search, setSearch] = useState('');
@@ -370,9 +370,7 @@ export default function TrackerApp() {
     }
   }
 
-  async function loadState() {
-    const response = await fetch('/api/state', { cache: 'no-store' });
-    const payload = await response.json();
+  function applyLoadedState(payload) {
     setState(payload);
     const nextRecords = payload.records || [];
     setSelectedId((current) => {
@@ -386,9 +384,19 @@ export default function TrackerApp() {
     });
   }
 
+  async function loadState() {
+    const response = await fetch('/api/state', { cache: 'no-store' });
+    const payload = await response.json();
+    applyLoadedState(payload);
+  }
+
   useEffect(() => {
+    if (preloadedState) {
+      applyLoadedState(preloadedState);
+      return;
+    }
     loadState().catch((error) => setMessage(error.message));
-  }, []);
+  }, [preloadedState]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -994,10 +1002,16 @@ export default function TrackerApp() {
   if (!state || !selected) {
     return (
       <div className="workspace">
-        <div className="hero-card panel">
+        <div className="hero-card panel skeleton-shell">
           <div className="hero-copy">
-            <h1 className="page-title">Loading tracker...</h1>
-            <p className="helper">Reading colleges.csv, requests.csv, and sender.json.</p>
+            <div className="skeleton-line skeleton-title" />
+            <div className="skeleton-line skeleton-subtitle" />
+            <div className="skeleton-grid" style={{ marginTop: 14 }}>
+              <div className="skeleton-card" />
+              <div className="skeleton-card" />
+              <div className="skeleton-card" />
+              <div className="skeleton-card" />
+            </div>
           </div>
         </div>
       </div>
@@ -1053,6 +1067,7 @@ export default function TrackerApp() {
         subject={subject}
         onOpenSenderModal={() => setShowSenderModal(true)}
         onOpenAddModal={() => setShowAddModal(true)}
+        onOpenScreenMenu={onOpenScreenMenu}
         onOpenCommandPalette={() => setShowCommandPalette(true)}
         bulkMode={bulkMode}
         bulkSelectedCount={bulkSelected.length}
@@ -1061,7 +1076,7 @@ export default function TrackerApp() {
         onBulkCopy={() => handleBulkCopy().catch((error) => setMessage(error.message))}
       />
 
-      <div className="workspace desktop-layout">
+      <div className="workspace workspace-fixed desktop-layout">
       <section className="hero-card panel compact-hero">
         <div className="compact-hero-grid">
           <div>
@@ -1086,7 +1101,7 @@ export default function TrackerApp() {
         </div>
       </section>
 
-      <div style={{ height: 18 }} />
+      <div className="workspace-gap" />
 
       <div className={`workflow-grid ${isNarrow ? 'two-col' : ''}`}>
         <section className="main-card list-panel">

@@ -1,0 +1,19 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: Follow-Up on TPIA Request Sent {{DATE_SENT}}
+
+Hello,
+
+I am following up on my Texas Public Information Act request regarding the voter registration list and available voting history records for {{COUNTY_NAME}} County.
+
+Please share a status update on expected production timing and whether any clarifications are needed.
+
+Thank you,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

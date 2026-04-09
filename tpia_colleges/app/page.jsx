@@ -1,5 +1,5 @@
-import TrackerApp from '../components/TrackerApp';
+import WorkspaceTabs from '../components/WorkspaceTabs';
 
 export default function Page() {
-  return <TrackerApp />;
+  return <WorkspaceTabs />;
 }

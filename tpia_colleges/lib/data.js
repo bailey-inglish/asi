@@ -143,6 +143,16 @@ const CITY_TO_COUNTY = {
   'wichita falls': 'Wichita',
 };
 
+const MULTI_COUNTY_OVERRIDES = {
+  'sul ross state university system (all campuses)': ['Brewster', 'Val Verde', 'Maverick', 'Uvalde'],
+  'university of north texas system (all campuses)': ['Denton', 'Dallas', 'Tarrant'],
+  'texas tech university system (all campuses)': ['Lubbock', 'Tom Green'],
+  'texas state technical college': ['McLennan', 'Bell', 'Taylor', 'Hidalgo', 'El Paso'],
+  'austin community college district': ['Travis', 'Williamson', 'Hays', 'Bastrop'],
+  'blinn college district': ['Washington', 'Brazos', 'Waller'],
+  'lone star college system': ['Montgomery', 'Harris'],
+};
+
 function normalizeCity(city) {
   return String(city || '')
     .replace(/\(.*?\)/g, '')
@@ -157,6 +167,96 @@ function normalizeOutputRow(row) {
     normalized[key] = value == null ? '' : String(value);
   }
   return normalized;
+}
+
+function normalizeCountyToken(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function dedupeCountyList(list) {
+  const seen = new Set();
+  const ordered = [];
+  for (const county of list) {
+    const normalized = normalizeCountyToken(county);
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    ordered.push(normalized);
+  }
+  return ordered;
+}
+
+export function parseCollegeAllCounties(value, fallbackCounty = '') {
+  const fallback = normalizeCountyToken(fallbackCounty);
+  if (Array.isArray(value)) {
+    const parsed = dedupeCountyList(value);
+    return parsed.length ? parsed : (fallback ? [fallback] : []);
+  }
+
+  if (value == null || value === '') {
+    return fallback ? [fallback] : [];
+  }
+
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (Array.isArray(parsed)) {
+      const list = dedupeCountyList(parsed);
+      return list.length ? list : (fallback ? [fallback] : []);
+    }
+  } catch {
+    // Fall through to string parsing below.
+  }
+
+  const list = dedupeCountyList(String(value).split(',').map((item) => item.trim()));
+  return list.length ? list : (fallback ? [fallback] : []);
+}
+
+function deriveAllCountiesForCollege(college, collegesBySystemDistrict) {
+  const primaryCounty = normalizeCountyToken(college.county);
+  const institutionKey = String(college.institution || '').trim().toLowerCase();
+  const systemDistrict = String(college.system_district || '').trim();
+
+  const counties = [];
+  if (primaryCounty) counties.push(primaryCounty);
+
+  const override = MULTI_COUNTY_OVERRIDES[institutionKey] || [];
+  counties.push(...override);
+
+  // For explicit consolidated rows, expand by counties represented across the same system in this dataset.
+  if (institutionKey.includes('all campuses') && systemDistrict) {
+    const fromSystem = collegesBySystemDistrict.get(systemDistrict) || [];
+    counties.push(...fromSystem);
+  }
+
+  return dedupeCountyList(counties);
+}
+
+function enrichCollegeAllCounties(colleges) {
+  const bySystemDistrict = new Map();
+  for (const college of colleges) {
+    const systemDistrict = String(college.system_district || '').trim();
+    const primaryCounty = normalizeCountyToken(college.county);
+    if (!systemDistrict || !primaryCounty) continue;
+    if (!bySystemDistrict.has(systemDistrict)) bySystemDistrict.set(systemDistrict, new Set());
+    bySystemDistrict.get(systemDistrict).add(primaryCounty);
+  }
+
+  const bySystemDistrictArray = new Map(
+    Array.from(bySystemDistrict.entries()).map(([system, counties]) => [system, Array.from(counties)]),
+  );
+
+  return colleges.map((college) => {
+    const existing = parseCollegeAllCounties(college.allcounties, college.county);
+    const derived = deriveAllCountiesForCollege(college, bySystemDistrictArray);
+
+    const merged = dedupeCountyList([...existing, ...derived]);
+    return {
+      ...college,
+      county: normalizeCountyToken(college.county),
+      allcounties: merged,
+    };
+  });
 }
 
 function dateValueToIso(value) {
@@ -237,7 +337,16 @@ async function ensureTrackerSchema() {
 
       await client.query(`
         ALTER TABLE public.colleges
-        ADD COLUMN IF NOT EXISTS fee_amount numeric(10,2) NOT NULL DEFAULT 0
+        ADD COLUMN IF NOT EXISTS fee_amount numeric(10,2) NOT NULL DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS allcounties jsonb NOT NULL DEFAULT '[]'::jsonb
+      `);
+
+      await client.query(`
+        UPDATE public.colleges
+        SET allcounties = to_jsonb(ARRAY[NULLIF(trim(county), '')])
+        WHERE jsonb_typeof(COALESCE(allcounties, '[]'::jsonb)) = 'array'
+          AND jsonb_array_length(COALESCE(allcounties, '[]'::jsonb)) = 0
+          AND NULLIF(trim(county), '') IS NOT NULL
       `);
 
       await client.query(`
@@ -403,11 +512,18 @@ export async function loadColleges() {
   const { rows } = await pool.query(`
     SELECT id, institution, type, system_district, city, county,
            public_records_email, public_records_portal, contact_type,
-           verified, notes, enrollment_2025, fee_amount
+           verified, notes, enrollment_2025, fee_amount, allcounties
     FROM public.colleges
     ORDER BY institution ASC, city ASC
   `);
-  return rows.map(normalizeOutputRow);
+  const normalized = rows.map((row) => {
+    const base = normalizeOutputRow(row);
+    return {
+      ...base,
+      allcounties: parseCollegeAllCounties(row.allcounties, row.county),
+    };
+  });
+  return enrichCollegeAllCounties(normalized);
 }
 
 export async function loadRequests() {
@@ -465,9 +581,9 @@ export async function saveColleges(rows) {
         INSERT INTO public.colleges (
           id, institution, type, system_district, city, county,
           public_records_email, public_records_portal, contact_type,
-          verified, notes, enrollment_2025, fee_amount
+          verified, notes, enrollment_2025, fee_amount, allcounties
         ) VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb
         )
         ON CONFLICT (id) DO UPDATE SET
           institution = EXCLUDED.institution,
@@ -481,7 +597,8 @@ export async function saveColleges(rows) {
           verified = EXCLUDED.verified,
           notes = EXCLUDED.notes,
           enrollment_2025 = EXCLUDED.enrollment_2025,
-          fee_amount = EXCLUDED.fee_amount
+          fee_amount = EXCLUDED.fee_amount,
+          allcounties = EXCLUDED.allcounties
         `,
         [
           id,
@@ -497,6 +614,7 @@ export async function saveColleges(rows) {
           String(row.notes || '').trim(),
           row.enrollment_2025 ? Number.parseInt(String(row.enrollment_2025), 10) || null : null,
           Number.parseFloat(String(row.fee_amount || '').trim()) || 0,
+          JSON.stringify(parseCollegeAllCounties(row.allcounties, row.county)),
         ],
       );
     }

@@ -1,0 +1,17 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: Denial Response - TPIA Request
+
+Thank you for your response. Please provide a detailed written explanation identifying each withheld category of records and the specific legal authority applied to each.
+
+Please also release all reasonably segregable non-exempt portions of the requested voter registration and voting history records.
+
+Sincerely,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

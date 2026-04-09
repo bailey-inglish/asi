@@ -1,0 +1,28 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: Texas Public Information Act Request
+
+To Whom It May Concern:
+
+Pursuant to the Texas Public Information Act, I request electronic copies of the following records maintained by {{COUNTY_NAME}} County:
+
+1. The voter registration list (current active and inactive registrants), including all fields provided to qualified requesters.
+2. Voting history records for those voters for all election cycles available in your system, including historical archives to the fullest extent retained.
+3. Any data dictionary, schema guide, or export-field documentation needed to interpret the files.
+
+Please provide records in machine-readable digital format (CSV or equivalent), delivered electronically.
+
+If there are any fees, please provide a written itemized estimate before processing. If any portion is withheld, please identify the legal basis for each withheld item.
+
+Thank you for your assistance.
+
+Sincerely,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}
+{{SENDER_ADDRESS}}

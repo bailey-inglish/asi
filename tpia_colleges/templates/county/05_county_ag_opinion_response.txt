@@ -1,0 +1,17 @@
+{{TODAY}}
+
+{{CONTACT_NAME}}
+{{COUNTY_NAME}} County Elections / Public Information Office
+
+Re: AG Opinion Notice - TPIA Request
+
+Thank you for the notice regarding referral for an Attorney General opinion.
+
+Please share the AG reference number and any timelines available for resolution. I remain interested in receiving all non-exempt portions of the requested voter registration and voting history records while review is pending.
+
+Sincerely,
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}
