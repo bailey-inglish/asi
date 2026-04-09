@@ -605,7 +605,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
         <section className="main-card workflow-panel county-tab-panel">
           <div className="record-header">
             <div>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>{selected.county_name} County</h2>
+              <h2 className="record-title" style={{ marginBottom: 0 }}>{selected.county_name} County</h2>
             </div>
           </div>
 

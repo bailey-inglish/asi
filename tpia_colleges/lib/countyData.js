@@ -465,6 +465,7 @@ function buildAssociatedInstitutions(colleges) {
       map.get(county).push({
         id: String(college.id || ''),
         institution: String(college.institution || ''),
+        type: String(college.type || ''),
         city: String(college.city || ''),
         verified: String(college.verified || 'partial'),
         status: String(college.status || 'draft'),
