@@ -1,0 +1,49 @@
+{{TODAY_HUMAN}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Response to Notice of AG Opinion Request – TPIA Request Submitted {{DATE_SENT_HUMAN}}
+    Student Directory Information
+    [Include AG Open Records Letter No. if known: ORD-{{AG_LETTER_NUMBER}}]
+
+To the Public Information Officer:
+
+I have received your notice that {{INSTITUTION}} has requested an Attorney General's
+opinion regarding my Texas Public Information Act request submitted on {{DATE_SENT_HUMAN}} for
+student directory information.
+
+I understand that under Texas Government Code § 552.301, the Office of the Attorney
+General will issue a ruling on whether the requested records are public. I intend to
+submit comments to the OAG supporting the position that the requested directory
+information is subject to public disclosure for the following reasons:
+
+  1. FERPA Directory Information Exception: The Family Educational Rights and Privacy
+     Act (20 U.S.C. § 1232g) expressly permits public disclosure of student directory
+     information for students who have not filed a privacy opt-out request. This
+     exception has been affirmed by the Texas AG in numerous open records decisions
+     (see, e.g., ORD-679 [2001] and subsequent opinions).
+
+  2. No Applicable TPIA Exception: None of the TPIA's specific exceptions (Government
+     Code § 552.101–§ 552.159) shield directory information for students who have not
+     exercised their FERPA opt-out rights.
+
+  3. Public Interest: Release of this information advances academic research on civic
+     participation, which is in the public interest.
+
+I respectfully request a copy of your submission to the AG's Office so that I may
+respond within the time allowed under § 552.305. Please provide:
+
+  •  The open records letter number assigned by the AG's Office (if available)
+  •  A copy of the agency's written submission to the OAG
+  •  The date the submission was made
+
+I reserve all rights to participate in the AG opinion process and, if necessary,
+to seek judicial review of any ruling adverse to disclosure.
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

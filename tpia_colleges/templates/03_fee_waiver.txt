@@ -1,0 +1,33 @@
+{{TODAY_HUMAN}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Response to Fee Estimate – TPIA Request Submitted {{DATE_SENT_HUMAN}}
+    Student Directory Information
+
+To the Public Information Officer:
+
+Thank you for your notice estimating fees of {{FEE_AMOUNT}} associated with my Texas
+Public Information Act request submitted on {{DATE_SENT_HUMAN}} for student directory
+information.
+
+I respectfully renew my request for a waiver of all fees under Texas Government Code
+§ 552.267 and § 552.275. The information requested will be used exclusively for
+non-commercial academic research examining civic engagement and voter participation
+among college students. The research is conducted by {{SENDER_ORG}}, a university-based
+nonprofit research institute, and the results will be made publicly available. As such,
+the release of this information primarily benefits the general public.
+
+If a complete waiver is not possible, I request that the fee be reduced to reflect only
+the actual direct costs of providing the records in electronic format, which should be
+minimal.
+
+Please let me know how you would like to proceed. I can be reached at:
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

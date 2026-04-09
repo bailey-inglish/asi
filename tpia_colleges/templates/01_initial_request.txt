@@ -1,4 +1,4 @@
-{{TODAY}}
+{{TODAY_HUMAN}}
 
 Public Information Officer (or Records Custodian)
 {{INSTITUTION}}
@@ -40,7 +40,7 @@ $40, so that I may choose whether to proceed.
 
 As you know, Section 552.228 requires a response within ten (10) business days of
 receipt of this request. We respectfully ask that you endeavor to respond by
-{{DEADLINE_DATE}}.
+{{DEADLINE_DATE_HUMAN}}.
 
 Thank you for your prompt attention to this matter.
 

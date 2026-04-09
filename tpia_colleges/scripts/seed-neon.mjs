@@ -82,8 +82,8 @@ async function main() {
         INSERT INTO public.colleges (
           id, institution, type, system_district, city, county,
           public_records_email, public_records_portal, contact_type,
-          verified, notes, enrollment_2025
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+          verified, notes, enrollment_2025, fee_amount
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
         `,
         [
           id,
@@ -98,6 +98,7 @@ async function main() {
           cleanText(row.verified),
           cleanText(row.notes),
           cleanText(row.enrollment_2025) ? Number.parseInt(cleanText(row.enrollment_2025), 10) || null : null,
+          Number.parseFloat(cleanText(row.fee_amount || '0')) || 0,
         ],
       );
     }
@@ -118,8 +119,9 @@ async function main() {
         INSERT INTO public.requests (
           request_id, id, institution, type, system_district,
           city, recipient_email, date_sent, status, deadline_10day,
-          deadline_ag_45day, ag_notified_date, last_updated, notes
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+          deadline_ag_45day, ag_notified_date, last_updated, notes,
+          status_log, status_dates, status_changed_at, status_changed_by
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb,$17,$18)
         ON CONFLICT (request_id) DO NOTHING
         `,
         [
@@ -137,6 +139,21 @@ async function main() {
           asDateOrNull(row.ag_notified_date),
           asDateOrNull(row.last_updated),
           cleanText(row.notes),
+          JSON.stringify([
+            {
+              type: 'status_change',
+              from: null,
+              to: cleanText(row.status) || 'draft',
+              user: 'Seed import',
+              at: asDateOrNull(row.last_updated) || asDateOrNull(row.date_sent) || new Date().toISOString(),
+            },
+          ]),
+          JSON.stringify({
+            [cleanText(row.status) || 'draft']:
+              asDateOrNull(row.last_updated) || asDateOrNull(row.date_sent) || new Date().toISOString(),
+          }),
+          asDateOrNull(row.last_updated) || asDateOrNull(row.date_sent),
+          'Seed import',
         ],
       );
     }

@@ -71,6 +71,9 @@ export async function PATCH(request, { params }) {
       contact_type: inferContactType(nextEmail, nextPortal),
       verified: payload.verified == null ? current.verified : String(payload.verified),
       notes: payload.notes == null ? current.notes : String(payload.notes).trim(),
+      fee_amount: payload.fee_amount == null
+        ? Number.parseFloat(String(current.fee_amount || '').trim()) || 0
+        : Number.parseFloat(String(payload.fee_amount).trim()) || 0,
     };
 
     if (!next.institution) {
@@ -87,8 +90,6 @@ export async function PATCH(request, { params }) {
       system_district: next.system_district,
       city: next.city,
       recipient_email: next.public_records_email,
-      date_sent: updatedDate,
-      ag_notified_date: updatedDate,
       last_updated: updatedDate,
     };
 

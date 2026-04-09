@@ -1,0 +1,27 @@
+{{TODAY_HUMAN}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Response to Fee Estimate – TPIA Request Submitted {{DATE_SENT_HUMAN}}
+    Student Directory Information
+
+To the Public Information Officer:
+
+Thank you for your notice estimating fees of {{FEE_AMOUNT}} associated with my Texas
+Public Information Act request submitted on {{DATE_SENT_HUMAN}} for student directory
+information.
+
+I accept the estimated fee of {{FEE_AMOUNT}} and am prepared to remit payment.
+
+Please provide payment instructions, and I will submit payment promptly. I understand
+that you will begin processing the records upon receipt of payment.
+
+Please let me know how you would like to proceed. I can be reached at:
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

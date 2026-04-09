@@ -1,0 +1,52 @@
+{{TODAY_HUMAN}}
+
+Public Information Officer (or Records Custodian)
+{{INSTITUTION}}
+{{CITY}}, Texas
+
+RE: Response to Denial – TPIA Request Submitted {{DATE_SENT_HUMAN}}
+    Student Directory Information
+
+To the Public Information Officer:
+
+I have received {{INSTITUTION}}'s denial of my Texas Public Information Act request
+submitted on {{DATE_SENT_HUMAN}} for student directory information. The denial cites
+{{DENIAL_BASIS}} as the basis for withholding the records.
+
+I respectfully disagree with this determination for the following reasons:
+
+  1. FERPA Does Not Categorically Shield Directory Information
+     The Family Educational Rights and Privacy Act expressly permits — and does not
+     prohibit — the disclosure of directory information for students who have not
+     submitted a written request to restrict their information (20 U.S.C.
+     § 1232g(a)(5)(A)). The Texas Attorney General has repeatedly held that student
+     directory information for non-opt-out students is subject to TPIA disclosure.
+     (See ORD-679 [2001]; see also Tex. Gov't Code § 552.026.)
+
+  2. The Cited Exception Does Not Apply
+     [Customize: explain why the specific exception cited does not apply to directory
+     information or to non-opt-out students.]
+
+  3. Partial Release Is Required
+     Even if some portion of the requested records are exempt (e.g., records of
+     students who exercised their FERPA opt-out), the non-exempt portions — records of
+     students who did not opt out — must be released. Texas Government Code
+     § 552.301(e) requires release of any information that is not excepted.
+
+I request that {{INSTITUTION}} reconsider this denial and release the non-exempt
+portions of the requested records. If {{INSTITUTION}} maintains its denial, I intend
+to:
+
+  •  Request a ruling from the Office of the Texas Attorney General under
+     § 552.301, and/or
+  •  Pursue judicial review under § 552.321 if warranted.
+
+Please confirm in writing whether {{INSTITUTION}} will reconsider this denial, and
+provide the contact information for the individual responsible for making this
+determination.
+
+{{SENDER_NAME}}
+{{SENDER_TITLE}}
+{{SENDER_ORG}}
+{{SENDER_EMAIL}}
+{{SENDER_PHONE}}

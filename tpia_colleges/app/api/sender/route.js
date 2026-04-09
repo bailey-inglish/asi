@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
 import { loadSender, saveSender } from '../../../lib/data';
 
+const SENDER_CACHE_TTL_MS = 60_000;
+let senderCache = null;
+let senderCacheAt = 0;
+
 export async function GET() {
-  return NextResponse.json(await loadSender());
+  const now = Date.now();
+  if (senderCache && (now - senderCacheAt) < SENDER_CACHE_TTL_MS) {
+    return NextResponse.json(senderCache);
+  }
+
+  const sender = await loadSender();
+  senderCache = sender;
+  senderCacheAt = now;
+  return NextResponse.json(sender);
 }
 
 export async function PUT(request) {
@@ -16,5 +28,7 @@ export async function PUT(request) {
     address: String(payload.address || ''),
   };
   await saveSender(sender);
+  senderCache = sender;
+  senderCacheAt = Date.now();
   return NextResponse.json({ ok: true, sender });
 }

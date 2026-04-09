@@ -17,6 +17,8 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
+let schemaReadyPromise = null;
+
 export const STATUS_META = {
   draft: { label: 'Draft', color: '#667085', bg: '#F4F7FB', description: 'Not yet sent' },
   sent: { label: 'Sent', color: '#155EEF', bg: '#EAF2FF', description: 'Awaiting response' },
@@ -169,7 +171,10 @@ function dateValueToIso(value) {
     return new Date(`${text}T00:00:00.000Z`).toISOString();
   }
 
-  const parsed = new Date(text);
+  // Browser Date.toString() often includes trailing timezone labels in parentheses.
+  const normalizedText = text.replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+  const parsed = new Date(normalizedText || text);
   if (Number.isNaN(parsed.getTime())) return '';
   return parsed.toISOString();
 }
@@ -177,6 +182,111 @@ function dateValueToIso(value) {
 function dateValueToDb(value) {
   const iso = dateValueToIso(value);
   return iso || null;
+}
+
+function parseStatusLog(value) {
+  if (Array.isArray(value)) return value;
+  if (value == null) return [];
+
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') return null;
+        return {
+          type: String(entry.type || 'status_change'),
+          from: entry.from == null ? null : String(entry.from),
+          to: String(entry.to || ''),
+          user: String(entry.user || 'System'),
+          at: dateValueToIso(entry.at) || new Date().toISOString(),
+        };
+      })
+      .filter((entry) => entry && entry.to);
+  } catch {
+    return [];
+  }
+}
+
+function parseStatusDates(value) {
+  if (value == null) return {};
+
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return Object.entries(parsed).reduce((acc, [status, timestamp]) => {
+      const normalized = dateValueToIso(timestamp);
+      if (!normalized) return acc;
+      acc[String(status)] = normalized;
+      return acc;
+    }, {});
+  } catch {
+    return {};
+  }
+}
+
+async function ensureTrackerSchema() {
+  if (schemaReadyPromise) {
+    return schemaReadyPromise;
+  }
+
+  schemaReadyPromise = (async () => {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      await client.query(`
+        ALTER TABLE public.colleges
+        ADD COLUMN IF NOT EXISTS fee_amount numeric(10,2) NOT NULL DEFAULT 0
+      `);
+
+      await client.query(`
+        ALTER TABLE public.requests
+        ADD COLUMN IF NOT EXISTS status_log jsonb NOT NULL DEFAULT '[]'::jsonb,
+        ADD COLUMN IF NOT EXISTS status_dates jsonb NOT NULL DEFAULT '{}'::jsonb,
+        ADD COLUMN IF NOT EXISTS status_changed_at timestamptz,
+        ADD COLUMN IF NOT EXISTS status_changed_by text
+      `);
+
+      await client.query(`
+        UPDATE public.requests
+        SET status_dates = jsonb_set(
+          COALESCE(status_dates, '{}'::jsonb),
+          ARRAY[COALESCE(NULLIF(status, ''), 'draft')]::text[],
+          to_jsonb(COALESCE(status_changed_at, last_updated, date_sent, NOW())::text),
+          true
+        )
+        WHERE NOT (COALESCE(status_dates, '{}'::jsonb) ? COALESCE(NULLIF(status, ''), 'draft'))
+      `);
+
+      await client.query(`
+        UPDATE public.requests
+        SET status_log = jsonb_build_array(
+          jsonb_build_object(
+            'type', 'status_change',
+            'from', NULL,
+            'to', COALESCE(NULLIF(status, ''), 'draft'),
+            'user', COALESCE(NULLIF(status_changed_by, ''), 'System'),
+            'at', COALESCE(status_changed_at, last_updated, date_sent, NOW())
+          )
+        )
+        WHERE jsonb_typeof(COALESCE(status_log, '[]'::jsonb)) = 'array'
+          AND jsonb_array_length(COALESCE(status_log, '[]'::jsonb)) = 0
+      `);
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  })().catch((error) => {
+    schemaReadyPromise = null;
+    throw error;
+  });
+
+  return schemaReadyPromise;
 }
 
 export function generateCollegeId(institution, city, fallback = '') {
@@ -210,6 +320,27 @@ function toDate(value) {
 
 function isoDate(value) {
   return toDate(value).toISOString().slice(0, 10);
+}
+
+function formatHumanDate(value) {
+  const date = toDate(value);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
+function formatCurrency(value) {
+  const number = Number.parseFloat(String(value ?? '').trim());
+  const safeNumber = Number.isFinite(number) ? number : 0;
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(safeNumber);
 }
 
 function txHolidays(year) {
@@ -268,10 +399,11 @@ export function addBusinessDays(startValue, count) {
 }
 
 export async function loadColleges() {
+  await ensureTrackerSchema();
   const { rows } = await pool.query(`
     SELECT id, institution, type, system_district, city, county,
            public_records_email, public_records_portal, contact_type,
-           verified, notes, enrollment_2025
+           verified, notes, enrollment_2025, fee_amount
     FROM public.colleges
     ORDER BY institution ASC, city ASC
   `);
@@ -279,10 +411,12 @@ export async function loadColleges() {
 }
 
 export async function loadRequests() {
+  await ensureTrackerSchema();
   const { rows } = await pool.query(`
     SELECT request_id, id AS institution_id, institution, type, system_district,
            city, recipient_email, date_sent, status, deadline_10day,
-           deadline_ag_45day, ag_notified_date, last_updated, notes
+           deadline_ag_45day, ag_notified_date, last_updated, notes,
+           status_log, status_dates, status_changed_at, status_changed_by
     FROM public.requests
     ORDER BY institution ASC, city ASC
   `);
@@ -294,16 +428,22 @@ export async function loadRequests() {
       ...normalized,
       request_id: normalizedId,
       institution_id: String(normalized.institution_id || normalizedId),
+      status: String(normalized.status || '').trim() || 'draft',
       date_sent: dateValueToIso(row.date_sent),
       deadline_10day: dateValueToIso(row.deadline_10day),
       deadline_ag_45day: dateValueToIso(row.deadline_ag_45day),
       ag_notified_date: dateValueToIso(row.ag_notified_date),
       last_updated: dateValueToIso(row.last_updated),
+      status_log: parseStatusLog(row.status_log),
+      status_dates: parseStatusDates(row.status_dates),
+      status_changed_at: dateValueToIso(row.status_changed_at),
+      status_changed_by: String(row.status_changed_by || '').trim(),
     };
   });
 }
 
 export async function saveColleges(rows) {
+  await ensureTrackerSchema();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -325,9 +465,9 @@ export async function saveColleges(rows) {
         INSERT INTO public.colleges (
           id, institution, type, system_district, city, county,
           public_records_email, public_records_portal, contact_type,
-          verified, notes, enrollment_2025
+          verified, notes, enrollment_2025, fee_amount
         ) VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
         )
         ON CONFLICT (id) DO UPDATE SET
           institution = EXCLUDED.institution,
@@ -340,7 +480,8 @@ export async function saveColleges(rows) {
           contact_type = EXCLUDED.contact_type,
           verified = EXCLUDED.verified,
           notes = EXCLUDED.notes,
-          enrollment_2025 = EXCLUDED.enrollment_2025
+          enrollment_2025 = EXCLUDED.enrollment_2025,
+          fee_amount = EXCLUDED.fee_amount
         `,
         [
           id,
@@ -355,6 +496,7 @@ export async function saveColleges(rows) {
           String(row.verified || '').trim(),
           String(row.notes || '').trim(),
           row.enrollment_2025 ? Number.parseInt(String(row.enrollment_2025), 10) || null : null,
+          Number.parseFloat(String(row.fee_amount || '').trim()) || 0,
         ],
       );
     }
@@ -369,6 +511,7 @@ export async function saveColleges(rows) {
 }
 
 export async function saveRequests(rows) {
+  await ensureTrackerSchema();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -393,9 +536,10 @@ export async function saveRequests(rows) {
         INSERT INTO public.requests (
           request_id, id, institution, type, system_district,
           city, recipient_email, date_sent, status, deadline_10day,
-          deadline_ag_45day, ag_notified_date, last_updated, notes
+          deadline_ag_45day, ag_notified_date, last_updated, notes,
+          status_log, status_dates, status_changed_at, status_changed_by
         ) VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb,$17,$18
         )
         ON CONFLICT (request_id) DO UPDATE SET
           id = EXCLUDED.id,
@@ -410,7 +554,11 @@ export async function saveRequests(rows) {
           deadline_ag_45day = EXCLUDED.deadline_ag_45day,
           ag_notified_date = EXCLUDED.ag_notified_date,
           last_updated = EXCLUDED.last_updated,
-          notes = EXCLUDED.notes
+          notes = EXCLUDED.notes,
+          status_log = EXCLUDED.status_log,
+          status_dates = EXCLUDED.status_dates,
+          status_changed_at = EXCLUDED.status_changed_at,
+          status_changed_by = EXCLUDED.status_changed_by
         `,
         [
           requestId,
@@ -421,12 +569,16 @@ export async function saveRequests(rows) {
           String(row.city || '').trim(),
           String(row.recipient_email || '').trim(),
           dateValueToDb(row.date_sent),
-          String(row.status || '').trim(),
+          String(row.status || '').trim() || 'draft',
           dateValueToDb(row.deadline_10day),
           dateValueToDb(row.deadline_ag_45day),
           dateValueToDb(row.ag_notified_date),
           dateValueToDb(row.last_updated),
           String(row.notes || '').trim(),
+          JSON.stringify(parseStatusLog(row.status_log)),
+          JSON.stringify(parseStatusDates(row.status_dates)),
+          dateValueToDb(row.status_changed_at),
+          String(row.status_changed_by || '').trim() || null,
         ],
       );
     }
@@ -489,6 +641,7 @@ export async function saveSender(sender) {
 }
 
 export function collegeToRequestRow(college) {
+  const nowIso = new Date().toISOString();
   return {
     request_id: String(college.id || ''),
     institution_id: String(college.id || ''),
@@ -502,8 +655,20 @@ export function collegeToRequestRow(college) {
     deadline_10day: '',
     deadline_ag_45day: '',
     ag_notified_date: '',
-    last_updated: new Date().toISOString().slice(0, 10),
+    last_updated: nowIso,
     notes: '',
+    status_dates: { draft: nowIso },
+    status_changed_at: nowIso,
+    status_changed_by: 'System',
+    status_log: [
+      {
+        type: 'status_change',
+        from: null,
+        to: 'draft',
+        user: 'System',
+        at: nowIso,
+      },
+    ],
   };
 }
 
@@ -575,7 +740,12 @@ export async function loadAppState() {
 
 export function buildTemplateVariables(record, sender) {
   const today = new Date().toISOString().slice(0, 10);
-  const dateSent = record?.last_updated || record?.date_sent || today;
+  const statusDates = parseStatusDates(record?.status_dates);
+  const dateSent = statusDates.sent || dateValueToIso(record?.date_sent) || today;
+  const feeRequestedDate = statusDates.fee_pending || '';
+  const feePaidDate = statusDates.fee_paid || '';
+  const agRequestedDate = statusDates.ag_opinion_requested || dateValueToIso(record?.ag_notified_date) || '';
+  const deadlineDate = addBusinessDays(today, 10);
   return {
     INSTITUTION: String(record?.institution || ''),
     CITY: String(record?.city || ''),
@@ -586,13 +756,25 @@ export function buildTemplateVariables(record, sender) {
     SENDER_PHONE: String(sender?.phone || '[YOUR PHONE]'),
     SENDER_ADDRESS: String(sender?.address || '[YOUR ADDRESS]'),
     TODAY: today,
+    TODAY_HUMAN: formatHumanDate(today),
     DATE_SENT: dateSent,
-    DEADLINE_DATE: addBusinessDays(dateSent, 10),
+    DATE_SENT_HUMAN: formatHumanDate(dateSent),
+    DEADLINE_DATE: deadlineDate,
+    DEADLINE_DATE_HUMAN: formatHumanDate(deadlineDate),
     BUSINESS_DAYS_ELAPSED: String(Math.max(0, Math.floor((toDate(today) - toDate(dateSent)) / (24 * 60 * 60 * 1000)))),
-    AG_LETTER_NUMBER: '[AG LETTER NO. - check AG notice]',
-    FEE_AMOUNT: '[FEE AMOUNT - from agency notice]',
-    PAYMENT_METHOD: '[CHECK / CREDIT CARD / ONLINE PORTAL]',
-    DENIAL_BASIS: '[CITED EXCEPTION - from denial letter]',
+    FEE_REQUESTED_DATE: feeRequestedDate,
+    FEE_REQUESTED_DATE_HUMAN: feeRequestedDate ? formatHumanDate(feeRequestedDate) : '',
+    FEE_PAID_DATE: feePaidDate,
+    FEE_PAID_DATE_HUMAN: feePaidDate ? formatHumanDate(feePaidDate) : '',
+    AG_REQUESTED_DATE: agRequestedDate,
+    AG_REQUESTED_DATE_HUMAN: agRequestedDate ? formatHumanDate(agRequestedDate) : '',
+    STATUS_CHANGED_AT: dateValueToIso(record?.status_changed_at) || '',
+    STATUS_CHANGED_AT_HUMAN: record?.status_changed_at ? formatHumanDate(record.status_changed_at) : '',
+    STATUS_CHANGED_BY: String(record?.status_changed_by || ''),
+    AG_LETTER_NUMBER: String(record?.ag_letter_number || '[AG LETTER NO. - check AG notice]'),
+    FEE_AMOUNT: formatCurrency(record?.fee_amount),
+    FEE_AMOUNT_RAW: String(record?.fee_amount || '0'),
+    DENIAL_BASIS: String(record?.denial_basis || '[CITED EXCEPTION - from denial letter]'),
   };
 }
 

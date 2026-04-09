@@ -2,6 +2,12 @@
 
 import { useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
 import { STATUS_KEYS, STATUS_META, SUBJECT_LINES, TEMPLATE_LABELS, SUGGESTED_TEMPLATE, TEXAS_COUNTIES } from './constants';
+import ActionBar from './tracker/ActionBar';
+import EditRecordForm from './tracker/EditRecordForm';
+import MobilePortraitShell from './tracker/MobilePortraitShell';
+import NotesTimeline from './tracker/NotesTimeline';
+import RecordHeader from './tracker/RecordHeader';
+import TemplateStudio from './tracker/TemplateStudio';
 
 function statusStyle(status) {
   return STATUS_META[status] || STATUS_META.draft;
@@ -33,9 +39,124 @@ function applyTemplate(template, variables) {
   );
 }
 
+function formatHumanDate(value) {
+  if (!value) return '';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(parsed);
+}
+
+function parseStatusDates(value) {
+  if (!value) return {};
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return Object.entries(parsed).reduce((acc, [status, timestamp]) => {
+      const parsedTimestamp = new Date(timestamp);
+      if (!Number.isNaN(parsedTimestamp.getTime())) {
+        acc[String(status)] = parsedTimestamp.toISOString();
+      }
+      return acc;
+    }, {});
+  } catch {
+    return {};
+  }
+}
+
+function parseStatusLog(value) {
+  if (!value) return [];
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') return null;
+        const toStatus = String(entry.to || '').trim();
+        if (!toStatus) return null;
+
+        const atDate = new Date(entry.at || '');
+        const at = Number.isNaN(atDate.getTime()) ? new Date().toISOString() : atDate.toISOString();
+        return {
+          type: String(entry.type || 'status_change'),
+          from: entry.from == null ? null : String(entry.from),
+          to: toStatus,
+          user: String(entry.user || 'System'),
+          at,
+        };
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function coerceDate(value) {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) return parsed;
+
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const fallback = new Date(`${raw}T00:00:00.000Z`);
+    return Number.isNaN(fallback.getTime()) ? null : fallback;
+  }
+  return null;
+}
+
+function addBusinessDaysSimple(startValue, count) {
+  let cursor = coerceDate(startValue) || new Date();
+  let added = 0;
+
+  while (added < count) {
+    cursor = new Date(cursor.getTime() + 24 * 60 * 60 * 1000);
+    const weekday = cursor.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) {
+      added += 1;
+    }
+  }
+
+  return cursor.toISOString();
+}
+
+function businessDaysBetween(startValue, endValue) {
+  const startDate = coerceDate(startValue);
+  const endDate = coerceDate(endValue);
+  if (!startDate || !endDate || endDate < startDate) return 0;
+
+  const start = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+  const end = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+  let cursor = start;
+  let days = 0;
+  while (cursor < end) {
+    cursor = new Date(cursor.getTime() + 24 * 60 * 60 * 1000);
+    const weekday = cursor.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) {
+      days += 1;
+    }
+  }
+  return days;
+}
+
 function buildVariables(record, sender) {
   const today = new Date().toISOString().slice(0, 10);
-  const eventDate = record?.last_updated || record?.date_sent || today;
+  const statusDates = parseStatusDates(record?.status_dates);
+  const dateSent = statusDates.sent || record?.date_sent || today;
+  const deadlineDate = record?.deadline_10day || addBusinessDaysSimple(dateSent, 10);
+  const feeRequestedDate = statusDates.fee_pending || '';
+  const feePaidDate = statusDates.fee_paid || '';
+  const agRequestedDate = statusDates.ag_opinion_requested || record?.ag_notified_date || '';
+
+  const feeAmountRaw = String(record?.fee_amount || '0').trim();
+  const parsedFee = Number.parseFloat(feeAmountRaw);
+  const feeAmount = Number.isFinite(parsedFee)
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parsedFee)
+    : '$0.00';
+
   return {
     INSTITUTION: record?.institution || '',
     CITY: record?.city || '',
@@ -46,13 +167,26 @@ function buildVariables(record, sender) {
     SENDER_PHONE: sender?.phone || '[YOUR PHONE]',
     SENDER_ADDRESS: sender?.address || '[YOUR ADDRESS]',
     TODAY: today,
-    DATE_SENT: eventDate,
-    DEADLINE_DATE: record?.deadline_10day || today,
-    BUSINESS_DAYS_ELAPSED: '0',
-    AG_LETTER_NUMBER: '[AG LETTER NO. — check AG notice]',
-    FEE_AMOUNT: '[FEE AMOUNT — from agency notice]',
+    TODAY_HUMAN: formatHumanDate(today),
+    DATE_SENT: dateSent,
+    DATE_SENT_HUMAN: formatHumanDate(dateSent),
+    DEADLINE_DATE: deadlineDate,
+    DEADLINE_DATE_HUMAN: formatHumanDate(deadlineDate),
+    BUSINESS_DAYS_ELAPSED: String(businessDaysBetween(dateSent, today)),
+    FEE_REQUESTED_DATE: feeRequestedDate,
+    FEE_REQUESTED_DATE_HUMAN: feeRequestedDate ? formatHumanDate(feeRequestedDate) : '',
+    FEE_PAID_DATE: feePaidDate,
+    FEE_PAID_DATE_HUMAN: feePaidDate ? formatHumanDate(feePaidDate) : '',
+    AG_REQUESTED_DATE: agRequestedDate,
+    AG_REQUESTED_DATE_HUMAN: agRequestedDate ? formatHumanDate(agRequestedDate) : '',
+    STATUS_CHANGED_AT: record?.status_changed_at || '',
+    STATUS_CHANGED_AT_HUMAN: record?.status_changed_at ? formatHumanDate(record.status_changed_at) : '',
+    STATUS_CHANGED_BY: record?.status_changed_by || '',
+    AG_LETTER_NUMBER: '[AG LETTER NO. - check AG notice]',
+    FEE_AMOUNT: feeAmount,
+    FEE_AMOUNT_RAW: feeAmountRaw || '0',
     PAYMENT_METHOD: '[CHECK / CREDIT CARD / ONLINE PORTAL]',
-    DENIAL_BASIS: '[CITED EXCEPTION — from denial letter]',
+    DENIAL_BASIS: '[CITED EXCEPTION - from denial letter]',
   };
 }
 
@@ -74,6 +208,7 @@ function getRecordDraft(record) {
     verified: record?.verified || 'partial',
     public_records_email: record?.public_records_email || '',
     public_records_portal: record?.public_records_portal || '',
+    fee_amount: String(record?.fee_amount || '0'),
   };
 }
 
@@ -81,27 +216,69 @@ function getSenderLabel(sender) {
   return String(sender?.name || sender?.org || sender?.email || 'Sender').trim() || 'Sender';
 }
 
+const PROFILE_STORAGE_KEY = 'tpia_sender_profile';
+
+const SENDER_PROFILES = {
+  bailey: {
+    label: 'Bailey',
+    sender: null,
+  },
+  eugenia: {
+    label: 'Eugenia Quintanilla',
+    sender: {
+      name: 'Eugenia Quintanilla',
+      title: 'Postdoctoral Research Fellow',
+      email: 'eugenia.quintanilla@austin.utexas.edu',
+      phone: '',
+    },
+  },
+};
+
+function formatTimeAgo(value) {
+  if (!value) return 'N/A';
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return 'N/A';
+
+  const now = Date.now();
+  const diffMs = now - parsed.getTime();
+  if (diffMs < 0) return 'just now';
+
+  const seconds = Math.floor(diffMs / 1000);
+  if (seconds < 5) return 'just now';
+  if (seconds < 60) return `${seconds} second${seconds === 1 ? '' : 's'} ago`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
 function parseNoteEntry(noteStr) {
   if (!noteStr) {
-    return { date: '', author: '', body: '' };
+    return { date: '', author: '', body: '', at: '' };
   }
   
   const text = String(noteStr).trim();
   if (!text) {
-    return { date: '', author: '', body: '' };
+    return { date: '', author: '', body: '', at: '' };
   }
 
   // Try to match: [DATE] AUTHOR: BODY or [DATE] BODY
   const match = text.match(/^\[([^\]]+)\]\s*(.*)$/);
   if (!match) {
     // No date bracket found; return as body with no date
-    return { date: '', author: '', body: text };
+    return { date: '', author: '', body: text, at: '' };
   }
 
   const [, date, remainder] = match;
   if (!remainder.trim()) {
     // Just a date, no content after it
-    return { date, author: '', body: '' };
+    return { date, author: '', body: '', at: '' };
   }
 
   // Try to extract author: AUTHOR: BODY
@@ -109,11 +286,37 @@ function parseNoteEntry(noteStr) {
   if (authorMatch) {
     const author = authorMatch[1].trim();
     const body = authorMatch[2].trim();
-    return { date: date.trim(), author, body };
+    return { date: date.trim(), author, body, at: coerceDate(date)?.toISOString() || '' };
   }
 
   // No author colon found; entire remainder is body
-  return { date: date.trim(), author: '', body: remainder.trim() };
+  return { date: date.trim(), author: '', body: remainder.trim(), at: coerceDate(date)?.toISOString() || '' };
+}
+
+function getOverdueDeadline(record) {
+  const status = String(record?.status || 'draft').trim();
+  const statusDates = parseStatusDates(record?.status_dates);
+
+  if (['ag_opinion_requested', 'ag_opinion_pending'].includes(status)) {
+    return record?.deadline_ag_45day || (statusDates.ag_opinion_requested ? addBusinessDaysSimple(statusDates.ag_opinion_requested, 45) : '');
+  }
+
+  if (['sent', 'acknowledged', 'in_progress', 'fee_pending', 'fee_paid'].includes(status)) {
+    return record?.deadline_10day || (statusDates.sent ? addBusinessDaysSimple(statusDates.sent, 10) : '');
+  }
+
+  return '';
+}
+
+function isRecordOverdue(record) {
+  const deadline = getOverdueDeadline(record);
+  const parsedDeadline = coerceDate(deadline);
+  if (!parsedDeadline) return false;
+
+  const today = new Date();
+  const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const deadlineUtc = new Date(Date.UTC(parsedDeadline.getUTCFullYear(), parsedDeadline.getUTCMonth(), parsedDeadline.getUTCDate()));
+  return deadlineUtc < todayUtc;
 }
 
 export default function TrackerApp() {
@@ -124,8 +327,14 @@ export default function TrackerApp() {
   const [statusFilter, setStatusFilter] = useState([]);
   const [templateKey, setTemplateKey] = useState('01_initial_request');
   const [templateBody, setTemplateBody] = useState('');
+  const [templateBodies, setTemplateBodies] = useState({});
   const [showSenderModal, setShowSenderModal] = useState(false);
+  const [showProfilePicker, setShowProfilePicker] = useState(false);
+  const [profileReady, setProfileReady] = useState(false);
+  const [activeProfileId, setActiveProfileId] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const [showTemplateDrawer, setShowTemplateDrawer] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [commandSearch, setCommandSearch] = useState('');
@@ -134,14 +343,32 @@ export default function TrackerApp() {
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkSelected, setBulkSelected] = useState([]);
   const [recentIds, setRecentIds] = useState([]);
-  const [openPanel, setOpenPanel] = useState('record');
   const [statusDraft, setStatusDraft] = useState('draft');
   const [recordDraft, setRecordDraft] = useState(getRecordDraft(null));
   const [noteDraft, setNoteDraft] = useState('');
   const [isNarrow, setIsNarrow] = useState(false);
   const [message, setMessage] = useState('');
+  const [savingCount, setSavingCount] = useState(0);
   const [, startTransition] = useTransition();
   const deferredSearch = useDeferredValue(search);
+  const isSaving = savingCount > 0;
+
+  function beginSaving() {
+    setSavingCount((value) => value + 1);
+  }
+
+  function endSaving() {
+    setSavingCount((value) => Math.max(0, value - 1));
+  }
+
+  async function withSaving(action) {
+    beginSaving();
+    try {
+      return await action();
+    } finally {
+      endSaving();
+    }
+  }
 
   async function loadState() {
     const response = await fetch('/api/state', { cache: 'no-store' });
@@ -172,8 +399,39 @@ export default function TrackerApp() {
     return () => media.removeEventListener('change', sync);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isSaving) return undefined;
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = 'Changes are still saving. Leaving now may discard them.';
+      return event.returnValue;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isSaving]);
+
+  useEffect(() => {
+    if (!message) return undefined;
+    const timeoutId = window.setTimeout(() => setMessage(''), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [message]);
+
   const records = state?.records || [];
-  const sender = state?.sender || {};
+  const storedSender = state?.sender || {};
+  const sender = useMemo(() => {
+    const preset = SENDER_PROFILES[activeProfileId]?.sender;
+    if (!preset) return storedSender;
+
+    return {
+      ...storedSender,
+      ...preset,
+      // Keep org/address from the shared stored profile while allowing per-user name/title/email overrides.
+      org: String(storedSender?.org || ''),
+      address: String(storedSender?.address || ''),
+    };
+  }, [storedSender, activeProfileId]);
   const selected = records.find((record) => getRowKey(record) === String(selectedId)) || records[0] || null;
 
   const filteredRecords = records.filter((record) => {
@@ -196,6 +454,7 @@ export default function TrackerApp() {
       .then((text) => {
         if (active) {
           setTemplateBody(text);
+          setTemplateBodies((current) => ({ ...current, [templateKey]: text }));
         }
       })
       .catch((error) => {
@@ -210,6 +469,20 @@ export default function TrackerApp() {
     };
   }, [templateKey]);
 
+  async function loadTemplateText(templateName) {
+    if (templateBodies[templateName]) {
+      return templateBodies[templateName];
+    }
+
+    const response = await fetch(`/api/templates/${templateName}`, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Template ${templateName} could not be loaded`);
+    }
+    const text = await response.text();
+    setTemplateBodies((current) => ({ ...current, [templateName]: text }));
+    return text;
+  }
+
   useEffect(() => {
     if (selected && !filteredRecords.some((record) => getRowKey(record) === String(selectedId)) && filteredRecords[0]) {
       setSelectedId(getRowKey(filteredRecords[0]));
@@ -220,6 +493,7 @@ export default function TrackerApp() {
     if (!selected) return;
     setStatusDraft(selected.status || 'draft');
     setRecordDraft(getRecordDraft(selected));
+    setShowTemplateDrawer(false);
     setRecentIds((current) => {
       const selectedKey = getRowKey(selected);
       const next = [selectedKey, ...current.filter((id) => id !== selectedKey)];
@@ -228,36 +502,40 @@ export default function TrackerApp() {
   }, [selected?.request_id, selected?.institution, selected?.city]);
 
   async function saveJson(url, payload, successText) {
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    return withSaving(async () => {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Save failed');
+      }
+      if (successText) {
+        setMessage(successText);
+      }
+      await loadState();
     });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || 'Save failed');
-    }
-    if (successText) {
-      setMessage(successText);
-    }
-    await loadState();
   }
 
   async function patchJson(url, payload, successText) {
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    return withSaving(async () => {
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Save failed');
+      }
+      if (successText) {
+        setMessage(successText);
+      }
+      await loadState();
+      return data;
     });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.error || 'Save failed');
-    }
-    if (successText) {
-      setMessage(successText);
-    }
-    await loadState();
-    return data;
   }
 
   function mergeRequestIntoState(updatedRequest, requestKey) {
@@ -283,6 +561,10 @@ export default function TrackerApp() {
           date_sent: updatedRequest?.date_sent ?? record.date_sent,
           ag_notified_date: updatedRequest?.ag_notified_date ?? record.ag_notified_date,
           last_updated: updatedRequest?.last_updated ?? record.last_updated,
+          status_log: updatedRequest?.status_log ?? record.status_log,
+          status_dates: updatedRequest?.status_dates ?? record.status_dates,
+          status_changed_at: updatedRequest?.status_changed_at ?? record.status_changed_at,
+          status_changed_by: updatedRequest?.status_changed_by ?? record.status_changed_by,
         };
       });
 
@@ -293,45 +575,97 @@ export default function TrackerApp() {
     });
   }
 
-  async function patchRequest(requestKey, payload, successText) {
-    const response = await fetch(`/api/requests/${encodeURIComponent(String(requestKey))}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+  function mergeCollegeIntoState(updatedCollege, requestKey) {
+    setState((current) => {
+      if (!current?.records) return current;
+
+      const nextRecords = current.records.map((record) => {
+        const matchesByKey = String(getRowKey(record)) === String(requestKey);
+        const matchesByInstitutionCity = String(record.institution || '') === String(updatedCollege?.institution || '')
+          && String(record.city || '') === String(updatedCollege?.city || '');
+
+        if (!matchesByKey && !matchesByInstitutionCity) {
+          return record;
+        }
+
+        const nextEmail = updatedCollege?.public_records_email ?? record.public_records_email;
+        const nextPortal = updatedCollege?.public_records_portal ?? record.public_records_portal;
+
+        return {
+          ...record,
+          ...updatedCollege,
+          public_records_email: nextEmail,
+          public_records_portal: nextPortal,
+          county: updatedCollege?.county ?? record.county,
+          contact_type: inferContactType(nextEmail, nextPortal),
+        };
+      });
+
+      return {
+        ...current,
+        records: nextRecords,
+      };
     });
+  }
 
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.error || 'Save failed');
-    }
+  function applyOptimisticRequestUpdate(requestKey, updater) {
+    setState((current) => {
+      if (!current?.records) return current;
 
-    if (successText) {
-      setMessage(successText);
-    }
+      return {
+        ...current,
+        records: current.records.map((record) => {
+          if (String(getRowKey(record)) !== String(requestKey)) return record;
+          const nextRecord = updater(record);
+          return nextRecord;
+        }),
+      };
+    });
+  }
 
-    if (data?.request) {
-      mergeRequestIntoState(data.request, requestKey);
-    } else {
-      await loadState();
-    }
+  async function patchRequest(requestKey, payload, successText) {
+    return withSaving(async () => {
+      const response = await fetch(`/api/requests/${encodeURIComponent(String(requestKey))}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    return data;
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Save failed');
+      }
+
+      if (successText) {
+        setMessage(successText);
+      }
+
+      if (data?.request) {
+        mergeRequestIntoState(data.request, requestKey);
+      } else {
+        await loadState();
+      }
+
+      return data;
+    });
   }
 
   async function postJson(url, payload, successText) {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    return withSaving(async () => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Save failed');
+      }
+      if (successText) {
+        setMessage(successText);
+      }
+      await loadState();
     });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || 'Save failed');
-    }
-    if (successText) {
-      setMessage(successText);
-    }
-    await loadState();
   }
 
   async function copyText(text) {
@@ -346,6 +680,14 @@ export default function TrackerApp() {
   async function handleSaveRecord(silent = false) {
     if (!selected) return;
     const requestKey = getApiRecordId(selected, selectedId);
+    mergeCollegeIntoState(
+      {
+        ...recordDraft,
+        county: recordDraft.county || selected.county || '',
+        contact_type: inferContactType(recordDraft.public_records_email, recordDraft.public_records_portal),
+      },
+      requestKey,
+    );
     startTransition(async () => {
       await patchJson(
         `/api/colleges/${encodeURIComponent(requestKey)}`,
@@ -365,22 +707,104 @@ export default function TrackerApp() {
 
   async function handleSenderUpdate(formData) {
     const payload = Object.fromEntries(formData.entries());
-    startTransition(async () => {
-      await saveJson('/api/sender', payload, 'Saved sender profile');
-      setShowSenderModal(false);
+
+    startTransition(() => {
+      withSaving(async () => {
+        const response = await fetch('/api/sender', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Save failed');
+        }
+
+        setState((current) => {
+          if (!current) return current;
+          return {
+            ...current,
+            sender: {
+              ...(current.sender || {}),
+              ...(data.sender || payload),
+            },
+          };
+        });
+
+        setMessage('Saved sender profile');
+        setShowSenderModal(false);
+      }).catch((error) => setMessage(error.message));
     });
   }
+
+  function getProfileIdFromStorage() {
+    if (typeof window === 'undefined') return '';
+    const raw = String(window.localStorage.getItem(PROFILE_STORAGE_KEY) || '').trim();
+    return Object.prototype.hasOwnProperty.call(SENDER_PROFILES, raw) ? raw : '';
+  }
+
+  function handleSelectProfile(profileId) {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(PROFILE_STORAGE_KEY, profileId);
+    }
+    setActiveProfileId(profileId);
+    setShowProfilePicker(false);
+    setProfileReady(true);
+    setMessage(`Profile set to ${SENDER_PROFILES[profileId]?.label || profileId}`);
+  }
+
+  useEffect(() => {
+    if (!state || profileReady) return;
+
+    const profileId = getProfileIdFromStorage();
+    if (!profileId) {
+      setShowProfilePicker(true);
+      setProfileReady(true);
+      return;
+    }
+
+    setActiveProfileId(profileId);
+    setProfileReady(true);
+    setShowProfilePicker(false);
+  }, [state, profileReady]);
 
   async function handleStatusChange(nextStatus) {
     if (!selected) return;
     const previousStatus = currentStatus;
+    const statusActor = noteAuthor;
     setStatusDraft(nextStatus);
 
     const requestKey = getApiRecordId(selected, selectedId);
+    applyOptimisticRequestUpdate(requestKey, (record) => {
+      const nowIso = new Date().toISOString();
+      return {
+        ...record,
+        status: nextStatus,
+        last_updated: nowIso,
+        status_changed_at: nowIso,
+        status_changed_by: statusActor,
+        status_dates: {
+          ...parseStatusDates(record.status_dates),
+          [nextStatus]: parseStatusDates(record.status_dates)[nextStatus] || nowIso,
+        },
+        status_log: [
+          ...parseStatusLog(record.status_log),
+          {
+            type: 'status_change',
+            from: String(record.status || 'draft') || 'draft',
+            to: nextStatus,
+            user: statusActor,
+            at: nowIso,
+          },
+        ],
+      };
+    });
+
     startTransition(() => {
       patchRequest(
         requestKey,
-        { status: nextStatus },
+        { status: nextStatus, status_user: statusActor },
         `Saved request status for ${selected.institution}`,
       ).catch((error) => {
         setStatusDraft(previousStatus);
@@ -401,6 +825,14 @@ export default function TrackerApp() {
 
     const noteAuthor = getSenderLabel(sender);
     const requestKey = getApiRecordId(selected, selectedId);
+    const nowIso = new Date().toISOString();
+    const noteEntry = `[${nowIso.slice(0, 10)}] ${noteAuthor ? `${noteAuthor}: ${note}` : note}`;
+    applyOptimisticRequestUpdate(requestKey, (record) => ({
+      ...record,
+      notes: [record.notes, noteEntry].filter(Boolean).join(' | '),
+      last_updated: nowIso,
+    }));
+
     startTransition(() => {
       patchRequest(
         requestKey,
@@ -416,14 +848,52 @@ export default function TrackerApp() {
   const selectedEmail = String(recordDraft.public_records_email || selected?.public_records_email || '').trim();
   const selectedPortal = String(recordDraft.public_records_portal || selected?.public_records_portal || '').trim();
   const activeContactType = inferContactType(selectedEmail, selectedPortal);
+  const emailPrimary = activeContactType === 'email';
   const showEmailAction = activeContactType === 'email' || activeContactType === 'both';
   const showPortalAction = activeContactType === 'portal' || activeContactType === 'both';
   const noteAuthor = getSenderLabel(sender);
   const noteEntries = useMemo(
-    () => String(selected?.notes || '').split(' | ').map((n) => n.trim()).filter(Boolean).map(parseNoteEntry),
+    () => String(selected?.notes || '')
+      .split(' | ')
+      .map((noteText) => noteText.trim())
+      .filter(Boolean)
+      .map(parseNoteEntry)
+      .map((entry, index) => ({
+        kind: 'note',
+        date: entry.date,
+        author: entry.author,
+        body: entry.body,
+        at: entry.at,
+        sortOrder: index,
+      })),
     [selected?.notes],
   );
+  const statusEntries = useMemo(
+    () => parseStatusLog(selected?.status_log).map((entry, index) => ({
+      kind: 'status',
+      date: formatHumanDate(entry.at) || 'Status change',
+      author: entry.user,
+      body: `${STATUS_META[entry.from]?.label || entry.from || 'Unknown'} -> ${STATUS_META[entry.to]?.label || entry.to}`,
+      at: entry.at,
+      sortOrder: index,
+    })),
+    [selected?.status_log],
+  );
+  const timelineEntries = useMemo(() => {
+    return [...statusEntries, ...noteEntries].sort((a, b) => {
+      const aTime = coerceDate(a.at)?.getTime() || 0;
+      const bTime = coerceDate(b.at)?.getTime() || 0;
+      if (aTime === bTime) {
+        return a.sortOrder - b.sortOrder;
+      }
+      return aTime - bTime;
+    });
+  }, [noteEntries, statusEntries]);
   const currentStatus = statusDraft || selected?.status || 'draft';
+
+  function closeTemplateStudio() {
+    setShowTemplateDrawer(false);
+  }
 
   const recordDirty = !!selected && (
     recordDraft.institution !== (selected.institution || '') ||
@@ -433,7 +903,8 @@ export default function TrackerApp() {
     recordDraft.system_district !== (selected.system_district || '') ||
     recordDraft.verified !== (selected.verified || 'partial') ||
     recordDraft.public_records_email !== (selected.public_records_email || '') ||
-    recordDraft.public_records_portal !== (selected.public_records_portal || '')
+    recordDraft.public_records_portal !== (selected.public_records_portal || '') ||
+    String(recordDraft.fee_amount || '0') !== String(selected.fee_amount || '0')
   );
 
   useEffect(() => {
@@ -504,6 +975,22 @@ export default function TrackerApp() {
     await copyText(combined);
   }
 
+  async function handleSendEmail() {
+    if (!selectedEmail) {
+      setMessage('No public records email is available for this institution.');
+      return;
+    }
+
+    const bestTemplateKey = SUGGESTED_TEMPLATE[selected?.status] || '01_initial_request';
+    const bestTemplateBody = await loadTemplateText(bestTemplateKey);
+    const bestTemplateSubject = (SUBJECT_LINES[bestTemplateKey] || `TPIA Request – ${selected?.institution || ''}`)
+      .replace('{institution}', selected?.institution || '');
+    const bestTemplateText = applyTemplate(bestTemplateBody, buildVariables(selected, sender));
+
+    const mailto = `mailto:${encodeURIComponent(selectedEmail)}?subject=${encodeURIComponent(bestTemplateSubject)}&body=${encodeURIComponent(bestTemplateText)}`;
+    window.location.href = mailto;
+  }
+
   if (!state || !selected) {
     return (
       <div className="workspace">
@@ -521,15 +1008,74 @@ export default function TrackerApp() {
     total: records.length,
     active: records.filter((record) => ['sent', 'acknowledged', 'in_progress', 'fee_pending', 'fee_paid', 'ag_opinion_requested', 'ag_opinion_pending'].includes(record.status)).length,
     complete: records.filter((record) => ['complete', 'partially_complete'].includes(record.status)).length,
-    overdue: records.filter((record) => ['sent', 'acknowledged', 'in_progress', 'fee_pending', 'fee_paid', 'ag_opinion_requested', 'ag_opinion_pending'].includes(record.status) && (record.deadline_10day || record.deadline_ag_45day)).length,
+    overdue: records.filter((record) => isRecordOverdue(record)).length,
   };
 
   return (
-    <div className="workspace">
+    <>
+      <MobilePortraitShell
+        selected={selected}
+        selectedId={selectedId}
+        records={records}
+        stats={stats}
+        isSaving={isSaving}
+        selectedEmail={selectedEmail}
+        selectedPortal={selectedPortal}
+        showEmailAction={showEmailAction}
+        showPortalAction={showPortalAction}
+        currentStatus={currentStatus}
+        statusMetaMap={STATUS_META}
+        statusKeys={STATUS_KEYS}
+        selectedStatusMeta={statusStyle(selected.status)}
+        lastUpdated={formatTimeAgo(selected.last_updated)}
+        recentRecords={recentRecords}
+        noteAuthor={noteAuthor}
+        noteEntries={noteEntries}
+        timelineEntries={timelineEntries}
+        recordDraft={recordDraft}
+        recordDirty={recordDirty}
+        selectedCounty={selected.county}
+        texasCounties={TEXAS_COUNTIES}
+        onFieldChange={(field, value) => setRecordDraft((draft) => ({ ...draft, [field]: value }))}
+        onSaveRecord={() => handleSaveRecord().catch((error) => setMessage(error.message))}
+        noteDraft={noteDraft}
+        onChangeNote={setNoteDraft}
+        onAddNote={() => handleAddNote().catch((error) => setMessage(error.message))}
+        onSelectRecord={(record) => setSelectedId(getRowKey(record))}
+        onCopyEmail={() => copyText(selectedEmail).catch((error) => setMessage(error.message))}
+        onCopyTemplate={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}
+        onStatusChange={(nextStatus) => handleStatusChange(nextStatus).catch((error) => setMessage(error.message))}
+        templateName={templateName}
+        templateLabels={TEMPLATE_LABELS}
+        templateKey={templateKey}
+        templateText={templateText}
+        onTemplateKeyChange={setTemplateKey}
+        subject={subject}
+        onOpenSenderModal={() => setShowSenderModal(true)}
+        onOpenAddModal={() => setShowAddModal(true)}
+        onOpenCommandPalette={() => setShowCommandPalette(true)}
+        bulkMode={bulkMode}
+        bulkSelectedCount={bulkSelected.length}
+        onToggleBulkMode={() => setBulkMode((value) => !value)}
+        onClearBulkSelected={() => setBulkSelected([])}
+        onBulkCopy={() => handleBulkCopy().catch((error) => setMessage(error.message))}
+      />
+
+      <div className="workspace desktop-layout">
       <section className="hero-card panel compact-hero">
         <div className="compact-hero-grid">
           <div>
             <h1 className="page-title">Records Portal</h1>
+            <div className="saving-status" aria-live="polite" aria-atomic="true">
+              {isSaving ? (
+                <span className="saving-pill">
+                  <span className="saving-spinner" aria-hidden="true" />
+                  Saving...
+                </span>
+              ) : (
+                <span className="saving-pill saving-pill-idle">All changes saved</span>
+              )}
+            </div>
           </div>
           <div className="stat-grid compact-stats">
             <div className="stat-card"><div className="stat-label">Institutions</div><div className="stat-value">{stats.total}</div></div>
@@ -557,7 +1103,6 @@ export default function TrackerApp() {
                     <button className="dropdown-item" type="button" onClick={() => { setShowSenderModal(true); setActionsOpen(false); }}>Edit sender profile</button>
                     <button className="dropdown-item" type="button" onClick={() => { setShowAddModal(true); setActionsOpen(false); }}>Add institution</button>
                     <button className="dropdown-item" type="button" onClick={() => { setBulkMode((value) => !value); setActionsOpen(false); }}>Toggle bulk mode</button>
-                    <button className="dropdown-item" type="button" onClick={() => { setShowCommandPalette(true); setActionsOpen(false); }}>Open command palette</button>
                   </div>
                 ) : null}
               </div>
@@ -629,6 +1174,7 @@ export default function TrackerApp() {
               const rowKey = getRowKey(record);
               const selectedRow = String(rowKey) === String(selectedId);
               const checked = bulkSelected.includes(String(rowKey));
+              const overdue = isRecordOverdue(record);
               return (
                 <button
                   key={rowKey}
@@ -639,8 +1185,26 @@ export default function TrackerApp() {
                 >
                   <div className="record-top">
                     <div>
-                      <p className="record-name" title={record.institution}>{record.institution} <span style={{ fontSize: '1.1em', marginLeft: '6px', fontWeight: 'bold', color: String(record.verified || 'no').toLowerCase() === 'yes' ? '#16a34a' : String(record.verified || 'no').toLowerCase() === 'partial' ? '#ea580c' : '#dc2626' }}>{verificationIcon(record.verified)}</span></p>
-                      <p className="meta meta-wrap">{record.type} · {record.city} · {(record.enrollment_2025 ? `${Number(record.enrollment_2025).toLocaleString()} enrolled` : 'Enrollment n/a')} · {record.public_records_email || 'No email on file'}</p>
+                      <p className="record-name" title={record.institution}>
+                        {record.institution}{' '}
+                        {overdue ? (
+                          <span className="record-status-icon overdue" title="Overdue request" aria-label="Overdue request">
+                            <span className="clock-icon" aria-hidden="true" />
+                          </span>
+                        ) : (
+                          <span
+                            className="record-status-icon verification"
+                            style={{ color: String(record.verified || 'no').toLowerCase() === 'yes' ? '#16a34a' : String(record.verified || 'no').toLowerCase() === 'partial' ? '#ea580c' : '#dc2626' }}
+                            title={`Verification: ${record.verified || 'no'}`}
+                            aria-label={`Verification ${record.verified || 'no'}`}
+                          >
+                            {verificationIcon(record.verified)}
+                          </span>
+                        )}
+                      </p>
+                      <p className="meta meta-wrap">
+                        <span className="record-meta-type">{record.type}</span> · <span className="record-meta-city">{record.city}</span> · <span className="record-meta-enrollment">{record.enrollment_2025 ? `${Number(record.enrollment_2025).toLocaleString()} enrolled` : 'Enrollment n/a'}</span> · <span className="record-meta-email">{record.public_records_email || 'No email on file'}</span>
+                      </p>
                     </div>
                     <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
                   </div>
@@ -668,24 +1232,23 @@ export default function TrackerApp() {
         </section>
 
         <section className="main-card workflow-panel">
-          <div className="record-header record-header-tight">
-            <div>
-              <div className="section-kicker">Selected institution</div>
-              <h2 className="record-title" title={selected.institution}>{selected.institution}</h2>
-              <p className="meta meta-wrap">{selected.type} · {selected.system_district} · {selected.city}</p>
-              <p className="meta meta-wrap">Last updated: {selected.last_updated || 'N/A'}</p>
-            </div>
-            <span className="badge" style={{ color: statusStyle(selected.status).color, background: statusStyle(selected.status).bg }}>
-              {statusStyle(selected.status).label}
-            </span>
-          </div>
+          <RecordHeader
+            selected={selected}
+            statusMeta={statusStyle(selected.status)}
+            lastUpdated={formatTimeAgo(selected.last_updated)}
+            showEditButton
+            onEditInstitution={() => { setShowEditModal(true); setShowNotesModal(false); setShowTemplateDrawer(false); }}
+          />
 
-          <div className="sticky-actions">
-            {showPortalAction && selectedPortal ? <a className="button" href={selectedPortal} target="_blank" rel="noreferrer">Open portal</a> : null}
-            {showEmailAction && selectedEmail ? <button className="button-secondary" type="button" onClick={() => copyText(selectedEmail).catch((error) => setMessage(error.message))}>Copy email</button> : null}
-            <button className="button-secondary" type="button" onClick={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}>Copy template</button>
-            {isNarrow ? <button className="button-secondary" type="button" onClick={() => setShowTemplateDrawer(true)}>Open template</button> : null}
-          </div>
+          <ActionBar
+            selectedPortal={showPortalAction && selectedPortal ? selectedPortal : ''}
+            selectedEmail={showEmailAction && selectedEmail ? selectedEmail : ''}
+            emailPrimary={emailPrimary}
+            onSendEmail={() => handleSendEmail().catch((error) => setMessage(error.message))}
+            onCopyTemplate={() => setShowTemplateDrawer(true)}
+            onOpenNotes={() => { setShowNotesModal(true); setShowEditModal(false); setShowTemplateDrawer(false); }}
+            onOpenTemplate={() => setShowTemplateDrawer(true)}
+          />
 
           <div className="kv-grid" style={{ marginTop: 14 }}>
             <div className="kv"><strong>Public records email</strong>{selectedEmail ? <a className="kv-value kv-link" href={`mailto:${selectedEmail}`}>{selectedEmail}</a> : <span className="kv-value">None</span>}</div>
@@ -706,127 +1269,83 @@ export default function TrackerApp() {
             </div>
             {selected.enrollment_2025 ? <div className="kv"><strong>2025 Enrollment</strong><span className="kv-value">{Number(selected.enrollment_2025).toLocaleString()}</span></div> : <div className="kv"><strong>2025 Enrollment</strong><span className="kv-value">N/A</span></div>}
           </div>
-
-          <div className="workflow-stack">
-            <section className="workflow-section">
-              <button className="section-toggle" type="button" onClick={() => setOpenPanel((current) => current === 'record' ? '' : 'record')}>
-                <div>
-                  <h3 className="section-title">Edit record</h3>
-                  <p className="subtle">Maintain institution and contact metadata.</p>
-                </div>
-                <div className="toggle-meta">
-                  {recordDirty ? <span className="dirty-dot" /> : null}
-                  <span className="badge">{openPanel === 'record' ? 'Collapse' : 'Expand'}</span>
-                </div>
-              </button>
-
-              {openPanel === 'record' ? (
-                <div className="accordion-body">
-                  <div className="form-grid narrow-form">
-                    <div><label className="label">Institution</label><input name="institution" className="field" value={recordDraft.institution} onChange={(event) => setRecordDraft((draft) => ({ ...draft, institution: event.target.value }))} /></div>
-                    <div><label className="label">Type</label><select name="type" className="select" value={recordDraft.type} onChange={(event) => setRecordDraft((draft) => ({ ...draft, type: event.target.value }))}><option value="4yr">4yr</option><option value="2yr">2yr</option></select></div>
-                    <div><label className="label">City</label><input name="city" className="field" value={recordDraft.city} onChange={(event) => setRecordDraft((draft) => ({ ...draft, city: event.target.value }))} /></div>
-                    <div><label className="label">System / District</label><input name="system_district" className="field" value={recordDraft.system_district} onChange={(event) => setRecordDraft((draft) => ({ ...draft, system_district: event.target.value }))} /></div>
-                    <div><label className="label">Verification</label><select name="verified" className="select" value={recordDraft.verified} onChange={(event) => setRecordDraft((draft) => ({ ...draft, verified: event.target.value }))}><option value="yes">yes</option><option value="partial">partial</option><option value="no">no</option></select></div>
-                    <div><label className="label">County</label><select name="county" className="select" value={recordDraft.county || selected.county || ''} onChange={(event) => setRecordDraft((draft) => ({ ...draft, county: event.target.value }))}><option value="">Select a county</option>{TEXAS_COUNTIES.map((county) => <option key={county} value={county}>{county}</option>)}</select></div>
-                    <div><label className="label">Email</label><input id="record-email" name="public_records_email" className="field" value={recordDraft.public_records_email} onChange={(event) => setRecordDraft((draft) => ({ ...draft, public_records_email: event.target.value }))} /></div>
-                    <div><label className="label">Portal</label><input name="public_records_portal" className="field" value={recordDraft.public_records_portal} onChange={(event) => setRecordDraft((draft) => ({ ...draft, public_records_portal: event.target.value }))} /></div>
-                    <div className="form-actions" style={{ gridColumn: '1 / -1' }}>
-                      <button className="button" type="button" onClick={() => handleSaveRecord().catch((error) => setMessage(error.message))}>Save college record</button>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </section>
-
-            <section className="workflow-section">
-              <button className="section-toggle" type="button" onClick={() => setOpenPanel((current) => current === 'notes' ? '' : 'notes')}>
-                <div>
-                  <h3 className="section-title">Notes timeline</h3>
-                  <p className="subtle">Chronological notes attached to this institution.</p>
-                </div>
-                <span className="badge">{openPanel === 'notes' ? 'Collapse' : 'Expand'}</span>
-              </button>
-              {openPanel === 'notes' ? (
-                <div className="accordion-body">
-                  <div className="note-composer">
-                    <label className="label" htmlFor="note-draft">Add note</label>
-                    <textarea
-                      id="note-draft"
-                      className="textarea"
-                      value={noteDraft}
-                      onChange={(event) => setNoteDraft(event.target.value)}
-                      placeholder={`Write a note that will be attributed to ${noteAuthor}`}
-                    />
-                    <div className="form-actions">
-                      <button className="button" type="button" onClick={() => handleAddNote().catch((error) => setMessage(error.message))}>Add note</button>
-                      <span className="subtle">Saved as {noteAuthor}</span>
-                    </div>
-                  </div>
-                  <div className="timeline">
-                    {noteEntries.length
-                      ? noteEntries.map((entry, index) => (
-                        <div className="timeline-item" key={`${entry.date || 'note'}-${index}`}>
-                          <div className="timeline-meta">
-                            <strong>{entry.date || 'No date'}</strong>
-                            {entry.author ? <span>{entry.author}</span> : null}
-                          </div>
-                          <div className="timeline-body">{entry.body}</div>
-                        </div>
-                      ))
-                      : <div className="empty-state">No notes yet.</div>}
-                  </div>
-                </div>
-              ) : null}
-            </section>
-          </div>
         </section>
-
-        {!isNarrow ? (
-          <section className="main-card workflow-panel template-panel">
-            <div className="record-header record-header-tight">
-              <div>
-                <div className="section-kicker">Template studio</div>
-                <h2 className="section-title" style={{ marginBottom: 4 }}>{TEMPLATE_LABELS[templateName] || 'Template'}</h2>
-                <p className="meta meta-wrap">{subject}</p>
-              </div>
-              <div className="template-tools">
-                <label className="label">Template stage</label>
-                <select className="select" value={templateKey} onChange={(event) => setTemplateKey(event.target.value)}>
-                  {Object.keys(TEMPLATE_LABELS).map((key) => <option key={key} value={key}>{TEMPLATE_LABELS[key]}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div className="record-actions" style={{ margin: '12px 0 12px' }}>
-              <button className="button" onClick={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}>Copy template</button>
-              <button className="button-secondary" onClick={() => copyText(subject).catch((error) => setMessage(error.message))}>Copy subject</button>
-              <button className="button-secondary" onClick={() => copyText(templateText).catch((error) => setMessage(error.message))}>Copy body</button>
-            </div>
-            <textarea className="textarea template-preview" readOnly value={templateText} onFocus={(event) => event.currentTarget.select()} />
-          </section>
-        ) : null}
+      </div>
       </div>
 
-      {isNarrow && showTemplateDrawer ? (
+      {showEditModal ? (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit Institution">
+          <div className="modal-card">
+            <EditRecordForm
+              recordDraft={recordDraft}
+              currentStatus={currentStatus}
+              selectedCounty={selected.county}
+              texasCounties={TEXAS_COUNTIES}
+              onFieldChange={(field, value) => setRecordDraft((draft) => ({ ...draft, [field]: value }))}
+              onSave={() => handleSaveRecord().then(() => setShowEditModal(false)).catch((error) => setMessage(error.message))}
+              recordDirty={recordDirty}
+              onClose={() => setShowEditModal(false)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {showNotesModal ? (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Notes">
+          <div className="modal-card">
+            <NotesTimeline
+              noteDraft={noteDraft}
+              noteAuthor={noteAuthor}
+              noteEntries={noteEntries}
+              timelineEntries={timelineEntries}
+              onChangeNote={setNoteDraft}
+              onAddNote={() => handleAddNote().catch((error) => setMessage(error.message))}
+              onClose={() => setShowNotesModal(false)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {showTemplateDrawer ? (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Template drawer">
           <div className="modal-card drawer-card">
-            <div className="record-header record-header-tight">
-              <h2 className="section-title" style={{ marginBottom: 0 }}>Template studio</h2>
-              <button className="button-secondary" type="button" onClick={() => setShowTemplateDrawer(false)}>Close</button>
+            <TemplateStudio
+              templateName={templateName}
+              templateLabels={TEMPLATE_LABELS}
+              subject={subject}
+              templateKey={templateKey}
+              templateText={templateText}
+              onTemplateKeyChange={setTemplateKey}
+              onCopyTemplate={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}
+              onCopySubject={() => copyText(subject).catch((error) => setMessage(error.message))}
+              onCopyBody={() => copyText(templateText).catch((error) => setMessage(error.message))}
+              onClose={closeTemplateStudio}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {showProfilePicker ? (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Choose profile">
+          <div className="modal-card profile-picker-card">
+            <div className="record-header">
+              <h2 className="section-title" style={{ marginBottom: 0 }}>Select your profile</h2>
             </div>
-            <div className="template-tools" style={{ marginBottom: 10 }}>
-              <label className="label">Template stage</label>
-              <select className="select" value={templateKey} onChange={(event) => setTemplateKey(event.target.value)}>
-                {Object.keys(TEMPLATE_LABELS).map((key) => <option key={key} value={key}>{TEMPLATE_LABELS[key]}</option>)}
-              </select>
+            <p className="meta" style={{ marginTop: 0 }}>
+              This sets sender information for templates and status activity.
+            </p>
+            <div className="profile-picker-grid">
+              <button className="button-secondary profile-picker-button" type="button" onClick={() => handleSelectProfile('bailey')}>
+                <strong>Bailey</strong>
+                <span>Research Intern</span>
+                <span>{String(storedSender?.email || 'No default email set')}</span>
+              </button>
+              <button className="button-secondary profile-picker-button" type="button" onClick={() => handleSelectProfile('eugenia')}>
+                <strong>Eugenia Quintanilla</strong>
+                <span>Postdoctoral Research Fellow</span>
+                <span>eugenia.quintanilla@austin.utexas.edu</span>
+              </button>
             </div>
-            <div className="record-actions" style={{ marginBottom: 10 }}>
-              <button className="button" onClick={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}>Copy template</button>
-              <button className="button-secondary" onClick={() => copyText(subject).catch((error) => setMessage(error.message))}>Copy subject</button>
-              <button className="button-secondary" onClick={() => copyText(templateText).catch((error) => setMessage(error.message))}>Copy body</button>
-            </div>
-            <textarea className="textarea template-preview" readOnly value={templateText} onFocus={(event) => event.currentTarget.select()} />
           </div>
         </div>
       ) : null}
@@ -836,7 +1355,19 @@ export default function TrackerApp() {
           <div className="modal-card">
             <div className="record-header">
               <h2 className="section-title" style={{ marginBottom: 0 }}>Sender profile</h2>
-              <button className="button-secondary" type="button" onClick={() => setShowSenderModal(false)}>Close</button>
+              <div className="record-actions">
+                <button
+                  className="button-secondary"
+                  type="button"
+                  onClick={() => {
+                    setShowSenderModal(false);
+                    setShowProfilePicker(true);
+                  }}
+                >
+                  Switch profile
+                </button>
+                <button className="button-secondary" type="button" onClick={() => setShowSenderModal(false)}>Close</button>
+              </div>
             </div>
             <form
               className="form-grid"
@@ -925,7 +1456,22 @@ export default function TrackerApp() {
         </div>
       ) : null}
 
-      {message ? <div className="toast">{message}</div> : null}
-    </div>
+      {message ? (
+        <div
+          className="toast"
+          role="button"
+          tabIndex={0}
+          onClick={() => setMessage('')}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setMessage('');
+            }
+          }}
+        >
+          {message}
+        </div>
+      ) : null}
+    </>
   );
 }

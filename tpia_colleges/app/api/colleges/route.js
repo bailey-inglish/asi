@@ -26,6 +26,7 @@ export async function POST(request) {
     contact_type: inferContactType(publicRecordsEmail, publicRecordsPortal),
     verified: String(payload.verified || 'partial'),
     notes: String(payload.notes || '').trim(),
+    fee_amount: Number.parseFloat(String(payload.fee_amount || '').trim()) || 0,
   };
 
   if (!college.institution) {
