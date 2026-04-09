@@ -15,9 +15,29 @@ function statusStyle(status) {
 
 function verificationIcon(verified) {
   const status = String(verified || 'no').toLowerCase();
-  if (status === 'yes') return '✓';
-  if (status === 'partial') return '?';
-  return '✗';
+  if (status === 'yes') return '';
+  return '?';
+}
+
+function getVerifiedDisplayLabel(verified) {
+  return String(verified || '').toLowerCase() === 'yes' ? 'Confirmed' : 'Incomplete';
+}
+
+function getVerifiedSelectValue(verified) {
+  return String(verified || '').toLowerCase() === 'yes' ? 'confirmed' : 'incomplete';
+}
+
+function getStatusUpdatedAt(record) {
+  const candidates = [record?.status_changed_at, record?.last_updated, record?.date_sent, record?.created_at, record?.updated_at];
+  for (const candidate of candidates) {
+    const parsed = coerceDate(candidate);
+    if (parsed) return parsed.getTime();
+  }
+  return 0;
+}
+
+function isTerminalStatus(status) {
+  return ['complete', 'partially_complete', 'denied', 'closed'].includes(String(status || '').trim());
 }
 
 function getRowKey(record) {
@@ -92,6 +112,18 @@ function parseStatusLog(value) {
   } catch {
     return [];
   }
+}
+
+function formatStatusTransition(from, to) {
+  const previous = String(from || '').trim();
+  const next = String(to || '').trim();
+  if ((!previous || previous === 'draft') && next === 'draft') {
+    return 'Record created';
+  }
+
+  const fromLabel = STATUS_META[previous]?.label || previous || 'Unknown';
+  const toLabel = STATUS_META[next]?.label || next || 'Unknown';
+  return `${fromLabel} -> ${toLabel}`;
 }
 
 function coerceDate(value) {
@@ -325,6 +357,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState([]);
   const [statusFilter, setStatusFilter] = useState([]);
+  const [sortOrder, setSortOrder] = useState('alpha');
   const [templateKey, setTemplateKey] = useState('01_initial_request');
   const [templateBody, setTemplateBody] = useState('');
   const [templateBodies, setTemplateBodies] = useState({});
@@ -442,12 +475,44 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
   }, [storedSender, activeProfileId]);
   const selected = records.find((record) => getRowKey(record) === String(selectedId)) || records[0] || null;
 
-  const filteredRecords = records.filter((record) => {
-    const matchesType = typeFilter.length === 0 || typeFilter.includes(record.type);
-    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(record.status);
-    const matchesText = !deferredSearch || String(record.institution).toLowerCase().includes(deferredSearch.toLowerCase());
-    return matchesType && matchesStatus && matchesText;
-  });
+  const filteredRecords = useMemo(() => {
+    const filtered = records.filter((record) => {
+      const matchesType = typeFilter.length === 0 || typeFilter.includes(record.type);
+      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(record.status);
+      const matchesText = !deferredSearch || String(record.institution).toLowerCase().includes(deferredSearch.toLowerCase());
+      return matchesType && matchesStatus && matchesText;
+    });
+
+    const collator = new Intl.Collator('en', { sensitivity: 'base' });
+    return [...filtered].sort((left, right) => {
+      if (sortOrder === 'enrollment') {
+        const leftEnrollment = Number(left.enrollment_2025 || 0);
+        const rightEnrollment = Number(right.enrollment_2025 || 0);
+        if (leftEnrollment !== rightEnrollment) return rightEnrollment - leftEnrollment;
+        return collator.compare(String(left.institution || ''), String(right.institution || ''));
+      }
+
+      if (sortOrder === 'recent') {
+        const leftUpdated = getStatusUpdatedAt(left);
+        const rightUpdated = getStatusUpdatedAt(right);
+        if (leftUpdated !== rightUpdated) return rightUpdated - leftUpdated;
+        return collator.compare(String(left.institution || ''), String(right.institution || ''));
+      }
+
+      if (sortOrder === 'staleness') {
+        const leftTerminal = isTerminalStatus(left.status);
+        const rightTerminal = isTerminalStatus(right.status);
+        if (leftTerminal !== rightTerminal) return leftTerminal ? 1 : -1;
+
+        const leftUpdated = getStatusUpdatedAt(left);
+        const rightUpdated = getStatusUpdatedAt(right);
+        if (leftUpdated !== rightUpdated) return leftUpdated - rightUpdated;
+        return collator.compare(String(left.institution || ''), String(right.institution || ''));
+      }
+
+      return collator.compare(String(left.institution || ''), String(right.institution || ''));
+    });
+  }, [deferredSearch, records, sortOrder, statusFilter, typeFilter]);
 
   useEffect(() => {
     let active = true;
@@ -881,7 +946,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
       kind: 'status',
       date: formatHumanDate(entry.at) || 'Status change',
       author: entry.user,
-      body: `${STATUS_META[entry.from]?.label || entry.from || 'Unknown'} -> ${STATUS_META[entry.to]?.label || entry.to}`,
+      body: formatStatusTransition(entry.from, entry.to),
       at: entry.at,
       sortOrder: index,
     })),
@@ -948,8 +1013,9 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
       }
       if (event.key.toLowerCase() === 'e') {
         event.preventDefault();
-        const emailField = document.getElementById('record-email');
-        emailField?.focus();
+        setShowEditModal(true);
+        setShowNotesModal(false);
+        setShowTemplateDrawer(false);
       }
     };
 
@@ -999,16 +1065,42 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
     window.location.href = mailto;
   }
 
+  async function handleQuickCopyTemplate() {
+    if (!selected) return;
+    const bestTemplateKey = SUGGESTED_TEMPLATE[selected?.status] || '01_initial_request';
+    const bestTemplateBody = await loadTemplateText(bestTemplateKey);
+    const bestTemplateSubject = (SUBJECT_LINES[bestTemplateKey] || `TPIA Request – ${selected?.institution || ''}`)
+      .replace('{institution}', selected?.institution || '');
+    const bestTemplateText = applyTemplate(bestTemplateBody, buildVariables(selected, sender));
+    const fullText = `${bestTemplateSubject}\n\n${bestTemplateText}`;
+    await copyText(fullText);
+  }
+
   if (!state || !selected) {
     return (
       <div className="workspace">
-        <div className="hero-card panel skeleton-shell">
+        <div className="hero-card panel skeleton-shell desktop-skeleton-shell">
           <div className="hero-copy">
             <div className="skeleton-line skeleton-title" />
             <div className="skeleton-line skeleton-subtitle" />
             <div className="skeleton-grid" style={{ marginTop: 14 }}>
               <div className="skeleton-card" />
               <div className="skeleton-card" />
+              <div className="skeleton-card" />
+              <div className="skeleton-card" />
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-card panel skeleton-shell mobile-skeleton-shell">
+          <div className="mobile-skeleton-toolbar">
+            <div className="skeleton-line mobile-skeleton-circle" />
+            <div className="skeleton-line mobile-skeleton-circle" />
+          </div>
+          <div className="mobile-skeleton-card">
+            <div className="skeleton-line skeleton-title" />
+            <div className="skeleton-line skeleton-subtitle" />
+            <div className="mobile-skeleton-grid">
               <div className="skeleton-card" />
               <div className="skeleton-card" />
             </div>
@@ -1057,7 +1149,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
         onAddNote={() => handleAddNote().catch((error) => setMessage(error.message))}
         onSelectRecord={(record) => setSelectedId(getRowKey(record))}
         onCopyEmail={() => copyText(selectedEmail).catch((error) => setMessage(error.message))}
-        onCopyTemplate={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}
+        onCopyTemplate={() => handleQuickCopyTemplate().catch((error) => setMessage(error.message))}
         onStatusChange={(nextStatus) => handleStatusChange(nextStatus).catch((error) => setMessage(error.message))}
         templateName={templateName}
         templateLabels={TEMPLATE_LABELS}
@@ -1080,7 +1172,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
       <section className="hero-card panel compact-hero">
         <div className="compact-hero-grid">
           <div>
-            <h1 className="page-title">Records Portal</h1>
+            <h1 className="page-title">Student Directories</h1>
             <div className="saving-status" aria-live="polite" aria-atomic="true">
               {isSaving ? (
                 <span className="saving-pill">
@@ -1157,6 +1249,15 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
                   ))}
                 </div>
               </div>
+              <div className="search-row">
+                <label className="label" htmlFor="sort-order">Sort by</label>
+                <select id="sort-order" className="select" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}>
+                  <option value="alpha">A-Z</option>
+                  <option value="enrollment">Enrollment</option>
+                  <option value="recent">Most recently changed</option>
+                  <option value="staleness">Longest since status update</option>
+                </select>
+              </div>
             </div>
           ) : null}
 
@@ -1207,14 +1308,16 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
                             <span className="clock-icon" aria-hidden="true" />
                           </span>
                         ) : (
-                          <span
-                            className="record-status-icon verification"
-                            style={{ color: String(record.verified || 'no').toLowerCase() === 'yes' ? '#16a34a' : String(record.verified || 'no').toLowerCase() === 'partial' ? '#ea580c' : '#dc2626' }}
-                            title={`Verification: ${record.verified || 'no'}`}
-                            aria-label={`Verification ${record.verified || 'no'}`}
-                          >
-                            {verificationIcon(record.verified)}
-                          </span>
+                          verificationIcon(record.verified) ? (
+                            <span
+                              className="record-status-icon verification"
+                              style={{ color: '#ea580c' }}
+                              title={`Verified: ${getVerifiedDisplayLabel(record.verified)}`}
+                              aria-label={`Verified ${getVerifiedDisplayLabel(record.verified)}`}
+                            >
+                              {verificationIcon(record.verified)}
+                            </span>
+                          ) : null
                         )}
                       </p>
                       <p className="meta meta-wrap">
@@ -1260,7 +1363,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
             selectedEmail={showEmailAction && selectedEmail ? selectedEmail : ''}
             emailPrimary={emailPrimary}
             onSendEmail={() => handleSendEmail().catch((error) => setMessage(error.message))}
-            onCopyTemplate={() => setShowTemplateDrawer(true)}
+            onCopyTemplate={() => handleQuickCopyTemplate().catch((error) => setMessage(error.message))}
             onOpenNotes={() => { setShowNotesModal(true); setShowEditModal(false); setShowTemplateDrawer(false); }}
             onOpenTemplate={() => setShowTemplateDrawer(true)}
           />
@@ -1370,7 +1473,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
           <div className="modal-card">
             <div className="record-header">
               <h2 className="section-title" style={{ marginBottom: 0 }}>Sender profile</h2>
-              <div className="record-actions">
+              <div className="record-actions sender-modal-actions">
                 <button
                   className="button-secondary"
                   type="button"
@@ -1424,7 +1527,7 @@ export default function TrackerApp({ preloadedState = null, onOpenScreenMenu = n
               <div><label className="label">Type</label><select name="type" className="select" defaultValue="4yr"><option value="4yr">4yr</option><option value="2yr">2yr</option></select></div>
               <div><label className="label">City</label><input name="city" className="field" placeholder="Austin" /></div>
               <div><label className="label">System / District</label><input name="system_district" className="field" placeholder="Texas State University System" /></div>
-              <div><label className="label">Verification</label><select name="verified" className="select" defaultValue="partial"><option value="yes">yes</option><option value="partial">partial</option><option value="no">no</option></select></div>
+              <div><label className="label">Verified</label><select name="verified" className="select" defaultValue="incomplete"><option value="confirmed">Confirmed</option><option value="incomplete">Incomplete</option></select></div>
               <div><label className="label">Email</label><input name="public_records_email" className="field" placeholder="publicinfo@school.edu" /></div>
               <div><label className="label">Portal</label><input name="public_records_portal" className="field" placeholder="https://..." /></div>
               <div style={{ gridColumn: '1 / -1' }}><label className="label">Notes</label><textarea name="notes" className="textarea" placeholder="Why this record matters" /></div>

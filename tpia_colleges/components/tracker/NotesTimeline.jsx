@@ -1,3 +1,14 @@
+function formatHumanDate(value) {
+  if (!value) return '';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(parsed);
+}
+
 export default function NotesTimeline({
   noteDraft,
   noteAuthor,
@@ -36,7 +47,6 @@ export default function NotesTimeline({
           />
           <div className="form-actions">
             <button className="button" type="button" onClick={onAddNote}>Add note</button>
-            <span className="subtle">Saved as {noteAuthor}</span>
           </div>
         </div>
         <div className="timeline">
@@ -47,14 +57,14 @@ export default function NotesTimeline({
                   <div className="timeline-status-line" aria-hidden="true" />
                   <div className="timeline-status-pill">
                     <strong>{entry.body}</strong>
-                    <span>{entry.author ? `${entry.author} · ${entry.date || ''}` : entry.date || ''}</span>
+                    <span>{entry.author ? `${entry.author} · ${formatHumanDate(entry.date) || ''}` : formatHumanDate(entry.date) || ''}</span>
                   </div>
                   <div className="timeline-status-line" aria-hidden="true" />
                 </div>
               ) : (
                 <div className="timeline-item" key={`${entry.date || 'note'}-${index}`}>
                   <div className="timeline-meta">
-                    <strong>{entry.date || 'No date'}</strong>
+                    <strong>{formatHumanDate(entry.date) || 'No date'}</strong>
                     {entry.author ? <span>{entry.author}</span> : null}
                   </div>
                   <div className="timeline-body">{entry.body}</div>

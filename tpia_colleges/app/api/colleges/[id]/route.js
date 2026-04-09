@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { countyFromCity, inferContactType, loadColleges, loadRequests, saveColleges, saveRequests } from '../../../../lib/data';
 
+function normalizeVerifiedValue(value, fallback = 'partial') {
+  const status = String(value || '').trim().toLowerCase();
+  if (status === 'confirmed') return 'yes';
+  if (status === 'incomplete') return 'partial';
+  if (status === 'yes' || status === 'partial' || status === 'no') return status;
+  return fallback;
+}
+
 export async function PATCH(request, { params }) {
   try {
     const payload = await request.json();
@@ -69,7 +77,7 @@ export async function PATCH(request, { params }) {
       public_records_email: nextEmail,
       public_records_portal: nextPortal,
       contact_type: inferContactType(nextEmail, nextPortal),
-      verified: payload.verified == null ? current.verified : String(payload.verified),
+      verified: payload.verified == null ? current.verified : normalizeVerifiedValue(payload.verified, current.verified),
       notes: payload.notes == null ? current.notes : String(payload.notes).trim(),
       fee_amount: payload.fee_amount == null
         ? Number.parseFloat(String(current.fee_amount || '').trim()) || 0

@@ -4,6 +4,12 @@ function getCountyKey(record) {
   return String(record?.county_id || record?.county_name || '').trim();
 }
 
+function verificationIcon(verified) {
+  const status = String(verified || 'no').toLowerCase();
+  if (status === 'yes') return '';
+  return '?';
+}
+
 export default function CountyMobileBrowseSheet({
   open,
   records,
@@ -108,7 +114,19 @@ export default function CountyMobileBrowseSheet({
               >
                 <div className="mobile-record-card-top">
                   <div>
-                    <div className="mobile-record-title">{record.county_name} County</div>
+                    <div className="mobile-record-title">
+                      {record.county_name} County{' '}
+                      {verificationIcon(record.verified) ? (
+                        <span
+                          className="record-status-icon verification"
+                          style={{ color: '#ea580c' }}
+                          title="Verified: Incomplete"
+                          aria-label="Verified Incomplete"
+                        >
+                          {verificationIcon(record.verified)}
+                        </span>
+                      ) : null}
+                    </div>
                     <div className="mobile-record-subtitle">
                       {record.associated_institutions_count || 0} institutions tracked
                     </div>

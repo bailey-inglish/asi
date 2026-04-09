@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { loadColleges, loadRequests, saveColleges, saveRequests, collegeToRequestRow, countyFromCity, inferContactType, generateCollegeId } from '../../../lib/data';
 
+function normalizeVerifiedValue(value) {
+  const status = String(value || '').trim().toLowerCase();
+  if (status === 'confirmed') return 'yes';
+  if (status === 'incomplete') return 'partial';
+  if (status === 'yes' || status === 'partial' || status === 'no') return status;
+  return 'partial';
+}
+
 export async function POST(request) {
   const payload = await request.json();
   const colleges = await loadColleges();
@@ -24,7 +32,7 @@ export async function POST(request) {
     public_records_email: publicRecordsEmail,
     public_records_portal: publicRecordsPortal,
     contact_type: inferContactType(publicRecordsEmail, publicRecordsPortal),
-    verified: String(payload.verified || 'partial'),
+    verified: normalizeVerifiedValue(payload.verified),
     notes: String(payload.notes || '').trim(),
     fee_amount: Number.parseFloat(String(payload.fee_amount || '').trim()) || 0,
   };

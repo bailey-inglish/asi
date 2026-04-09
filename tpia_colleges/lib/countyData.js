@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Pool } from 'pg';
-import { addBusinessDays, loadColleges, loadSender, parseCollegeAllCounties } from './data';
+import { addBusinessDays, loadColleges, loadRequests, loadSender, parseCollegeAllCounties } from './data';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -467,6 +467,8 @@ function buildAssociatedInstitutions(colleges) {
         institution: String(college.institution || ''),
         city: String(college.city || ''),
         verified: String(college.verified || 'partial'),
+        status: String(college.status || 'draft'),
+        enrollment_2025: String(college.enrollment_2025 || ''),
         public_records_email: String(college.public_records_email || ''),
         public_records_portal: String(college.public_records_portal || ''),
       });
@@ -477,6 +479,20 @@ function buildAssociatedInstitutions(colleges) {
     list.sort((a, b) => a.institution.localeCompare(b.institution));
   }
 
+  return map;
+}
+
+function buildCollegeStatusMap(requests) {
+  const map = new Map();
+  for (const request of requests) {
+    const institution = String(request.institution || '').trim().toLowerCase();
+    const city = String(request.city || '').trim().toLowerCase();
+    if (!institution && !city) continue;
+    map.set(`${institution}::${city}`, {
+      status: String(request.status || 'draft').trim() || 'draft',
+      last_updated: String(request.last_updated || ''),
+    });
+  }
   return map;
 }
 
@@ -521,8 +537,23 @@ export async function renderCountyTemplate(templateName, variables) {
 }
 
 export async function loadCountyState() {
-  const [countyRequests, colleges, sender] = await Promise.all([ensureCountyRequestRows(), loadColleges(), loadSender()]);
-  const associatedByCounty = buildAssociatedInstitutions(colleges);
+  const [countyRequests, colleges, collegeRequests, sender] = await Promise.all([
+    ensureCountyRequestRows(),
+    loadColleges(),
+    loadRequests(),
+    loadSender(),
+  ]);
+  const collegeStatusMap = buildCollegeStatusMap(collegeRequests);
+  const associatedByCounty = buildAssociatedInstitutions(
+    colleges.map((college) => {
+      const key = `${String(college.institution || '').trim().toLowerCase()}::${String(college.city || '').trim().toLowerCase()}`;
+      const collegeStatus = collegeStatusMap.get(key);
+      return {
+        ...college,
+        status: collegeStatus?.status || 'draft',
+      };
+    }),
+  );
   const enrollmentByPrimaryCounty = buildEnrollmentByPrimaryCounty(colleges);
 
   const countyRecords = countyRequests.map((row) => {

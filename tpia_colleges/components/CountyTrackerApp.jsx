@@ -38,6 +38,28 @@ function parseStatusLog(value) {
   }
 }
 
+function formatStatusTransition(from, to) {
+  const previous = String(from || '').trim();
+  const next = String(to || '').trim();
+  if ((!previous || previous === 'draft') && next === 'draft') {
+    return 'Record created';
+  }
+
+  const fromLabel = STATUS_META[previous]?.label || previous || 'Unknown';
+  const toLabel = STATUS_META[next]?.label || next || 'Unknown';
+  return `${fromLabel} -> ${toLabel}`;
+}
+
+function verificationIcon(verified) {
+  const status = String(verified || 'no').toLowerCase();
+  if (status === 'yes') return '';
+  return '?';
+}
+
+function getVerifiedDisplayLabel(verified) {
+  return String(verified || '').toLowerCase() === 'yes' ? 'Confirmed' : 'Incomplete';
+}
+
 function parseNoteEntry(noteStr) {
   if (!noteStr) {
     return { date: '', author: '', body: '', at: '' };
@@ -110,12 +132,14 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
   const [selectedId, setSelectedId] = useState('');
   const [countyDraft, setCountyDraft] = useState(null);
   const [statusDraft, setStatusDraft] = useState('draft');
+  const [sortOrder, setSortOrder] = useState('alpha');
   const [noteDraft, setNoteDraft] = useState('');
   const [templateKey, setTemplateKey] = useState('01_county_initial_request');
   const [templateBody, setTemplateBody] = useState('');
   const [templateBodies, setTemplateBodies] = useState({});
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showTemplateDrawer, setShowTemplateDrawer] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
   const [savingCount, setSavingCount] = useState(0);
@@ -184,9 +208,37 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
 
   const filteredRecords = useMemo(() => {
     const q = String(search || '').trim().toLowerCase();
-    if (!q) return selectableRecords;
-    return selectableRecords.filter((row) => String(row.county_name || '').toLowerCase().includes(q));
-  }, [search, selectableRecords]);
+    const filtered = !q ? selectableRecords : selectableRecords.filter((row) => String(row.county_name || '').toLowerCase().includes(q));
+    const collator = new Intl.Collator('en', { sensitivity: 'base' });
+    return [...filtered].sort((left, right) => {
+      if (sortOrder === 'enrollment') {
+        const leftEnrollment = Number(left.primary_county_enrollment_total || 0);
+        const rightEnrollment = Number(right.primary_county_enrollment_total || 0);
+        if (leftEnrollment !== rightEnrollment) return rightEnrollment - leftEnrollment;
+        return collator.compare(String(left.county_name || ''), String(right.county_name || ''));
+      }
+
+      if (sortOrder === 'recent') {
+        const leftUpdated = new Date(left.last_updated || left.status_changed_at || 0).getTime() || 0;
+        const rightUpdated = new Date(right.last_updated || right.status_changed_at || 0).getTime() || 0;
+        if (leftUpdated !== rightUpdated) return rightUpdated - leftUpdated;
+        return collator.compare(String(left.county_name || ''), String(right.county_name || ''));
+      }
+
+      if (sortOrder === 'staleness') {
+        const leftTerminal = ['complete', 'partially_complete', 'denied', 'closed'].includes(String(left.status || '').trim());
+        const rightTerminal = ['complete', 'partially_complete', 'denied', 'closed'].includes(String(right.status || '').trim());
+        if (leftTerminal !== rightTerminal) return leftTerminal ? 1 : -1;
+
+        const leftUpdated = new Date(left.last_updated || left.status_changed_at || 0).getTime() || 0;
+        const rightUpdated = new Date(right.last_updated || right.status_changed_at || 0).getTime() || 0;
+        if (leftUpdated !== rightUpdated) return leftUpdated - rightUpdated;
+        return collator.compare(String(left.county_name || ''), String(right.county_name || ''));
+      }
+
+      return collator.compare(String(left.county_name || ''), String(right.county_name || ''));
+    });
+  }, [search, selectableRecords, sortOrder]);
 
   useEffect(() => {
     if (!selected) return;
@@ -298,6 +350,24 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
     window.location.href = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
+  async function handleVerifiedChange(nextValue) {
+    if (!selected) return;
+    const verified = nextValue === 'confirmed' ? 'yes' : 'partial';
+    setCountyDraft((draft) => ({ ...draft, verified }));
+    await patchCounty({ verified }, `Saved county verification for ${selected.county_name}`);
+  }
+
+  async function handleQuickCopyTemplate() {
+    if (!selected) return;
+    const bestTemplateKey = String(suggestedTemplates[selected.status] || '01_county_initial_request');
+    const bestTemplateBody = await loadTemplateText(bestTemplateKey);
+    const subject = String(subjectLines[bestTemplateKey] || 'TPIA Voter Records Request - {county}')
+      .replace('{county}', String(selected.county_name || 'County'));
+    const body = applyTemplate(bestTemplateBody, buildTemplateVariables({ ...selected, ...countyDraft }, sender));
+    const fullText = `${subject}\n\n${body}`;
+    await copyText(fullText);
+  }
+
   const noteEntries = useMemo(
     () => String(selected?.notes || '')
       .split(' | ')
@@ -320,7 +390,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
       kind: 'status',
       date: entry.at,
       author: entry.user,
-      body: `${STATUS_META[entry.from]?.label || entry.from || 'Unknown'} -> ${STATUS_META[entry.to]?.label || entry.to}`,
+      body: formatStatusTransition(entry.from, entry.to),
       at: entry.at,
       sortOrder: index,
     })),
@@ -354,7 +424,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
   if (!state || !selected || !countyDraft) {
     return (
       <div className="workspace">
-        <section className="hero-card panel skeleton-shell">
+        <section className="hero-card panel skeleton-shell desktop-skeleton-shell">
           <div className="skeleton-line skeleton-title" />
           <div className="skeleton-line skeleton-subtitle" />
           <div className="skeleton-grid" style={{ marginTop: 14 }}>
@@ -362,6 +432,21 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
             <div className="skeleton-card" />
             <div className="skeleton-card" />
             <div className="skeleton-card" />
+          </div>
+        </section>
+
+        <section className="hero-card panel skeleton-shell mobile-skeleton-shell">
+          <div className="mobile-skeleton-toolbar">
+            <div className="skeleton-line mobile-skeleton-circle" />
+            <div className="skeleton-line mobile-skeleton-circle" />
+          </div>
+          <div className="mobile-skeleton-card">
+            <div className="skeleton-line skeleton-title" />
+            <div className="skeleton-line skeleton-subtitle" />
+            <div className="mobile-skeleton-grid">
+              <div className="skeleton-card" />
+              <div className="skeleton-card" />
+            </div>
           </div>
         </section>
       </div>
@@ -405,7 +490,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
         templateText={currentTemplateText}
         subject={currentSubject}
         onTemplateKeyChange={setTemplateKey}
-        onCopyTemplate={() => copyText(fullEmailText).catch((error) => setMessage(error.message))}
+        onCopyTemplate={() => handleQuickCopyTemplate().catch((error) => setMessage(error.message))}
         onCopySubject={() => copyText(currentSubject).catch((error) => setMessage(error.message))}
         onCopyBody={() => copyText(currentTemplateText).catch((error) => setMessage(error.message))}
         onSendEmail={() => handleSendEmail().catch((error) => setMessage(error.message))}
@@ -446,18 +531,37 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
               <h2 className="section-title" style={{ marginBottom: 4 }}>Counties</h2>
               <p className="subtle">{filteredRecords.length} of {selectableRecords.length} shown</p>
             </div>
+            <div className="record-actions">
+              <button className="button-secondary" type="button" onClick={() => setFiltersOpen((value) => !value)}>
+                {filtersOpen ? 'Hide filters' : 'Show filters'}
+              </button>
+            </div>
           </div>
 
-          <div className="search-row" style={{ marginBottom: 12 }}>
-            <label className="label" htmlFor="county-search">Search county</label>
-            <input
-              id="county-search"
-              className="field"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Travis, Harris, Bexar..."
-            />
-          </div>
+          {filtersOpen ? (
+            <div className="search-stack" style={{ marginTop: 0 }}>
+              <div className="search-row" style={{ marginBottom: 12 }}>
+                <label className="label" htmlFor="county-search">Search county</label>
+                <input
+                  id="county-search"
+                  className="field"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Travis, Harris, Bexar..."
+                />
+              </div>
+
+              <div className="search-row" style={{ marginBottom: 0 }}>
+                <label className="label" htmlFor="county-sort">Sort by</label>
+                <select id="county-sort" className="select" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)}>
+                  <option value="alpha">A-Z</option>
+                  <option value="enrollment">Enrollment</option>
+                  <option value="recent">Most recently changed</option>
+                  <option value="staleness">Longest since status update</option>
+                </select>
+              </div>
+            </div>
+          ) : null}
 
           <div className="record-list">
             {filteredRecords.map((row) => {
@@ -473,9 +577,21 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
                 >
                   <div className="record-top">
                     <div>
-                      <p className="record-name" title={row.county_name}>{row.county_name} County</p>
+                      <p className="record-name" title={row.county_name}>
+                        {row.county_name} County{' '}
+                        {verificationIcon(row.verified) ? (
+                          <span
+                            className="record-status-icon verification"
+                            style={{ color: '#ea580c' }}
+                            title={`Verified: ${getVerifiedDisplayLabel(row.verified)}`}
+                            aria-label={`Verified ${getVerifiedDisplayLabel(row.verified)}`}
+                          >
+                            {verificationIcon(row.verified)}
+                          </span>
+                        ) : null}
+                      </p>
                       <p className="meta meta-wrap">
-                        {row.associated_institutions_count} institutions tracked · {Number(row.primary_county_enrollment_total || 0).toLocaleString()} enrolled
+                        {row.associated_institutions_count} institution{Number(row.associated_institutions_count || 0) === 1 ? '' : 's'} tracked · {Number(row.primary_county_enrollment_total || 0).toLocaleString()} enrolled
                       </p>
                     </div>
                     <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
@@ -489,8 +605,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
         <section className="main-card workflow-panel county-tab-panel">
           <div className="record-header">
             <div>
-              <h2 className="section-title" style={{ marginBottom: 4 }}>{selected.county_name} County</h2>
-              <p className="subtle">County elections/open records contact workflow</p>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>{selected.county_name} County</h2>
             </div>
           </div>
 
@@ -499,7 +614,7 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
             selectedEmail={showEmailAction && selectedEmail ? selectedEmail : ''}
             emailPrimary={emailPrimary}
             onSendEmail={() => handleSendEmail().catch((error) => setMessage(error.message))}
-            onCopyTemplate={() => setShowTemplateDrawer(true)}
+            onCopyTemplate={() => handleQuickCopyTemplate().catch((error) => setMessage(error.message))}
             onOpenNotes={() => setShowNotesModal(true)}
             onOpenTemplate={() => setShowTemplateDrawer(true)}
           />
@@ -512,11 +627,10 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
               </select>
             </div>
             <div className="kv">
-              <strong>Verification</strong>
-              <select className="select" value={countyDraft.verified} onChange={(event) => setCountyDraft((draft) => ({ ...draft, verified: event.target.value }))}>
-                <option value="yes">yes</option>
-                <option value="partial">partial</option>
-                <option value="no">no</option>
+              <strong>Verified</strong>
+              <select className="select" value={String(countyDraft.verified || '').toLowerCase() === 'yes' ? 'confirmed' : 'incomplete'} onChange={(event) => handleVerifiedChange(event.target.value).catch((error) => setMessage(error.message))}>
+                <option value="confirmed">Confirmed</option>
+                <option value="incomplete">Incomplete</option>
               </select>
             </div>
           </div>
@@ -533,16 +647,22 @@ export default function CountyTrackerApp({ preloadedState = null, onOpenScreenMe
 
           <div className="workflow-section" style={{ marginTop: 12 }}>
             <div className="record-header" style={{ marginBottom: 8 }}>
-              <h3 className="section-title" style={{ margin: 0 }}>Associated institutions (read only)</h3>
+              <h3 className="section-title" style={{ margin: 0 }}>Associated institutions</h3>
               <span className="badge">{selected.associated_institutions_count}</span>
             </div>
             <div className="county-associated-list">
-              {(selected.associated_institutions || []).map((institution) => (
-                <div key={`${institution.id}-${institution.institution}`} className="county-associated-item">
-                  <strong>{institution.institution}</strong>
-                  <span className="meta">{institution.city || 'Unknown city'}</span>
-                </div>
-              ))}
+              {(selected.associated_institutions || []).map((institution) => {
+                const statusMeta = STATUS_META[institution.status] || STATUS_META.draft;
+                return (
+                  <div key={`${institution.id}-${institution.institution}`} className="county-associated-item">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                      <strong>{institution.institution}</strong>
+                      <span className="badge" style={{ color: statusMeta.color, background: statusMeta.bg, flexShrink: 0 }}>{statusMeta.label}</span>
+                    </div>
+                    <span className="meta">{institution.type || 'Type n/a'} · {institution.city || 'Unknown city'} · {institution.enrollment_2025 ? `${Number(institution.enrollment_2025).toLocaleString()} enrolled` : 'Enrollment n/a'}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

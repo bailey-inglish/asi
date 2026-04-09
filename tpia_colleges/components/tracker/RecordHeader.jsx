@@ -4,7 +4,6 @@ export default function RecordHeader({ selected, statusMeta, lastUpdated, showEd
   return (
     <div className="record-header record-header-tight">
       <div>
-        <div className="section-kicker">Selected institution</div>
         <div className="record-title-row">
           <h2 className="record-title" title={selected.institution}>{selected.institution}</h2>
           {showEditButton ? (
@@ -19,8 +18,8 @@ export default function RecordHeader({ selected, statusMeta, lastUpdated, showEd
             </button>
           ) : null}
         </div>
-        <p className="meta meta-wrap">{selected.type} · {selected.system_district} · {selected.city}</p>
-        <p className="meta meta-wrap">Last updated: {lastUpdated}</p>
+        <p className="meta meta-wrap record-header-meta">{selected.type} · {selected.system_district} · {selected.city}</p>
+        <p className="meta meta-wrap record-header-meta">Last updated: {lastUpdated}</p>
       </div>
       <span className="badge" style={{ color: statusMeta.color, background: statusMeta.bg }}>
         {statusMeta.label}

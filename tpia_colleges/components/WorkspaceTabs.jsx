@@ -3,12 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import TrackerApp from './TrackerApp';
 import CountyTrackerApp from './CountyTrackerApp';
-import MetricsDashboard from './MetricsDashboard';
 
 const TAB_DEFS = [
   { id: 'institutions', label: 'Institutions' },
   { id: 'counties', label: 'Counties' },
-  { id: 'metrics', label: 'Metrics' },
 ];
 
 const MOBILE_SWITCHER_TABS = TAB_DEFS.filter((tab) => tab.id !== 'metrics');
@@ -61,7 +59,6 @@ export default function WorkspaceTabs() {
         />
       );
     }
-    if (activeTab === 'metrics') return <MetricsDashboard />;
     return <TrackerApp preloadedState={preloadedInstitutionState} onOpenScreenMenu={() => setShowMobileScreenMenu(true)} />;
   }, [activeTab, preloadedCountyState, preloadedInstitutionState]);
 
@@ -90,12 +87,12 @@ export default function WorkspaceTabs() {
       {showMobileScreenMenu ? (
         <div className="mobile-sheet-overlay" role="dialog" aria-modal="true" aria-label="Switch screens">
           <div className="mobile-sheet">
-            <div className="mobile-sheet-header">
+            <div className="mobile-sheet-header mobile-sheet-header-inline">
               <div>
                 <div className="section-kicker">Page Switcher</div>
                 <h2 className="section-title" style={{ marginBottom: 0 }}>Select screen</h2>
               </div>
-              <button className="mobile-close-icon" type="button" onClick={() => setShowMobileScreenMenu(false)} aria-label="Close switcher">
+              <button className="mobile-close-icon mobile-switcher-close" type="button" onClick={() => setShowMobileScreenMenu(false)} aria-label="Close switcher">
                 ×
               </button>
             </div>

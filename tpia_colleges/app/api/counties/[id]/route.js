@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server';
 import { addBusinessDays } from '../../../../lib/data';
 import { loadCountyRequests, saveCountyRequests } from '../../../../lib/countyData';
 
+function normalizeVerifiedValue(value, fallback = 'no') {
+  const status = String(value || '').trim().toLowerCase();
+  if (status === 'confirmed') return 'yes';
+  if (status === 'incomplete') return 'partial';
+  if (status === 'yes' || status === 'partial' || status === 'no') return status;
+  return fallback;
+}
+
 function dateValueToIso(value) {
   if (value == null || value === '') return '';
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
@@ -129,7 +137,7 @@ export async function PATCH(request, { params }) {
       email: payload.email == null ? String(current.email || '') : String(payload.email),
       portal: payload.portal == null ? String(current.portal || '') : String(payload.portal),
       phone: payload.phone == null ? String(current.phone || '') : String(payload.phone),
-      verified: payload.verified == null ? String(current.verified || 'no') : String(payload.verified),
+      verified: payload.verified == null ? String(current.verified || 'no') : normalizeVerifiedValue(payload.verified, String(current.verified || 'no')),
       status: nextStatus,
       notes: payload.notes == null ? String(current.notes || '') : String(payload.notes),
       date_sent: nextDateSent,

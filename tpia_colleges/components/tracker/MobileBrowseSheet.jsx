@@ -58,7 +58,6 @@ export default function MobileBrowseSheet({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search name, city, or district"
             autoComplete="off"
-            autoFocus
           />
 
           <div className="mobile-chip-row mobile-filter-row" aria-label="Status filters">
