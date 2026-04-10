@@ -70,7 +70,7 @@ function parseNoteEntry(noteStr) {
     return { date: '', author: '', body: '', at: '' };
   }
 
-  const match = text.match(/^\[([^\]]+)\]\s*(.*)$/);
+  const match = text.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
   if (!match) {
     return { date: '', author: '', body: text, at: '' };
   }
@@ -80,7 +80,7 @@ function parseNoteEntry(noteStr) {
     return { date, author: '', body: '', at: '' };
   }
 
-  const authorMatch = remainder.match(/^([^:]+):\s*(.*)$/);
+  const authorMatch = remainder.match(/^([^:\n]+):\s*([\s\S]*)$/);
   if (authorMatch) {
     const author = authorMatch[1].trim();
     const body = authorMatch[2].trim();

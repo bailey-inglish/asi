@@ -300,8 +300,8 @@ function parseNoteEntry(noteStr) {
     return { date: '', author: '', body: '', at: '' };
   }
 
-  // Try to match: [DATE] AUTHOR: BODY or [DATE] BODY
-  const match = text.match(/^\[([^\]]+)\]\s*(.*)$/);
+  // Support multiline note bodies while still extracting the leading [DATE].
+  const match = text.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
   if (!match) {
     // No date bracket found; return as body with no date
     return { date: '', author: '', body: text, at: '' };
@@ -314,7 +314,7 @@ function parseNoteEntry(noteStr) {
   }
 
   // Try to extract author: AUTHOR: BODY
-  const authorMatch = remainder.match(/^([^:]+):\s*(.*)$/);
+  const authorMatch = remainder.match(/^([^:\n]+):\s*([\s\S]*)$/);
   if (authorMatch) {
     const author = authorMatch[1].trim();
     const body = authorMatch[2].trim();
