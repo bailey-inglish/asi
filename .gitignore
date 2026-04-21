@@ -5,3 +5,4 @@ voterfile/*
 tpia_colleges/config.py
 tpia_colleges/requests.csv
 tpia_colleges/sender.json
+rcv-partisanship/data
